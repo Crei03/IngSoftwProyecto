@@ -1,0 +1,9 @@
+# IDEs and editors
+.idea/
+.vscode/
+
+# GitHub workflows and configurations
+.github/
+
+# Database files
+database/
