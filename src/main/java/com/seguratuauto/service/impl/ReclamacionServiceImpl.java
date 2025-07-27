@@ -1,0 +1,223 @@
+package com.seguratuauto.service.impl;
+
+import com.seguratuauto.model.Reclamacion;
+import com.seguratuauto.model.EstadoReclamacion;
+import com.seguratuauto.service.ReclamacionService;
+import com.seguratuauto.service.strategy.EvaluacionStrategy;
+import com.seguratuauto.service.strategy.EvaluacionAutomaticaStrategy;
+import com.seguratuauto.service.strategy.EvaluacionManualStrategy;
+import com.seguratuauto.service.strategy.EvaluacionEspecializadaStrategy;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+/**
+ * Implementación del servicio de reclamaciones usando el patrón Strategy
+ * Utiliza diferentes estrategias de evaluación según el tipo y monto de la reclamación
+ */
+public class ReclamacionServiceImpl implements ReclamacionService {
+    
+    // Simulación de almacenamiento (en producción sería un DAO)
+    private static final Map<UUID, Reclamacion> RECLAMACIONES = new HashMap<>();
+    private static int NUMERO_SECUENCIAL = 1;
+    
+    // Estrategias de evaluación disponibles
+    private final List<EvaluacionStrategy> estrategias;
+    
+    public ReclamacionServiceImpl() {
+        this.estrategias = new ArrayList<>();
+        this.estrategias.add(new EvaluacionAutomaticaStrategy());
+        this.estrategias.add(new EvaluacionManualStrategy());
+        this.estrategias.add(new EvaluacionEspecializadaStrategy());
+    }
+    
+    @Override
+    public Reclamacion registrarReclamacion(UUID polizaId, String descripcion, BigDecimal montoReclamado) {
+        if (polizaId == null) {
+            throw new IllegalArgumentException("ID de póliza es requerido");
+        }
+        if (descripcion == null || descripcion.trim().isEmpty()) {
+            throw new IllegalArgumentException("Descripción es requerida");
+        }
+        if (montoReclamado == null || montoReclamado.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Monto reclamado debe ser mayor a cero");
+        }
+        
+        Reclamacion reclamacion = new Reclamacion(polizaId, descripcion, montoReclamado);
+        reclamacion.setIdReclamacion(UUID.randomUUID());
+        reclamacion.setNumeroReclamacion(generarNumeroReclamacion());
+        reclamacion.setFechaReclamacion(LocalDateTime.now());
+        reclamacion.setEstado(EstadoReclamacion.REGISTRADA);
+        
+        RECLAMACIONES.put(reclamacion.getIdReclamacion(), reclamacion);
+        
+        System.out.println("Reclamación registrada: " + reclamacion.getNumeroReclamacion());
+        System.out.println("Monto reclamado: $" + montoReclamado);
+        
+        return reclamacion;
+    }
+    
+    @Override
+    public boolean evaluarReclamacion(UUID reclamacionId, BigDecimal montoAprobado, String observaciones, String evaluador) {
+        Reclamacion reclamacion = buscarReclamacionPorId(reclamacionId);
+        if (reclamacion == null) {
+            throw new IllegalArgumentException("Reclamación no encontrada");
+        }
+        
+        if (!reclamacion.puedeTransicionarA(EstadoReclamacion.EN_EVALUACION)) {
+            throw new IllegalStateException("La reclamación no puede ser evaluada en su estado actual: " + reclamacion.getEstado());
+        }
+        
+        // Seleccionar la estrategia apropiada
+        EvaluacionStrategy estrategia = seleccionarEstrategia(reclamacion);
+        if (estrategia == null) {
+            throw new IllegalStateException("No se pudo determinar una estrategia de evaluación apropiada");
+        }
+        
+        System.out.println("Usando estrategia: " + estrategia.getNombreEstrategia());
+        
+        // Evaluar usando la estrategia seleccionada
+        BigDecimal montoCalculado = estrategia.evaluar(reclamacion);
+        
+        // Usar el monto proporcionado o el calculado por la estrategia
+        BigDecimal montoFinal = montoAprobado != null ? montoAprobado : montoCalculado;
+        
+        reclamacion.setEstado(EstadoReclamacion.EN_EVALUACION);
+        reclamacion.setMontoAprobado(montoFinal);
+        reclamacion.setFechaEvaluacion(LocalDateTime.now());
+        reclamacion.setEvaluador(evaluador);
+        reclamacion.setObservaciones(observaciones);
+        
+        return true;
+    }
+    
+    @Override
+    public boolean aprobarReclamacion(UUID reclamacionId, String evaluador) {
+        Reclamacion reclamacion = buscarReclamacionPorId(reclamacionId);
+        if (reclamacion == null) {
+            throw new IllegalArgumentException("Reclamación no encontrada");
+        }
+        
+        if (!reclamacion.puedeTransicionarA(EstadoReclamacion.APROBADA)) {
+            throw new IllegalStateException("La reclamación no puede ser aprobada en su estado actual: " + reclamacion.getEstado());
+        }
+        
+        reclamacion.setEstado(EstadoReclamacion.APROBADA);
+        reclamacion.setEvaluador(evaluador);
+        reclamacion.setFechaEvaluacion(LocalDateTime.now());
+        
+        String observaciones = reclamacion.getObservaciones() != null ? reclamacion.getObservaciones() : "";
+        observaciones += "\n[APROBADA - " + LocalDateTime.now() + "] Aprobada por: " + evaluador;
+        reclamacion.setObservaciones(observaciones);
+        
+        System.out.println("Reclamación aprobada: " + reclamacion.getNumeroReclamacion());
+        System.out.println("Monto aprobado: $" + reclamacion.getMontoAprobado());
+        
+        return true;
+    }
+    
+    @Override
+    public boolean rechazarReclamacion(UUID reclamacionId, String motivo, String evaluador) {
+        Reclamacion reclamacion = buscarReclamacionPorId(reclamacionId);
+        if (reclamacion == null) {
+            throw new IllegalArgumentException("Reclamación no encontrada");
+        }
+        
+        if (!reclamacion.puedeTransicionarA(EstadoReclamacion.RECHAZADA)) {
+            throw new IllegalStateException("La reclamación no puede ser rechazada en su estado actual: " + reclamacion.getEstado());
+        }
+        
+        reclamacion.setEstado(EstadoReclamacion.RECHAZADA);
+        reclamacion.setEvaluador(evaluador);
+        reclamacion.setFechaEvaluacion(LocalDateTime.now());
+        reclamacion.setMontoAprobado(BigDecimal.ZERO);
+        
+        String observaciones = reclamacion.getObservaciones() != null ? reclamacion.getObservaciones() : "";
+        observaciones += "\n[RECHAZADA - " + LocalDateTime.now() + "] Motivo: " + motivo + " | Evaluador: " + evaluador;
+        reclamacion.setObservaciones(observaciones);
+        
+        System.out.println("Reclamación rechazada: " + reclamacion.getNumeroReclamacion());
+        System.out.println("Motivo: " + motivo);
+        
+        return true;
+    }
+    
+    @Override
+    public boolean procesarPago(UUID reclamacionId) {
+        Reclamacion reclamacion = buscarReclamacionPorId(reclamacionId);
+        if (reclamacion == null) {
+            throw new IllegalArgumentException("Reclamación no encontrada");
+        }
+        
+        if (!reclamacion.puedeTransicionarA(EstadoReclamacion.PAGADA)) {
+            throw new IllegalStateException("La reclamación no puede ser pagada en su estado actual: " + reclamacion.getEstado());
+        }
+        
+        reclamacion.setEstado(EstadoReclamacion.PAGADA);
+        
+        String observaciones = reclamacion.getObservaciones() != null ? reclamacion.getObservaciones() : "";
+        observaciones += "\n[PAGADA - " + LocalDateTime.now() + "] Pago procesado por $" + reclamacion.getMontoAprobado();
+        reclamacion.setObservaciones(observaciones);
+        
+        System.out.println("Pago procesado para reclamación: " + reclamacion.getNumeroReclamacion());
+        System.out.println("Monto pagado: $" + reclamacion.getMontoAprobado());
+        
+        return true;
+    }
+    
+    @Override
+    public Reclamacion buscarReclamacionPorId(UUID reclamacionId) {
+        return RECLAMACIONES.get(reclamacionId);
+    }
+    
+    @Override
+    public List<Reclamacion> obtenerReclamacionesPorPoliza(UUID polizaId) {
+        return RECLAMACIONES.values().stream()
+                .filter(r -> polizaId.equals(r.getPolizaId()))
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    public List<Reclamacion> obtenerReclamacionesPorEstado(EstadoReclamacion estado) {
+        return RECLAMACIONES.values().stream()
+                .filter(r -> estado.equals(r.getEstado()))
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    public List<Reclamacion> obtenerReclamacionesPorFecha(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+        return RECLAMACIONES.values().stream()
+                .filter(r -> r.getFechaReclamacion() != null &&
+                           !r.getFechaReclamacion().isBefore(fechaInicio) &&
+                           !r.getFechaReclamacion().isAfter(fechaFin))
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    public List<Reclamacion> obtenerTodasLasReclamaciones() {
+        return new ArrayList<>(RECLAMACIONES.values());
+    }
+    
+    /**
+     * Selecciona la estrategia de evaluación apropiada según la reclamación
+     */
+    private EvaluacionStrategy seleccionarEstrategia(Reclamacion reclamacion) {
+        return estrategias.stream()
+                .filter(estrategia -> estrategia.puedeEvaluar(reclamacion))
+                .findFirst()
+                .orElse(null);
+    }
+    
+    /**
+     * Genera un número de reclamación secuencial
+     */
+    private String generarNumeroReclamacion() {
+        return String.format("REC%06d", NUMERO_SECUENCIAL++);
+    }
+}
