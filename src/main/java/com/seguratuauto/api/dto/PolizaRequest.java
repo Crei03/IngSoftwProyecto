@@ -8,7 +8,6 @@ import java.math.BigDecimal;
  */
 public class PolizaRequest {
     
-    @NotBlank(message = "El número de póliza es obligatorio")
     @Size(max = 50, message = "El número de póliza no puede exceder 50 caracteres")
     private String numeroPoliza;
     

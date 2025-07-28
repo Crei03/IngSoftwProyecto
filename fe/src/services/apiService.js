@@ -65,16 +65,93 @@ class ApiService {
     return response.data
   }
 
+  async getPolizasPorCliente(clienteId) {
+    const response = await this.request(`/polizas/cliente/${clienteId}`)
+    return response.data || []
+  }
+
+  async actualizarPoliza(polizaId, polizaData) {
+    const response = await this.request(`/polizas/${polizaId}`, {
+      method: 'PUT',
+      body: JSON.stringify(polizaData)
+    })
+    return response.data
+  }
+
   async actualizarEstadoPoliza(id, estado) {
-    // Por ahora, simulamos la actualización del estado
-    // En una implementación real, esto sería una llamada al backend
-    console.log(`Actualizando póliza ${id} a estado ${estado}`)
-    return { success: true, estado }
+    console.log('apiService.actualizarEstadoPoliza - ID recibido:', id, 'Tipo:', typeof id)
+    console.log('apiService.actualizarEstadoPoliza - Estado recibido:', estado)
+    
+    let endpoint
+    let method = 'PUT'
+    
+    if (estado === 'APROBADA') {
+      endpoint = `/polizas/${id}/aprobar`
+    } else if (estado === 'RECHAZADA') {
+      endpoint = `/polizas/${id}/rechazar`
+    } else {
+      throw new Error('Estado no válido para actualización')
+    }
+    
+    console.log('apiService.actualizarEstadoPoliza - Endpoint:', endpoint)
+    
+    const response = await this.request(endpoint, {
+      method: method
+    })
+    return response.data
+  }
+
+  async rechazarPoliza(id, motivo) {
+    let endpoint = `/polizas/${id}/rechazar`
+    let method = 'PUT'
+    
+    const params = new URLSearchParams()
+    if (motivo && motivo.trim()) {
+      params.append('motivo', motivo.trim())
+    }
+    
+    if (params.toString()) {
+      endpoint += '?' + params.toString()
+    }
+    
+    const response = await this.request(endpoint, {
+      method: method
+    })
+    return response.data
   }
 
   async getPolizasPorEstado(estado) {
     const response = await this.request(`/polizas/estado/${estado}`)
     return response.data || []
+  }
+
+  // Métodos para Reclamaciones
+  async getReclamaciones() {
+    const response = await this.request('/reclamaciones/todas')
+    return response.reclamaciones || []
+  }
+
+  async crearReclamacion(reclamacionData) {
+    const response = await this.request('/reclamaciones', {
+      method: 'POST',
+      body: JSON.stringify(reclamacionData)
+    })
+    return response.data
+  }
+
+  async getReclamacionesPorEstado(estado) {
+    const response = await this.request(`/reclamaciones/estado/${estado}`)
+    return response.reclamaciones || []
+  }
+
+  async getReclamacionesPorPoliza(polizaId) {
+    const response = await this.request(`/reclamaciones/poliza/${polizaId}`)
+    return response.reclamaciones || []
+  }
+
+  async getReclamacionPorId(id) {
+    const response = await this.request(`/reclamaciones/${id}`)
+    return response.data
   }
 }
 
