@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
 public class ReclamacionServiceImpl implements ReclamacionService {
     
     private static final Random random = new Random();
-    private static int NUMERO_SECUENCIAL = 1;
     
     private final ReclamacionRepository reclamacionRepository;
     
@@ -72,7 +71,7 @@ public class ReclamacionServiceImpl implements ReclamacionService {
     }
     
     @Override
-    public boolean evaluarReclamacion(Long reclamacionId, BigDecimal montoAprobado, String observaciones, String evaluador) {
+    public boolean evaluarReclamacion(Long reclamacionId, BigDecimal montoAprobado, String observaciones, Long evaluadorId) {
         Reclamacion reclamacion = buscarReclamacionPorId(reclamacionId);
         if (reclamacion == null) {
             throw new IllegalArgumentException("Reclamación no encontrada");
@@ -99,14 +98,14 @@ public class ReclamacionServiceImpl implements ReclamacionService {
         reclamacion.setEstado(EstadoReclamacion.EN_EVALUACION);
         reclamacion.setMontoAprobado(montoFinal);
         reclamacion.setFechaEvaluacion(LocalDateTime.now());
-        reclamacion.setEvaluador(evaluador);
+        reclamacion.setEvaluadorId(evaluadorId);
         reclamacion.setObservaciones(observaciones);
         
         return true;
     }
     
     @Override
-    public boolean aprobarReclamacion(Long reclamacionId, String evaluador) {
+    public boolean aprobarReclamacion(Long reclamacionId, Long evaluadorId) {
         Reclamacion reclamacion = buscarReclamacionPorId(reclamacionId);
         if (reclamacion == null) {
             throw new IllegalArgumentException("Reclamación no encontrada");
@@ -117,11 +116,11 @@ public class ReclamacionServiceImpl implements ReclamacionService {
         }
         
         reclamacion.setEstado(EstadoReclamacion.APROBADA);
-        reclamacion.setEvaluador(evaluador);
+        reclamacion.setEvaluadorId(evaluadorId);
         reclamacion.setFechaEvaluacion(LocalDateTime.now());
         
         String observaciones = reclamacion.getObservaciones() != null ? reclamacion.getObservaciones() : "";
-        observaciones += "\n[APROBADA - " + LocalDateTime.now() + "] Aprobada por: " + evaluador;
+        observaciones += "\n[APROBADA - " + LocalDateTime.now() + "] Aprobada por: " + evaluadorId;
         reclamacion.setObservaciones(observaciones);
         
         System.out.println("Reclamación aprobada: " + reclamacion.getNumeroReclamacion());
@@ -131,7 +130,7 @@ public class ReclamacionServiceImpl implements ReclamacionService {
     }
     
     @Override
-    public boolean rechazarReclamacion(Long reclamacionId, String motivo, String evaluador) {
+    public boolean rechazarReclamacion(Long reclamacionId, String motivo, Long evaluadorId) {
         Reclamacion reclamacion = buscarReclamacionPorId(reclamacionId);
         if (reclamacion == null) {
             throw new IllegalArgumentException("Reclamación no encontrada");
@@ -142,12 +141,12 @@ public class ReclamacionServiceImpl implements ReclamacionService {
         }
         
         reclamacion.setEstado(EstadoReclamacion.RECHAZADA);
-        reclamacion.setEvaluador(evaluador);
+        reclamacion.setEvaluadorId(evaluadorId);
         reclamacion.setFechaEvaluacion(LocalDateTime.now());
         reclamacion.setMontoAprobado(BigDecimal.ZERO);
         
         String observaciones = reclamacion.getObservaciones() != null ? reclamacion.getObservaciones() : "";
-        observaciones += "\n[RECHAZADA - " + LocalDateTime.now() + "] Motivo: " + motivo + " | Evaluador: " + evaluador;
+        observaciones += "\n[RECHAZADA - " + LocalDateTime.now() + "] Motivo: " + motivo + " | Evaluador: " + evaluadorId;
         reclamacion.setObservaciones(observaciones);
         
         System.out.println("Reclamación rechazada: " + reclamacion.getNumeroReclamacion());
@@ -224,9 +223,10 @@ public class ReclamacionServiceImpl implements ReclamacionService {
     }
     
     /**
-     * Genera un número de reclamación secuencial
+     * Genera un número de reclamación secuencial basado en el count de la base de datos
      */
     private String generarNumeroReclamacion() {
-        return String.format("REC%06d", NUMERO_SECUENCIAL++);
+        long count = reclamacionRepository.contarReclamaciones();
+        return String.format("REC%06d", count + 1);
     }
 }

@@ -23,11 +23,11 @@ Todas las respuestas de la API siguen el siguiente formato:
 
 ## ENDPOINTS DE PRICING
 
-| Nombre                   | Valor                                       | Definición                                   |
-| ------------------------ | ------------------------------------------- | -------------------------------------------- |
-| **Tipos de Seguro**      | `GET /api/pricing/tipos-seguro`             | Obtiene los tipos de seguro y precios base   |
-| **Precio Base por Tipo** | `GET /api/pricing/precio-base/{tipoSeguro}` | Obtiene el precio base de un tipo específico |
-| **Health Check**         | `GET /api/pricing/health`                   | Verifica el estado del servicio de pricing   |
+| Nombre                    | Valor                                       | Definición                                    |
+| ------------------------- | ------------------------------------------- | --------------------------------------------- |
+| **Tipos de Seguro**       | `GET /api/pricing/tipos-seguro`             | Obtiene los tipos de seguro y precios base   |
+| **Precio Base por Tipo**  | `GET /api/pricing/precio-base/{tipoSeguro}` | Obtiene el precio base de un tipo específico |
+| **Health Check**          | `GET /api/pricing/health`                   | Verifica el estado del servicio de pricing   |
 
 ### JSON Response - Tipos de Seguro
 
@@ -57,41 +57,430 @@ Todas las respuestas de la API siguen el siguiente formato:
 
 ## ENDPOINTS DE RECLAMACIONES
 
-| Nombre                 | Valor                                      | Definición                                       |
-| ---------------------- | ------------------------------------------ | ------------------------------------------------ |
-| **Crear Reclamación**  | `POST /api/reclamaciones`                  | Crea una nueva reclamación                       |
-| **Obtener Todas**      | `GET /api/reclamaciones/todas`             | Obtiene todas las reclamaciones                  |
-| **Obtener por ID**     | `GET /api/reclamaciones/{id}`              | Obtiene una reclamación específica               |
-| **Obtener por Póliza** | `GET /api/reclamaciones/poliza/{polizaId}` | Obtiene reclamaciones de una póliza específica   |
-| **Obtener por Estado** | `GET /api/reclamaciones/estado/{estado}`   | Obtiene reclamaciones filtradas por estado       |
-| **Health Check**       | `GET /api/reclamaciones/health`            | Verifica el estado del servicio de reclamaciones |
+### Base URL: `/api/reclamaciones`
+
+| Nombre                      | Valor                                        | Definición                                         |
+| --------------------------- | -------------------------------------------- | -------------------------------------------------- |
+| **Registrar Reclamación**   | `POST /api/reclamaciones/registrar`          | Registra una nueva reclamación con estado inicial |
+| **Evaluar Reclamación**     | `POST /api/reclamaciones/{id}/evaluar`       | Evalúa una reclamación usando patrón Strategy     |
+| **Aprobar Reclamación**     | `POST /api/reclamaciones/{id}/aprobar`       | Aprueba una reclamación en evaluación             |
+| **Rechazar Reclamación**    | `POST /api/reclamaciones/{id}/rechazar`      | Rechaza una reclamación con motivo específico     |
+| **Procesar Pago**           | `POST /api/reclamaciones/{id}/pagar`         | Procesa el pago de una reclamación aprobada       |
+| **Obtener por ID**          | `GET /api/reclamaciones/{id}`                | Obtiene una reclamación específica                |
+| **Obtener por Póliza**      | `GET /api/reclamaciones/poliza/{polizaId}`   | Obtiene reclamaciones de una póliza específica    |
+| **Obtener por Estado**      | `GET /api/reclamaciones/estado/{estado}`     | Obtiene reclamaciones filtradas por estado        |
+| **Obtener Todas**           | `GET /api/reclamaciones/todas`               | Obtiene todas las reclamaciones del sistema       |
+| **Health Check**            | `GET /api/reclamaciones/health`              | Verifica el estado del servicio de reclamaciones  |
 
 ### Estados Válidos de Reclamación
 
 - `REGISTRADA`: Reclamación recién creada
 - `EN_EVALUACION`: En proceso de evaluación
-- `APROBADA`: Reclamación aprobada
+- `APROBADA`: Reclamación aprobada para pago
 - `RECHAZADA`: Reclamación rechazada
 - `PAGADA`: Reclamación procesada y pagada
 
-### JSON Response - Reclamaciones
+### JSON Request - Registrar Reclamación
 
 ```json
 {
-  "total": 0,
-  "mensaje": "Todas las reclamaciones obtenidas exitosamente",
-  "reclamaciones": []
+  "polizaId": 606,
+  "descripcion": "Prueba de reclamacion sin acentos",
+  "montoReclamado": 1500.00
 }
 ```
 
-### JSON Response - Por Estado
+**Validaciones:**
+- `polizaId`: Requerido, ID numérico de póliza existente
+- `descripcion`: Requerida, no vacía
+- `montoReclamado`: Requerido, mayor a 0.01
+
+### JSON Request - Evaluar Reclamación
 
 ```json
 {
-  "estado": "REGISTRADA",
-  "total": 0,
-  "mensaje": "Reclamaciones obtenidas exitosamente",
-  "reclamaciones": []
+  "montoAprobado": 1200.0,
+  "observaciones": "Inspeccion realizada, danos confirmados",
+  "evaluadorId": 72
+}
+```
+
+**Validaciones:**
+- `montoAprobado`: Opcional, si se proporciona debe ser >= 0
+- `observaciones`: Opcional, cadena de texto libre
+- `evaluadorId`: Opcional, ID numérico del evaluador (Long)
+
+### JSON Request - Aprobar Reclamación
+
+```json
+{
+  "evaluadorId": 72
+}
+```
+
+**Validaciones:**
+- `evaluadorId`: Requerido, ID numérico del evaluador que aprueba
+
+### JSON Request - Rechazar Reclamación
+
+```json
+{
+  "motivo": "Danos pre-existentes no cubiertos por la poliza",
+  "evaluadorId": 72
+}
+```
+
+**Validaciones:**
+- `motivo`: Requerido, razón del rechazo
+- `evaluadorId`: Requerido, ID numérico del evaluador que rechaza
+
+### JSON Response - Reclamación Registrada (201 Created)
+
+```json
+{
+  "numeroReclamacion": "REC000031",
+  "reclamacion": {
+    "idReclamacion": 222,
+    "polizaId": 606,
+    "numeroReclamacion": "REC000031",
+    "descripcion": "Prueba de reclamacion sin acentos",
+    "montoReclamado": 1500.00,
+    "montoAprobado": null,
+    "estado": "REGISTRADA",
+    "fechaReclamacion": "2025-07-28T10:56:16.3679746",
+    "fechaEvaluacion": null,
+    "fechaResolucion": null,
+    "observaciones": null,
+    "evaluadorId": null,
+    "porcentajeAprobacion": 0
+  },
+  "mensaje": "Reclamación registrada exitosamente"
+}
+```
+
+### JSON Response - Reclamación Evaluada (200 OK)
+
+```json
+{
+  "resultado": true,
+  "reclamacion": {
+    "idReclamacion": 222,
+    "numeroReclamacion": "REC000031",
+    "estado": "EN_EVALUACION",
+    "montoReclamado": 1500.00,
+    "montoAprobado": 1200.0,
+    "fechaEvaluacion": "2025-07-28T11:15:00",
+    "evaluadorId": 72,
+    "observaciones": "Inspeccion realizada, danos confirmados",
+    "porcentajeAprobacion": 80
+  },
+  "mensaje": "Reclamación evaluada exitosamente",
+  "estrategiaUsada": "Evaluación Automática",
+  "porcentajeAprobacion": 80
+}
+```
+
+### JSON Response - Reclamación Aprobada (200 OK)
+
+```json
+{
+  "resultado": true,
+  "reclamacion": {
+    "idReclamacion": 222,
+    "numeroReclamacion": "REC000031",
+    "estado": "APROBADA",
+    "montoAprobado": 1200.0,
+    "evaluadorId": 72,
+    "fechaResolucion": "2025-07-28T11:30:00",
+    "observaciones": "Inspeccion realizada, danos confirmados\n[APROBADA - 2025-07-28T11:30:00] Reclamacion aprobada | Evaluador: 72"
+  },
+  "mensaje": "Reclamación aprobada exitosamente"
+}
+```
+
+### JSON Response - Reclamación Rechazada (200 OK)
+
+```json
+{
+  "resultado": true,
+  "reclamacion": {
+    "idReclamacion": 222,
+    "numeroReclamacion": "REC000031",
+    "estado": "RECHAZADA",
+    "montoAprobado": 0.0,
+    "evaluadorId": 72,
+    "fechaResolucion": "2025-07-28T11:45:00",
+    "observaciones": "Inspeccion realizada, danos confirmados\n[RECHAZADA - 2025-07-28T11:45:00] Motivo: Danos pre-existentes no cubiertos por la poliza | Evaluador: 72"
+  },
+  "mensaje": "Reclamación rechazada exitosamente"
+}
+```
+
+### JSON Response - Pago Procesado (200 OK)
+
+```json
+{
+  "resultado": true,
+  "reclamacion": {
+    "idReclamacion": 222,
+    "numeroReclamacion": "REC000031",
+    "estado": "PAGADA",
+    "montoAprobado": 1200.0,
+    "fechaResolucion": "2025-07-28T12:00:00",
+    "observaciones": "Inspeccion realizada, danos confirmados\n[APROBADA - 2025-07-28T11:30:00] Reclamacion aprobada | Evaluador: 72\n[PAGADA - 2025-07-28T12:00:00] Pago procesado por $1200.00"
+  },
+  "mensaje": "Pago procesado exitosamente"
+}
+```
+
+### JSON Response - Obtener por Estado
+
+```json
+{
+  "reclamaciones": [
+    {
+      "idReclamacion": 197,
+      "numeroReclamacion": "REC000017",
+      "estado": "EN_EVALUACION"
+    }
+  ],
+  "estado": "EN_EVALUACION",
+  "total": 1,
+  "mensaje": "Reclamaciones obtenidas exitosamente"
+}
+```
+
+### JSON Response - Health Check
+
+```json
+{
+  "status": "OK",
+  "service": "Reclamaciones Service",
+  "message": "Servicio de reclamaciones funcionando correctamente"
+}
+```
+
+### 🎯 Patrón Strategy - Selección Automática de Estrategias
+
+El sistema selecciona automáticamente la estrategia según el monto reclamado:
+
+| Monto Reclamado     | Estrategia                      | Porcentaje Aprobación Típico | Descripción                                    |
+| ------------------- | ------------------------------- | ---------------------------- | ---------------------------------------------- |
+| ≤ $5,000            | EvaluacionAutomaticaStrategy    | 95%                          | Evaluación automática para montos menores     |
+| $5,001 - $20,000    | EvaluacionManualStrategy        | 85%                          | Requiere evaluación manual                     |
+| > $20,000           | EvaluacionEspecializadaStrategy | 75%                          | Requiere evaluación especializada e investig. |
+
+**Ejemplo Práctico**: 
+- Monto $1,500.00 → **EvaluacionAutomaticaStrategy** (≤ $5,000)
+- Porcentaje de aprobación: ~95% del monto solicitado
+- Proceso: Automático, sin intervención manual requerida
+
+### 🔄 Workflow Completo de Reclamaciones
+
+#### 1. Flujo Exitoso (Automático ≤ $5,000)
+```
+REGISTRADA → EN_EVALUACION → APROBADA → PAGADA
+```
+
+#### 2. Flujo Manual ($5,001 - $20,000)
+```
+REGISTRADA → EN_EVALUACION → APROBADA → PAGADA
+```
+
+#### 3. Flujo Especializado (> $20,000)
+```
+REGISTRADA → EN_EVALUACION → APROBADA → PAGADA
+```
+
+#### 4. Flujo de Rechazo
+```
+REGISTRADA → EN_EVALUACION → RECHAZADA
+```
+
+### 📋 Ejemplos cURL
+
+#### Registrar Nueva Reclamación
+```bash
+curl -X POST http://localhost:8080/api/reclamaciones/registrar \
+  -H "Content-Type: application/json" \
+  -d '{
+    "polizaId": 606,
+    "descripcion": "Prueba de reclamacion sin acentos",
+    "montoReclamado": 1500.00
+  }'
+```
+
+#### Evaluar Reclamación
+```bash
+curl -X POST http://localhost:8080/api/reclamaciones/222/evaluar \
+  -H "Content-Type: application/json" \
+  -d '{
+    "montoAprobado": 1200.0,
+    "observaciones": "Inspeccion realizada, danos confirmados",
+    "evaluadorId": 72
+  }'
+```
+
+#### Aprobar Reclamación
+```bash
+curl -X POST http://localhost:8080/api/reclamaciones/222/aprobar \
+  -H "Content-Type: application/json" \
+  -d '{
+    "evaluadorId": 72
+  }'
+```
+
+#### Rechazar Reclamación
+```bash
+curl -X POST http://localhost:8080/api/reclamaciones/222/rechazar \
+  -H "Content-Type: application/json" \
+  -d '{
+    "motivo": "Danos pre-existentes no cubiertos por la poliza",
+    "evaluadorId": 72
+  }'
+```
+
+#### Procesar Pago
+```bash
+curl -X POST http://localhost:8080/api/reclamaciones/222/pagar
+```
+
+#### Obtener Reclamación por ID
+```bash
+curl -X GET http://localhost:8080/api/reclamaciones/181
+```
+
+#### Obtener por Estado
+```bash
+curl -X GET http://localhost:8080/api/reclamaciones/estado/EN_EVALUACION
+```
+
+### 🚀 Características Técnicas
+
+- **Validación automática**: `@Valid` en DTOs con Jakarta Bean Validation
+- **Transiciones de estado**: Solo cambios válidos del workflow
+- **Trazabilidad completa**: Historial de observaciones acumulativas con timestamps
+- **Numeración secuencial**: REC000001, REC000002, etc. (basada en database)
+- **CORS habilitado**: `@CrossOrigin(origins = "*")`
+- **Manejo de errores**: 400, 404, 500 con mensajes descriptivos
+- **Generación automática de IDs**: Los números de reclamación se generan automáticamente
+- **Soporte UTF-8**: Recomendado evitar caracteres especiales en las pruebas
+
+### 🔧 Problemas Conocidos y Soluciones
+
+#### UTF-8 Encoding
+**Problema**: Errores al enviar caracteres especiales (acentos, ñ, etc.)
+**Solución**: Usar texto sin acentos en las pruebas o configurar correctamente el encoding del cliente
+
+#### Numeración Secuencial
+**Problema**: ~~Conflictos con números duplicados al usar contador estático~~
+**Solución**: ✅ **RESUELTO** - Implementado generador basado en database con `COUNT(*) + 1`
+
+#### Evaluador ID
+**Problema**: ~~Inconsistencia entre String y Long para evaluadorId~~
+**Solución**: ✅ **RESUELTO** - Standardizado a `Long evaluadorId` en toda la aplicación
+
+### ✅ Estado de Testing
+
+Todos los endpoints POST de reclamaciones han sido probados y están funcionando correctamente:
+
+| Endpoint | Estado | Fecha Testing | Resultado |
+|----------|--------|---------------|-----------|
+| `POST /api/reclamaciones/registrar` | ✅ FUNCIONANDO | 2025-07-28 | REC000031 generado correctamente |
+| `POST /api/reclamaciones/{id}/evaluar` | ✅ FUNCIONANDO | 2025-07-28 | Strategy pattern operativo |
+| `POST /api/reclamaciones/{id}/aprobar` | ✅ FUNCIONANDO | 2025-07-28 | Transición de estado correcta |
+| `POST /api/reclamaciones/{id}/rechazar` | ✅ FUNCIONANDO | 2025-07-28 | Motivo y evaluador registrados |
+| `POST /api/reclamaciones/{id}/pagar` | ✅ FUNCIONANDO | 2025-07-28 | Pago procesado exitosamente |
+
+---
+
+## ENDPOINTS DE EVALUADORES
+
+| Nombre                            | Valor                                                                                            | Definición                                           |
+| --------------------------------- | ------------------------------------------------------------------------------------------------ | ---------------------------------------------------- |
+| **Crear Evaluador**               | `POST /api/evaluadores`                                                                          | Crea un nuevo evaluador en el sistema                |
+| **Obtener Todos los Evaluadores** | `GET /api/evaluadores`                                                                           | Obtiene la lista completa de evaluadores             |
+| **Obtener Evaluadores Activos**   | `GET /api/evaluadores/activos`                                                                   | Obtiene solo los evaluadores activos                 |
+| **Obtener Evaluador por ID**      | `GET /api/evaluadores/{id}`                                                                      | Obtiene un evaluador específico por su ID            |
+| **Obtener Evaluador por Código**  | `GET /api/evaluadores/codigo/{codigo}`                                                           | Busca un evaluador por su código único               |
+| **Obtener Evaluador por Email**   | `GET /api/evaluadores/email/{email}`                                                             | Busca un evaluador por su email                      |
+| **Buscar Evaluadores por Nombre** | `GET /api/evaluadores/buscar?nombre={nombre}`                                                    | Busca evaluadores que coincidan con el nombre        |
+| **Buscar por Especialidad**       | `GET /api/evaluadores/especialidad/{especialidad}`                                               | Busca evaluadores por especialidad                   |
+| **Búsqueda Avanzada**             | `GET /api/evaluadores/buscar-avanzado?nombre={nombre}&email={email}&especialidad={especialidad}` | Búsqueda avanzada con múltiples criterios            |
+| **Actualizar Evaluador**          | `PUT /api/evaluadores/{id}`                                                                      | Actualiza los datos de un evaluador existente        |
+| **Eliminar Evaluador**            | `DELETE /api/evaluadores/{id}`                                                                   | Elimina un evaluador del sistema (lógica)            |
+| **Reactivar Evaluador**           | `PUT /api/evaluadores/{id}/reactivar`                                                            | Reactiva un evaluador marcado como inactivo          |
+| **Verificar Existencia**          | `GET /api/evaluadores/{id}/existe`                                                               | Verifica si existe un evaluador                      |
+| **Estadísticas de Evaluadores**   | `GET /api/evaluadores/estadisticas`                                                              | Obtiene estadísticas de evaluadores                  |
+| **Generar Nuevo Código**          | `GET /api/evaluadores/nuevo-codigo`                                                              | Genera el siguiente código disponible para evaluador |
+
+### JSON Request - Crear/Actualizar Evaluador
+
+```json
+{
+  "nombre": "Dr. María Elena Rodríguez",
+  "codigo": "EV001",
+  "email": "maria.rodriguez@seguratuauto.com",
+  "telefono": "+34 612 345 678",
+  "especialidad": "Evaluación de Siniestros Vehiculares",
+  "activo": true
+}
+```
+
+**Validaciones:**
+
+- `nombre`: Obligatorio, máximo 100 caracteres
+- `codigo`: Opcional, máximo 20 caracteres, solo letras y números
+- `email`: Formato email válido, máximo 150 caracteres
+- `telefono`: Opcional, máximo 20 caracteres
+- `especialidad`: Opcional, máximo 100 caracteres
+- `activo`: Opcional, boolean (default: true)
+
+### JSON Response - Evaluador
+
+```json
+{
+  "success": true,
+  "message": "Evaluador creado exitosamente",
+  "data": {
+    "idEvaluador": "25",
+    "nombre": "Dr. María Elena Rodríguez",
+    "codigo": "EV001",
+    "email": "maria.rodriguez@seguratuauto.com",
+    "telefono": "+34 612 345 678",
+    "especialidad": "Evaluación de Siniestros Vehiculares",
+    "activo": "true",
+    "fechaIngreso": "2025-07-28 14:30:45"
+  },
+  "error": null
+}
+```
+
+### JSON Response - Estadísticas de Evaluadores
+
+```json
+{
+  "success": true,
+  "message": "Estadísticas obtenidas exitosamente",
+  "data": {
+    "totalEvaluadores": 15,
+    "evaluadoresActivos": 12,
+    "evaluadoresInactivos": 3
+  },
+  "error": null
+}
+```
+
+### JSON Response - Nuevo Código
+
+```json
+{
+  "success": true,
+  "message": "Nuevo código generado",
+  "data": {
+    "codigo": "EV0016"
+  },
+  "error": null
 }
 ```
 
@@ -247,6 +636,27 @@ Todas las respuestas de la API siguen el siguiente formato:
 
 ---
 
+## ESTADOS DE EVALUADOR
+
+| Estado       | Descripción                                     |
+| ------------ | ----------------------------------------------- |
+| **ACTIVO**   | Evaluador activo y disponible para asignaciones |
+| **INACTIVO** | Evaluador desactivado temporalmente             |
+
+---
+
+## ESPECIALIDADES DE EVALUADOR (Ejemplos)
+
+| Especialidad                             | Descripción                                |
+| ---------------------------------------- | ------------------------------------------ |
+| **Evaluación de Siniestros Vehiculares** | Especialista en daños de automóviles       |
+| **Evaluación de Motos**                  | Especialista en siniestros de motocicletas |
+| **Evaluación de Fraudes**                | Especialista en detección de fraudes       |
+| **Evaluación Médica**                    | Especialista en evaluación de lesiones     |
+| **Evaluación de Daños Materiales**       | Especialista en daños a terceros           |
+
+---
+
 ## CÓDIGOS DE RESPUESTA HTTP
 
 | Código  | Descripción           | Cuándo se usa                                               |
@@ -327,13 +737,82 @@ Actualmente la API no implementa autenticación. Se recomienda implementar JWT t
 4. **Encoding**: Todas las respuestas están en UTF-8
 5. **Content-Type**: Siempre usar `application/json` para requests y responses
 6. **Códigos de Agente**: Se generan automáticamente con formato AG#### (ej: AG0011)
-7. **Validaciones**: Email y teléfono únicos por entidad
+7. **Códigos de Evaluador**: Se generan automáticamente con formato EV#### (ej: EV0001)
+8. **Validaciones**: Email y teléfono únicos por entidad
+9. **Eliminación Lógica**: Los evaluadores se marcan como inactivos en lugar de eliminarse físicamente
+10. **Especialidades**: Campo libre para especificar la especialidad del evaluador
 
 ---
 
 ## PRUEBAS POSTMAN REALIZADAS
 
 ### ✅ **Endpoints Probados y Funcionando**
+
+#### **EVALUADORES**
+
+**GET - Obtener todos los evaluadores**
+
+```
+GET http://localhost:8080/api/evaluadores
+Content-Type: application/json
+```
+
+**POST - Crear nuevo evaluador**
+
+```
+POST http://localhost:8080/api/evaluadores
+Content-Type: application/json
+Accept: application/json
+
+{
+  "nombre": "Dr. María Elena Rodríguez",
+  "email": "maria.rodriguez@seguratuauto.com",
+  "telefono": "+34 612 345 678",
+  "especialidad": "Evaluación de Siniestros Vehiculares"
+}
+```
+
+**GET - Buscar evaluadores por nombre**
+
+```
+GET http://localhost:8080/api/evaluadores/buscar?nombre=Maria
+Content-Type: application/json
+```
+
+**GET - Buscar evaluador por código**
+
+```
+GET http://localhost:8080/api/evaluadores/codigo/EV001
+Content-Type: application/json
+```
+
+**GET - Buscar por especialidad**
+
+```
+GET http://localhost:8080/api/evaluadores/especialidad/Siniestros
+Content-Type: application/json
+```
+
+**GET - Obtener estadísticas de evaluadores**
+
+```
+GET http://localhost:8080/api/evaluadores/estadisticas
+Content-Type: application/json
+```
+
+**GET - Generar nuevo código de evaluador**
+
+```
+GET http://localhost:8080/api/evaluadores/nuevo-codigo
+Content-Type: application/json
+```
+
+**PUT - Reactivar evaluador**
+
+```
+PUT http://localhost:8080/api/evaluadores/{id}/reactivar
+Content-Type: application/json
+```
 
 #### **AGENTES**
 
@@ -498,6 +977,67 @@ Content-Type: application/json
 
 #### **RECLAMACIONES (Patrón Strategy)**
 
+**POST - Registrar nueva reclamación**
+
+```
+POST http://localhost:8080/api/reclamaciones/registrar
+Content-Type: application/json
+Accept: application/json
+
+{
+  "polizaId": 605,
+  "descripcion": "Colisión frontal en intersección",
+  "montoReclamado": 12000.00
+}
+```
+
+**POST - Evaluar reclamación (Patrón Strategy automático)**
+
+```
+POST http://localhost:8080/api/reclamaciones/231/evaluar
+Content-Type: application/json
+Accept: application/json
+
+{
+  "observaciones": "Inspección realizada, daños confirmados",
+  "evaluador": "Juan Pérez"
+}
+```
+
+**POST - Aprobar reclamación**
+
+```
+POST http://localhost:8080/api/reclamaciones/231/aprobar?evaluador=Juan%20Pérez
+Content-Type: application/json
+```
+
+**POST - Rechazar reclamación**
+
+```
+POST http://localhost:8080/api/reclamaciones/231/rechazar
+Content-Type: application/json
+Accept: application/json
+
+{
+  "motivo": "Daños pre-existentes no cubiertos por la póliza",
+  "evaluador": "Ana López"
+}
+```
+
+**POST - Procesar pago de reclamación**
+
+```
+POST http://localhost:8080/api/reclamaciones/231/pagar
+Content-Type: application/json
+```
+
+**GET - Obtener reclamación por ID**
+
+```
+GET http://localhost:8080/api/reclamaciones/181
+Content-Type: application/json
+```
+
 **GET - Obtener todas las reclamaciones**
 
 ```
@@ -515,7 +1055,7 @@ Content-Type: application/json
 **GET - Obtener reclamaciones por póliza**
 
 ```
-GET http://localhost:8080/api/reclamaciones/poliza/101
+GET http://localhost:8080/api/reclamaciones/poliza/605
 Content-Type: application/json
 ```
 
@@ -535,31 +1075,39 @@ Content-Type: application/json
 
 ### 📋 **Resumen de Pruebas**
 
-| Endpoint                             | Método | Estado | Observaciones                       |
-| ------------------------------------ | ------ | ------ | ----------------------------------- |
-| `/api/agentes`                       | GET    | ✅     | Funciona correctamente              |
-| `/api/agentes`                       | POST   | ✅     | **FUNCIONANDO** - Problema resuelto |
-| `/api/agentes/buscar`                | GET    | ✅     | Solo sin acentos                    |
-| `/api/agentes/codigo/{codigo}`       | GET    | ✅     | Funciona correctamente              |
-| `/api/agentes/estadisticas`          | GET    | ✅     | Funciona correctamente              |
-| `/api/agentes/nuevo-codigo`          | GET    | ✅     | Funciona correctamente              |
-| `/api/clientes`                      | GET    | ✅     | Funciona correctamente              |
-| `/api/clientes`                      | POST   | ✅     | **FUNCIONANDO** - Problema resuelto |
-| `/api/clientes/buscar`               | GET    | ✅     | Funciona correctamente              |
-| `/api/clientes/estadisticas`         | GET    | ✅     | Funciona correctamente              |
-| `/api/polizas`                       | GET    | ✅     | Funciona correctamente              |
-| `/api/polizas/estado/{estado}`       | GET    | ✅     | Funciona correctamente              |
-| `/api/polizas/numero/{numero}`       | GET    | ✅     | Funciona correctamente              |
-| `/api/pricing/tipos-seguro`          | GET    | ✅     | **Patrón Decorator funcionando**    |
-| `/api/pricing/precio-base/{tipo}`    | GET    | ✅     | **Patrón Decorator funcionando**    |
-| `/api/pricing/health`                | GET    | ✅     | Health check OK                     |
-| `/api/reclamaciones/todas`           | GET    | ✅     | **Patrón Strategy funcionando**     |
-| `/api/reclamaciones/estado/{estado}` | GET    | ✅     | **Patrón Strategy funcionando**     |
-| `/api/reclamaciones/health`          | GET    | ✅     | Health check OK                     |
-| `/api/polizas/{id}/aprobar`          | PUT    | ✅     | Funciona correctamente              |
+| Endpoint                              | Método | Estado | Observaciones                            |
+| ------------------------------------- | ------ | ------ | ---------------------------------------- |
+| `/api/agentes`                        | GET    | ✅     | Funciona correctamente                   |
+| `/api/agentes`                        | POST   | ✅     | **FUNCIONANDO** - Problema resuelto      |
+| `/api/agentes/buscar`                 | GET    | ✅     | Solo sin acentos                         |
+| `/api/agentes/codigo/{codigo}`        | GET    | ✅     | Funciona correctamente                   |
+| `/api/agentes/estadisticas`           | GET    | ✅     | Funciona correctamente                   |
+| `/api/agentes/nuevo-codigo`           | GET    | ✅     | Funciona correctamente                   |
+| `/api/clientes`                       | GET    | ✅     | Funciona correctamente                   |
+| `/api/clientes`                       | POST   | ✅     | **FUNCIONANDO** - Problema resuelto      |
+| `/api/clientes/buscar`                | GET    | ✅     | Funciona correctamente                   |
+| `/api/clientes/estadisticas`          | GET    | ✅     | Funciona correctamente                   |
+| `/api/polizas`                        | GET    | ✅     | Funciona correctamente                   |
+| `/api/polizas/estado/{estado}`        | GET    | ✅     | Funciona correctamente                   |
+| `/api/polizas/numero/{numero}`        | GET    | ✅     | Funciona correctamente                   |
+| `/api/polizas/{id}/aprobar`           | PUT    | ✅     | Funciona correctamente                   |
+| `/api/pricing/tipos-seguro`           | GET    | ✅     | **Patrón Decorator funcionando**         |
+| `/api/pricing/precio-base/{tipo}`     | GET    | ✅     | **Patrón Decorator funcionando**         |
+| `/api/pricing/health`                 | GET    | ✅     | Health check OK                          |
+| `/api/reclamaciones/registrar`        | POST   | ✅     | **NUEVO** - Registra nueva reclamación   |
+| `/api/reclamaciones/{id}/evaluar`     | POST   | ✅     | **NUEVO** - Patrón Strategy automático   |
+| `/api/reclamaciones/{id}/aprobar`     | POST   | ✅     | **NUEVO** - Aprueba reclamación          |
+| `/api/reclamaciones/{id}/rechazar`    | POST   | ✅     | **NUEVO** - Rechaza con motivo           |
+| `/api/reclamaciones/{id}/pagar`       | POST   | ✅     | **NUEVO** - Procesa pago                 |
+| `/api/reclamaciones/{id}`             | GET    | ✅     | **NUEVO** - Obtiene por ID               |
+| `/api/reclamaciones/todas`            | GET    | ✅     | **Patrón Strategy funcionando**          |
+| `/api/reclamaciones/estado/{estado}`  | GET    | ✅     | **Patrón Strategy funcionando**          |
+| `/api/reclamaciones/poliza/{poliza}`  | GET    | ✅     | **NUEVO** - Reclamaciones por póliza     |
+| `/api/reclamaciones/health`           | GET    | ✅     | Health check OK                          |
 
 ---
 
 _Documentación generada para SeguraTuAuto API v1.0_  
 _Pruebas POSTMAN realizadas el 28 de julio de 2025_  
-_Endpoints POST de Agentes y Clientes: ✅ FUNCIONANDO CORRECTAMENTE_
+_Endpoints POST de Agentes y Clientes: ✅ FUNCIONANDO CORRECTAMENTE_  
+_**NUEVO**: Sistema completo de reclamaciones con Patrón Strategy implementado_

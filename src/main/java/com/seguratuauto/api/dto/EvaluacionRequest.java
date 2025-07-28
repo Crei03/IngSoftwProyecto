@@ -13,16 +13,16 @@ public class EvaluacionRequest {
     
     private String observaciones;
     
-    private String evaluador;
+    private Long evaluadorId;
     
     // Constructor por defecto
     public EvaluacionRequest() {}
     
     // Constructor completo
-    public EvaluacionRequest(BigDecimal montoAprobado, String observaciones, String evaluador) {
+    public EvaluacionRequest(BigDecimal montoAprobado, String observaciones, Long evaluadorId) {
         this.montoAprobado = montoAprobado;
         this.observaciones = observaciones;
-        this.evaluador = evaluador;
+        this.evaluadorId = evaluadorId;
     }
     
     // Getters y Setters
@@ -42,11 +42,11 @@ public class EvaluacionRequest {
         this.observaciones = observaciones;
     }
     
-    public String getEvaluador() {
-        return evaluador;
+    public Long getEvaluadorId() {
+        return evaluadorId;
     }
     
-    public void setEvaluador(String evaluador) {
-        this.evaluador = evaluador;
+    public void setEvaluadorId(Long evaluadorId) {
+        this.evaluadorId = evaluadorId;
     }
 }

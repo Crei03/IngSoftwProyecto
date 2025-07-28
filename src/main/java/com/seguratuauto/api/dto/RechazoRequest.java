@@ -6,15 +6,15 @@ package com.seguratuauto.api.dto;
 public class RechazoRequest {
     
     private String motivo;
-    private String evaluador;
+    private Long evaluadorId;
     
     // Constructor por defecto
     public RechazoRequest() {}
     
     // Constructor completo
-    public RechazoRequest(String motivo, String evaluador) {
+    public RechazoRequest(String motivo, Long evaluadorId) {
         this.motivo = motivo;
-        this.evaluador = evaluador;
+        this.evaluadorId = evaluadorId;
     }
     
     // Getters y Setters
@@ -26,11 +26,11 @@ public class RechazoRequest {
         this.motivo = motivo;
     }
     
-    public String getEvaluador() {
-        return evaluador;
+    public Long getEvaluadorId() {
+        return evaluadorId;
     }
     
-    public void setEvaluador(String evaluador) {
-        this.evaluador = evaluador;
+    public void setEvaluadorId(Long evaluadorId) {
+        this.evaluadorId = evaluadorId;
     }
 }

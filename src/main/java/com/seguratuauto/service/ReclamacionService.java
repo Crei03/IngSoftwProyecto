@@ -27,27 +27,27 @@ public interface ReclamacionService {
      * @param reclamacionId ID de la reclamación
      * @param montoAprobado monto aprobado para pago
      * @param observaciones observaciones de la evaluación
-     * @param evaluador nombre del evaluador
+     * @param evaluadorId ID del evaluador
      * @return true si se evaluó correctamente
      */
-    boolean evaluarReclamacion(Long reclamacionId, BigDecimal montoAprobado, String observaciones, String evaluador);
+    boolean evaluarReclamacion(Long reclamacionId, BigDecimal montoAprobado, String observaciones, Long evaluadorId);
     
     /**
      * Aprueba una reclamación para pago
      * @param reclamacionId ID de la reclamación
-     * @param evaluador nombre del evaluador
+     * @param evaluadorId ID del evaluador
      * @return true si se aprobó correctamente
      */
-    boolean aprobarReclamacion(Long reclamacionId, String evaluador);
+    boolean aprobarReclamacion(Long reclamacionId, Long evaluadorId);
     
     /**
      * Rechaza una reclamación
      * @param reclamacionId ID de la reclamación
      * @param motivo motivo del rechazo
-     * @param evaluador nombre del evaluador
+     * @param evaluadorId ID del evaluador
      * @return true si se rechazó correctamente
      */
-    boolean rechazarReclamacion(Long reclamacionId, String motivo, String evaluador);
+    boolean rechazarReclamacion(Long reclamacionId, String motivo, Long evaluadorId);
     
     /**
      * Procesa el pago de una reclamación aprobada

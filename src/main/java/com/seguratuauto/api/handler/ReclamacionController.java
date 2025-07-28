@@ -91,7 +91,7 @@ public class ReclamacionController {
                 id,
                 request.getMontoAprobado(),
                 request.getObservaciones(),
-                request.getEvaluador()
+                request.getEvaluadorId()
             );
             
             Reclamacion reclamacion = reclamacionService.buscarReclamacionPorId(id);
@@ -128,17 +128,17 @@ public class ReclamacionController {
      * Aprueba una reclamación
      * 
      * @param reclamacionId ID de la reclamación
-     * @param evaluador Nombre del evaluador
+     * @param evaluadorId ID del evaluador
      * @return Resultado de la aprobación
      */
     @PostMapping("/{reclamacionId}/aprobar")
     public ResponseEntity<Map<String, Object>> aprobarReclamacion(
             @PathVariable String reclamacionId,
-            @RequestParam String evaluador) {
+            @RequestParam Long evaluadorId) {
         try {
             Long id = Long.parseLong(reclamacionId);
             
-            boolean resultado = reclamacionService.aprobarReclamacion(id, evaluador);
+            boolean resultado = reclamacionService.aprobarReclamacion(id, evaluadorId);
             Reclamacion reclamacion = reclamacionService.buscarReclamacionPorId(id);
             
             Map<String, Object> response = new HashMap<>();
@@ -179,7 +179,7 @@ public class ReclamacionController {
             boolean resultado = reclamacionService.rechazarReclamacion(
                 id,
                 request.getMotivo(),
-                request.getEvaluador()
+                request.getEvaluadorId()
             );
             
             Reclamacion reclamacion = reclamacionService.buscarReclamacionPorId(id);

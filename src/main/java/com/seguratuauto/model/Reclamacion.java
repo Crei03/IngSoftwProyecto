@@ -49,7 +49,7 @@ public class Reclamacion {
     private String observaciones;
     
     @Column(name = "evaluador_id")
-    private String evaluador;
+    private Long evaluadorId;
     
     // Constructor por defecto
     public Reclamacion() {}
@@ -67,7 +67,7 @@ public class Reclamacion {
     public Reclamacion(Long idReclamacion, Long polizaId, String numeroReclamacion, String descripcion,
                       BigDecimal montoReclamado, BigDecimal montoAprobado, EstadoReclamacion estado,
                       LocalDateTime fechaReclamacion, LocalDateTime fechaEvaluacion, LocalDateTime fechaResolucion,
-                      String observaciones, String evaluador) {
+                      String observaciones, Long evaluadorId) {
         this.idReclamacion = idReclamacion;
         this.polizaId = polizaId;
         this.numeroReclamacion = numeroReclamacion;
@@ -79,7 +79,7 @@ public class Reclamacion {
         this.fechaEvaluacion = fechaEvaluacion;
         this.fechaResolucion = fechaResolucion;
         this.observaciones = observaciones;
-        this.evaluador = evaluador;
+        this.evaluadorId = evaluadorId;
     }
     
     // Getters y Setters
@@ -163,12 +163,12 @@ public class Reclamacion {
         this.fechaResolucion = fechaResolucion;
     }
     
-    public String getEvaluador() {
-        return evaluador;
+    public Long getEvaluadorId() {
+        return evaluadorId;
     }
     
-    public void setEvaluador(String evaluador) {
-        this.evaluador = evaluador;
+    public void setEvaluadorId(Long evaluadorId) {
+        this.evaluadorId = evaluadorId;
     }
     
     public String getObservaciones() {

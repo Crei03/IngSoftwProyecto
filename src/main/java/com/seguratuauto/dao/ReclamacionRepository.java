@@ -45,11 +45,11 @@ public interface ReclamacionRepository extends JpaRepository<Reclamacion, Long> 
     long contarReclamaciones();
     
     /**
-     * Busca reclamaciones por evaluador
-     * @param evaluador el nombre del evaluador
+     * Busca reclamaciones por ID de evaluador
+     * @param evaluadorId el ID del evaluador
      * @return lista de reclamaciones asignadas al evaluador
      */
-    List<Reclamacion> findByEvaluador(String evaluador);
+    List<Reclamacion> findByEvaluadorId(Long evaluadorId);
     
     /**
      * Verifica si existe una reclamación con el número especificado
