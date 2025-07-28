@@ -16,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -47,7 +46,7 @@ public class PolizaController {
     public ResponseEntity<ApiResponse<PolizaResponse>> crearPoliza(@Valid @RequestBody PolizaRequest request) {
         try {
             // Buscar el cliente
-            UUID clienteId = UUID.fromString(request.getClienteId());
+            Long clienteId = Long.parseLong(request.getClienteId());
             Cliente cliente = clienteRepository.findById(clienteId)
                     .orElseThrow(() -> new IllegalArgumentException("Cliente no encontrado"));
             
@@ -97,7 +96,7 @@ public class PolizaController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<PolizaResponse>> obtenerPolizaPorId(@PathVariable String id) {
         try {
-            UUID polizaId = UUID.fromString(id);
+            Long polizaId = Long.parseLong(id);
             Poliza poliza = polizaService.buscarPolizaPorId(polizaId);
             
             if (poliza == null) {
@@ -107,7 +106,7 @@ public class PolizaController {
             PolizaResponse response = polizaMapper.toResponse(poliza);
             return ResponseEntity.ok(ApiResponse.success("Póliza encontrada", response));
             
-        } catch (IllegalArgumentException e) {
+        } catch (NumberFormatException e) {
             return ResponseEntity.badRequest()
                     .body(ApiResponse.error("ID de póliza no válido"));
         } catch (Exception e) {
@@ -143,7 +142,7 @@ public class PolizaController {
     @GetMapping("/cliente/{clienteId}")
     public ResponseEntity<ApiResponse<List<PolizaResponse>>> obtenerPolizasPorCliente(@PathVariable String clienteId) {
         try {
-            UUID id = UUID.fromString(clienteId);
+            Long id = Long.parseLong(clienteId);
             List<Poliza> polizas = polizaService.obtenerPolizasPorCliente(id);
             List<PolizaResponse> responses = polizas.stream()
                     .map(polizaMapper::toResponse)
@@ -151,7 +150,7 @@ public class PolizaController {
             
             return ResponseEntity.ok(ApiResponse.success("Pólizas del cliente obtenidas", responses));
             
-        } catch (IllegalArgumentException e) {
+        } catch (NumberFormatException e) {
             return ResponseEntity.badRequest()
                     .body(ApiResponse.error("ID de cliente no válido"));
         } catch (Exception e) {
@@ -189,15 +188,15 @@ public class PolizaController {
     @PutMapping("/{id}/aprobar")
     public ResponseEntity<ApiResponse<PolizaResponse>> aprobarPoliza(@PathVariable String id) {
         try {
-            UUID polizaId = UUID.fromString(id);
+            Long polizaId = Long.parseLong(id);
             Poliza polizaAprobada = polizaService.aprobarPoliza(polizaId);
             PolizaResponse response = polizaMapper.toResponse(polizaAprobada);
             
             return ResponseEntity.ok(ApiResponse.success("Póliza aprobada exitosamente", response));
             
-        } catch (IllegalArgumentException e) {
+        } catch (NumberFormatException e) {
             return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("Error: " + e.getMessage()));
+                    .body(ApiResponse.error("ID de póliza no válido"));
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest()
                     .body(ApiResponse.error("Estado no válido: " + e.getMessage()));
@@ -214,15 +213,15 @@ public class PolizaController {
     public ResponseEntity<ApiResponse<PolizaResponse>> rechazarPoliza(@PathVariable String id, 
                                                                     @RequestParam(required = false) String motivo) {
         try {
-            UUID polizaId = UUID.fromString(id);
+            Long polizaId = Long.parseLong(id);
             Poliza polizaRechazada = polizaService.rechazarPoliza(polizaId, motivo);
             PolizaResponse response = polizaMapper.toResponse(polizaRechazada);
             
             return ResponseEntity.ok(ApiResponse.success("Póliza rechazada exitosamente", response));
             
-        } catch (IllegalArgumentException e) {
+        } catch (NumberFormatException e) {
             return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("Error: " + e.getMessage()));
+                    .body(ApiResponse.error("ID de póliza no válido"));
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest()
                     .body(ApiResponse.error("Estado no válido: " + e.getMessage()));
@@ -239,7 +238,7 @@ public class PolizaController {
     public ResponseEntity<ApiResponse<PolizaResponse>> actualizarPoliza(@PathVariable String id, 
                                                                        @Valid @RequestBody PolizaRequest request) {
         try {
-            UUID polizaId = UUID.fromString(id);
+            Long polizaId = Long.parseLong(id);
             
             // Buscar la póliza existente
             Poliza polizaExistente = polizaService.buscarPolizaPorId(polizaId);
@@ -256,9 +255,9 @@ public class PolizaController {
             
             return ResponseEntity.ok(ApiResponse.success("Póliza actualizada exitosamente", response));
             
-        } catch (IllegalArgumentException e) {
+        } catch (NumberFormatException e) {
             return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("Error en los datos: " + e.getMessage()));
+                    .body(ApiResponse.error("ID de póliza no válido"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("Error al actualizar póliza", e.getMessage()));

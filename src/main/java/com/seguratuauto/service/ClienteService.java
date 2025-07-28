@@ -3,7 +3,6 @@ package com.seguratuauto.service;
 import com.seguratuauto.model.Cliente;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Servicio de negocio para el manejo de clientes
@@ -22,7 +21,7 @@ public interface ClienteService {
      * @param id el ID del cliente
      * @return el cliente encontrado o null si no existe
      */
-    Cliente buscarClientePorId(UUID id);
+    Cliente buscarClientePorId(Long id);
     
     /**
      * Busca un cliente por su email
@@ -63,14 +62,14 @@ public interface ClienteService {
      * @param id el ID del cliente a eliminar
      * @return true si se eliminó correctamente
      */
-    boolean eliminarCliente(UUID id);
+    boolean eliminarCliente(Long id);
     
     /**
      * Verifica si existe un cliente con el ID dado
      * @param id el ID del cliente
      * @return true si existe
      */
-    boolean existeCliente(UUID id);
+    boolean existeCliente(Long id);
     
     /**
      * Verifica si existe un cliente con el email dado

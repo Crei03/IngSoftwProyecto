@@ -10,14 +10,13 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * Repositorio JPA para la entidad Poliza
  * Reemplaza la funcionalidad de JdbcPolizaDao usando Spring Data JPA
  */
 @Repository
-public interface PolizaRepository extends JpaRepository<Poliza, UUID> {
+public interface PolizaRepository extends JpaRepository<Poliza, Long> {
     
     /**
      * Busca una póliza por su número
@@ -31,14 +30,14 @@ public interface PolizaRepository extends JpaRepository<Poliza, UUID> {
      * @param clienteId el ID del cliente
      * @return lista de pólizas del cliente
      */
-    List<Poliza> findByClienteId(UUID clienteId);
+    List<Poliza> findByClienteId(Long clienteId);
     
     /**
      * Busca todas las pólizas de un agente
      * @param agenteId el ID del agente
      * @return lista de pólizas del agente
      */
-    List<Poliza> findByAgenteId(UUID agenteId);
+    List<Poliza> findByAgenteId(Long agenteId);
     
     /**
      * Busca pólizas por estado
@@ -61,7 +60,7 @@ public interface PolizaRepository extends JpaRepository<Poliza, UUID> {
      * @param estado estado de la póliza
      * @return lista de pólizas del cliente con el estado dado
      */
-    List<Poliza> findByClienteIdAndEstado(UUID clienteId, EstadoPoliza estado);
+    List<Poliza> findByClienteIdAndEstado(Long clienteId, EstadoPoliza estado);
     
     /**
      * Busca pólizas de un agente por estado
@@ -69,7 +68,7 @@ public interface PolizaRepository extends JpaRepository<Poliza, UUID> {
      * @param estado estado de la póliza
      * @return lista de pólizas del agente con el estado dado
      */
-    List<Poliza> findByAgenteIdAndEstado(UUID agenteId, EstadoPoliza estado);
+    List<Poliza> findByAgenteIdAndEstado(Long agenteId, EstadoPoliza estado);
     
     /**
      * Cuenta las pólizas por estado

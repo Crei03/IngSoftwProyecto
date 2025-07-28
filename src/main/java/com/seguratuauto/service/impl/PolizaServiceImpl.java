@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
+import java.util.Random;
 
 /**
  * Implementación del servicio de pólizas usando Spring Data JPA
@@ -23,6 +23,7 @@ import java.util.UUID;
 @Transactional
 public class PolizaServiceImpl implements PolizaService {
     
+    private static final Random random = new Random();
     private final PolizaRepository polizaRepository;
     private final ClienteRepository clienteRepository;
     private final AgenteRepository agenteRepository;
@@ -60,7 +61,7 @@ public class PolizaServiceImpl implements PolizaService {
         
         // Asignar ID si no tiene
         if (polizaDatos.getIdPoliza() == null) {
-            polizaDatos.setIdPoliza(UUID.randomUUID());
+            polizaDatos.setIdPoliza(Math.abs(random.nextLong()));
         }
         
         // Asignar cliente ID
@@ -86,7 +87,7 @@ public class PolizaServiceImpl implements PolizaService {
     
     @Override
     @Transactional(readOnly = true)
-    public Poliza buscarPolizaPorId(UUID id) {
+    public Poliza buscarPolizaPorId(Long id) {
         return polizaRepository.findById(id).orElse(null);
     }
     
@@ -98,13 +99,13 @@ public class PolizaServiceImpl implements PolizaService {
     
     @Override
     @Transactional(readOnly = true)
-    public List<Poliza> obtenerPolizasPorCliente(UUID clienteId) {
+    public List<Poliza> obtenerPolizasPorCliente(Long clienteId) {
         return polizaRepository.findByClienteId(clienteId);
     }
     
     @Override
     @Transactional(readOnly = true)
-    public List<Poliza> obtenerPolizasPorAgente(UUID agenteId) {
+    public List<Poliza> obtenerPolizasPorAgente(Long agenteId) {
         return polizaRepository.findByAgenteId(agenteId);
     }
     
@@ -115,7 +116,7 @@ public class PolizaServiceImpl implements PolizaService {
     }
     
     @Override
-    public Poliza aprobarPoliza(UUID polizaId) {
+    public Poliza aprobarPoliza(Long polizaId) {
         Poliza poliza = polizaRepository.findById(polizaId)
                 .orElseThrow(() -> new IllegalArgumentException("Póliza no encontrada"));
         
@@ -128,7 +129,7 @@ public class PolizaServiceImpl implements PolizaService {
     }
     
     @Override
-    public Poliza rechazarPoliza(UUID polizaId, String motivo) {
+    public Poliza rechazarPoliza(Long polizaId, String motivo) {
         Poliza poliza = polizaRepository.findById(polizaId)
                 .orElseThrow(() -> new IllegalArgumentException("Póliza no encontrada"));
         
@@ -145,7 +146,7 @@ public class PolizaServiceImpl implements PolizaService {
     }
     
     @Override
-    public Poliza cancelarPoliza(UUID polizaId, String motivo) {
+    public Poliza cancelarPoliza(Long polizaId, String motivo) {
         Poliza poliza = polizaRepository.findById(polizaId)
                 .orElseThrow(() -> new IllegalArgumentException("Póliza no encontrada"));
         

@@ -8,13 +8,12 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * Repositorio JPA para la entidad Cliente
  */
 @Repository
-public interface ClienteRepository extends JpaRepository<Cliente, UUID> {
+public interface ClienteRepository extends JpaRepository<Cliente, Long> {
     
     /**
      * Busca un cliente por email

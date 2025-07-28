@@ -1,34 +1,33 @@
 package com.seguratuauto.api.dto;
 
-import java.util.UUID;
 
 /**
  * DTO para las respuestas que contienen información de agentes
  */
 public class AgenteResponse {
     
-    private UUID idAgente;
+    private Long idAgente;
     private String nombre;
     private String codigo;
     private String email;
     private String telefono;
-    private long cantidadPolizas;
+    private Long cantidadPolizas;
     
     // Constructor por defecto
     public AgenteResponse() {}
     
     // Constructor con parámetros básicos
-    public AgenteResponse(UUID idAgente, String nombre, String codigo, String email, String telefono) {
+    public AgenteResponse(Long idAgente, String nombre, String codigo, String email, String telefono) {
         this.idAgente = idAgente;
         this.nombre = nombre;
         this.codigo = codigo;
         this.email = email;
         this.telefono = telefono;
-        this.cantidadPolizas = 0;
+        this.cantidadPolizas = 0L;
     }
     
     // Constructor completo
-    public AgenteResponse(UUID idAgente, String nombre, String codigo, String email, String telefono, long cantidadPolizas) {
+    public AgenteResponse(Long idAgente, String nombre, String codigo, String email, String telefono, Long cantidadPolizas) {
         this.idAgente = idAgente;
         this.nombre = nombre;
         this.codigo = codigo;
@@ -38,11 +37,11 @@ public class AgenteResponse {
     }
     
     // Getters y Setters
-    public UUID getIdAgente() {
+    public Long getIdAgente() {
         return idAgente;
     }
     
-    public void setIdAgente(UUID idAgente) {
+    public void setIdAgente(Long idAgente) {
         this.idAgente = idAgente;
     }
     
@@ -78,11 +77,11 @@ public class AgenteResponse {
         this.telefono = telefono;
     }
     
-    public long getCantidadPolizas() {
+    public Long getCantidadPolizas() {
         return cantidadPolizas;
     }
     
-    public void setCantidadPolizas(long cantidadPolizas) {
+    public void setCantidadPolizas(Long cantidadPolizas) {
         this.cantidadPolizas = cantidadPolizas;
     }
     

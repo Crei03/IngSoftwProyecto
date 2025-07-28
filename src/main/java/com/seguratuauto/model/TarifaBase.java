@@ -2,14 +2,13 @@ package com.seguratuauto.model;
 
 import java.math.BigDecimal;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Entidad TarifaBase para definir las tarifas base de cada tipo de seguro
  */
 public class TarifaBase {
     
-    private UUID idTarifa;
+    private Long idTarifa;
     private String tipoSeguro;
     private BigDecimal primaBase;
     private String descripcion;
@@ -19,7 +18,7 @@ public class TarifaBase {
     public TarifaBase() {}
     
     // Constructor completo
-    public TarifaBase(UUID idTarifa, String tipoSeguro, BigDecimal primaBase, String descripcion, boolean activo) {
+    public TarifaBase(Long idTarifa, String tipoSeguro, BigDecimal primaBase, String descripcion, boolean activo) {
         this.idTarifa = idTarifa;
         this.tipoSeguro = tipoSeguro;
         this.primaBase = primaBase;
@@ -28,11 +27,11 @@ public class TarifaBase {
     }
     
     // Getters y Setters
-    public UUID getIdTarifa() {
+    public Long getIdTarifa() {
         return idTarifa;
     }
     
-    public void setIdTarifa(UUID idTarifa) {
+    public void setIdTarifa(Long idTarifa) {
         this.idTarifa = idTarifa;
     }
     

@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -101,7 +100,7 @@ public class AgenteController {
      * GET /api/agentes/{id}
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<AgenteResponse>> obtenerAgentePorId(@PathVariable UUID id) {
+    public ResponseEntity<ApiResponse<AgenteResponse>> obtenerAgentePorId(@PathVariable Long id) {
         try {
             Agente agente = agenteService.buscarAgentePorId(id);
             
@@ -214,7 +213,7 @@ public class AgenteController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<AgenteResponse>> actualizarAgente(
-            @PathVariable UUID id, 
+            @PathVariable Long id, 
             @Valid @RequestBody AgenteRequest request) {
         try {
             Agente agenteExistente = agenteService.buscarAgentePorId(id);
@@ -244,7 +243,7 @@ public class AgenteController {
      * DELETE /api/agentes/{id}
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> eliminarAgente(@PathVariable UUID id) {
+    public ResponseEntity<ApiResponse<Void>> eliminarAgente(@PathVariable Long id) {
         try {
             boolean eliminado = agenteService.eliminarAgente(id);
             

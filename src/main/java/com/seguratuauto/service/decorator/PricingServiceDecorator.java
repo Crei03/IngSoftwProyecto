@@ -8,7 +8,6 @@ import com.seguratuauto.service.PricingService;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * Decorator base para el servicio de pricing
@@ -24,7 +23,7 @@ public abstract class PricingServiceDecorator implements PricingService {
     }
     
     @Override
-    public BigDecimal calcularPrima(UUID clienteId, String tipoSeguro, Map<String, Object> parametros) {
+    public BigDecimal calcularPrima(Long clienteId, String tipoSeguro, Map<String, Object> parametros) {
         return pricingService.calcularPrima(clienteId, tipoSeguro, parametros);
     }
     
@@ -56,7 +55,7 @@ public abstract class PricingServiceDecorator implements PricingService {
     }
     
     @Override
-    public BigDecimal aplicarDescuentos(BigDecimal precio, UUID clienteId) {
+    public BigDecimal aplicarDescuentos(BigDecimal precio, Long clienteId) {
         return pricingService.aplicarDescuentos(precio, clienteId);
     }
     
@@ -66,7 +65,7 @@ public abstract class PricingServiceDecorator implements PricingService {
     }
     
     @Override
-    public BigDecimal calcularPrecioTotal(String tipoSeguro, UUID clienteId, Map<String, Object> factoresRiesgo) {
+    public BigDecimal calcularPrecioTotal(String tipoSeguro, Long clienteId, Map<String, Object> factoresRiesgo) {
         return pricingService.calcularPrecioTotal(tipoSeguro, clienteId, factoresRiesgo);
     }
 }

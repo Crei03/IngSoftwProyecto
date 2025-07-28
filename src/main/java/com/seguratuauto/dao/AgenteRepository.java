@@ -8,13 +8,12 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * Repositorio JPA para la entidad Agente
  */
 @Repository
-public interface AgenteRepository extends JpaRepository<Agente, UUID> {
+public interface AgenteRepository extends JpaRepository<Agente, Long> {
     
     /**
      * Busca un agente por código
@@ -116,5 +115,5 @@ public interface AgenteRepository extends JpaRepository<Agente, UUID> {
      * @return número de pólizas del agente
      */
     @Query("SELECT COUNT(p) FROM Poliza p WHERE p.agenteId = :agenteId")
-    long countPolizasByAgente(@Param("agenteId") UUID agenteId);
+    long countPolizasByAgente(@Param("agenteId") Long agenteId);
 }

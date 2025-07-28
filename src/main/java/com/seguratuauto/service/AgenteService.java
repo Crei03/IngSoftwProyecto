@@ -3,7 +3,6 @@ package com.seguratuauto.service;
 import com.seguratuauto.model.Agente;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Servicio de negocio para el manejo de agentes
@@ -22,7 +21,7 @@ public interface AgenteService {
      * @param id el ID del agente
      * @return el agente encontrado o null si no existe
      */
-    Agente buscarAgentePorId(UUID id);
+    Agente buscarAgentePorId(Long id);
     
     /**
      * Busca un agente por su código
@@ -76,14 +75,14 @@ public interface AgenteService {
      * @param id el ID del agente a eliminar
      * @return true si se eliminó correctamente
      */
-    boolean eliminarAgente(UUID id);
+    boolean eliminarAgente(Long id);
     
     /**
      * Verifica si existe un agente con el ID dado
      * @param id el ID del agente
      * @return true si existe
      */
-    boolean existeAgente(UUID id);
+    boolean existeAgente(Long id);
     
     /**
      * Verifica si existe un agente con el código dado
@@ -126,7 +125,7 @@ public interface AgenteService {
      * @param agenteId ID del agente
      * @return número de pólizas del agente
      */
-    long contarPolizasPorAgente(UUID agenteId);
+    long contarPolizasPorAgente(Long agenteId);
     
     /**
      * Genera el siguiente código de agente disponible

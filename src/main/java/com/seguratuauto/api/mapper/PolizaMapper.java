@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.UUID;
 
 /**
  * Mapper para convertir entre entidades Poliza y DTOs
@@ -74,19 +73,19 @@ public class PolizaMapper {
             }
         }
         
-        // Convertir UUIDs
+        // Convertir Longs
         if (request.getClienteId() != null && !request.getClienteId().trim().isEmpty()) {
             try {
-                poliza.setClienteId(UUID.fromString(request.getClienteId()));
-            } catch (IllegalArgumentException e) {
+                poliza.setClienteId(Long.parseLong(request.getClienteId()));
+            } catch (NumberFormatException e) {
                 throw new IllegalArgumentException("ID de cliente no válido: " + request.getClienteId());
             }
         }
         
         if (request.getAgenteId() != null && !request.getAgenteId().trim().isEmpty()) {
             try {
-                poliza.setAgenteId(UUID.fromString(request.getAgenteId()));
-            } catch (IllegalArgumentException e) {
+                poliza.setAgenteId(Long.parseLong(request.getAgenteId()));
+            } catch (NumberFormatException e) {
                 throw new IllegalArgumentException("ID de agente no válido: " + request.getAgenteId());
             }
         }
@@ -123,11 +122,11 @@ public class PolizaMapper {
         }
         
         if (request.getClienteId() != null && !request.getClienteId().trim().isEmpty()) {
-            poliza.setClienteId(UUID.fromString(request.getClienteId()));
+            poliza.setClienteId(Long.parseLong(request.getClienteId()));
         }
         
         if (request.getAgenteId() != null && !request.getAgenteId().trim().isEmpty()) {
-            poliza.setAgenteId(UUID.fromString(request.getAgenteId()));
+            poliza.setAgenteId(Long.parseLong(request.getAgenteId()));
         }
         
         if (request.getPrima() != null) {

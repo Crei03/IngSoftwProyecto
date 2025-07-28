@@ -7,7 +7,6 @@ import com.seguratuauto.model.Descuento;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * Servicio base para el cálculo de precios y primas de seguros
@@ -23,7 +22,7 @@ public interface PricingService {
      * @param parametros parámetros adicionales para el cálculo
      * @return prima calculada
      */
-    BigDecimal calcularPrima(UUID clienteId, String tipoSeguro, Map<String, Object> parametros);
+    BigDecimal calcularPrima(Long clienteId, String tipoSeguro, Map<String, Object> parametros);
     
     /**
      * Obtiene la tarifa base para un tipo de seguro
@@ -66,7 +65,7 @@ public interface PricingService {
      * @param clienteId ID del cliente
      * @return precio con descuentos aplicados
      */
-    BigDecimal aplicarDescuentos(BigDecimal precio, UUID clienteId);
+    BigDecimal aplicarDescuentos(BigDecimal precio, Long clienteId);
     
     /**
      * Aplica factores de riesgo según los parámetros del cliente
@@ -83,5 +82,5 @@ public interface PricingService {
      * @param factoresRiesgo factores de riesgo
      * @return precio total calculado
      */
-    BigDecimal calcularPrecioTotal(String tipoSeguro, UUID clienteId, Map<String, Object> factoresRiesgo);
+    BigDecimal calcularPrecioTotal(String tipoSeguro, Long clienteId, Map<String, Object> factoresRiesgo);
 }

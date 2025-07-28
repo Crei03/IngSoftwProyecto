@@ -2,7 +2,6 @@ package com.seguratuauto.api.dto;
 
 import java.math.BigDecimal;
 import java.util.Map;
-import java.util.UUID;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.DecimalMin;
@@ -16,7 +15,7 @@ public class CotizacionRequest {
     private String tipoSeguro;
     
     @NotNull(message = "ID del cliente es requerido")
-    private UUID clienteId;
+    private Long clienteId;
     
     private Map<String, Object> factoresRiesgo;
     
@@ -24,7 +23,7 @@ public class CotizacionRequest {
     public CotizacionRequest() {}
     
     // Constructor completo
-    public CotizacionRequest(String tipoSeguro, UUID clienteId, Map<String, Object> factoresRiesgo) {
+    public CotizacionRequest(String tipoSeguro, Long clienteId, Map<String, Object> factoresRiesgo) {
         this.tipoSeguro = tipoSeguro;
         this.clienteId = clienteId;
         this.factoresRiesgo = factoresRiesgo;
@@ -39,11 +38,11 @@ public class CotizacionRequest {
         this.tipoSeguro = tipoSeguro;
     }
     
-    public UUID getClienteId() {
+    public Long getClienteId() {
         return clienteId;
     }
     
-    public void setClienteId(UUID clienteId) {
+    public void setClienteId(Long clienteId) {
         this.clienteId = clienteId;
     }
     

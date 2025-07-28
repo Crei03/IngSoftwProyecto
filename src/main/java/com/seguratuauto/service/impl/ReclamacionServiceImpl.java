@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.UUID;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 /**
@@ -23,8 +23,9 @@ import java.util.stream.Collectors;
  */
 public class ReclamacionServiceImpl implements ReclamacionService {
     
+    private static final Random random = new Random();
     // Simulación de almacenamiento (en producción sería un DAO)
-    private static final Map<UUID, Reclamacion> RECLAMACIONES = new HashMap<>();
+    private static final Map<Long, Reclamacion> RECLAMACIONES = new HashMap<>();
     private static int NUMERO_SECUENCIAL = 1;
     
     // Estrategias de evaluación disponibles
@@ -38,7 +39,7 @@ public class ReclamacionServiceImpl implements ReclamacionService {
     }
     
     @Override
-    public Reclamacion registrarReclamacion(UUID polizaId, String descripcion, BigDecimal montoReclamado) {
+    public Reclamacion registrarReclamacion(Long polizaId, String descripcion, BigDecimal montoReclamado) {
         if (polizaId == null) {
             throw new IllegalArgumentException("ID de póliza es requerido");
         }
@@ -50,7 +51,7 @@ public class ReclamacionServiceImpl implements ReclamacionService {
         }
         
         Reclamacion reclamacion = new Reclamacion(polizaId, descripcion, montoReclamado);
-        reclamacion.setIdReclamacion(UUID.randomUUID());
+        reclamacion.setIdReclamacion(Math.abs(random.nextLong()));
         reclamacion.setNumeroReclamacion(generarNumeroReclamacion());
         reclamacion.setFechaReclamacion(LocalDateTime.now());
         reclamacion.setEstado(EstadoReclamacion.REGISTRADA);
@@ -64,7 +65,7 @@ public class ReclamacionServiceImpl implements ReclamacionService {
     }
     
     @Override
-    public boolean evaluarReclamacion(UUID reclamacionId, BigDecimal montoAprobado, String observaciones, String evaluador) {
+    public boolean evaluarReclamacion(Long reclamacionId, BigDecimal montoAprobado, String observaciones, String evaluador) {
         Reclamacion reclamacion = buscarReclamacionPorId(reclamacionId);
         if (reclamacion == null) {
             throw new IllegalArgumentException("Reclamación no encontrada");
@@ -98,7 +99,7 @@ public class ReclamacionServiceImpl implements ReclamacionService {
     }
     
     @Override
-    public boolean aprobarReclamacion(UUID reclamacionId, String evaluador) {
+    public boolean aprobarReclamacion(Long reclamacionId, String evaluador) {
         Reclamacion reclamacion = buscarReclamacionPorId(reclamacionId);
         if (reclamacion == null) {
             throw new IllegalArgumentException("Reclamación no encontrada");
@@ -123,7 +124,7 @@ public class ReclamacionServiceImpl implements ReclamacionService {
     }
     
     @Override
-    public boolean rechazarReclamacion(UUID reclamacionId, String motivo, String evaluador) {
+    public boolean rechazarReclamacion(Long reclamacionId, String motivo, String evaluador) {
         Reclamacion reclamacion = buscarReclamacionPorId(reclamacionId);
         if (reclamacion == null) {
             throw new IllegalArgumentException("Reclamación no encontrada");
@@ -149,7 +150,7 @@ public class ReclamacionServiceImpl implements ReclamacionService {
     }
     
     @Override
-    public boolean procesarPago(UUID reclamacionId) {
+    public boolean procesarPago(Long reclamacionId) {
         Reclamacion reclamacion = buscarReclamacionPorId(reclamacionId);
         if (reclamacion == null) {
             throw new IllegalArgumentException("Reclamación no encontrada");
@@ -172,12 +173,12 @@ public class ReclamacionServiceImpl implements ReclamacionService {
     }
     
     @Override
-    public Reclamacion buscarReclamacionPorId(UUID reclamacionId) {
+    public Reclamacion buscarReclamacionPorId(Long reclamacionId) {
         return RECLAMACIONES.get(reclamacionId);
     }
     
     @Override
-    public List<Reclamacion> obtenerReclamacionesPorPoliza(UUID polizaId) {
+    public List<Reclamacion> obtenerReclamacionesPorPoliza(Long polizaId) {
         return RECLAMACIONES.values().stream()
                 .filter(r -> polizaId.equals(r.getPolizaId()))
                 .collect(Collectors.toList());

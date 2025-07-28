@@ -7,7 +7,8 @@ import com.seguratuauto.service.AgenteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
+import java.util.Random;
+
 
 /**
  * Mapper para convertir entre entidades Agente y DTOs
@@ -15,6 +16,7 @@ import java.util.UUID;
 @Component
 public class AgenteMapper {
     
+    private static final Random random = new Random();
     private final AgenteService agenteService;
     
     @Autowired
@@ -56,7 +58,7 @@ public class AgenteMapper {
         }
         
         Agente agente = new Agente();
-        agente.setIdAgente(UUID.randomUUID());
+        agente.setIdAgente(Math.abs(random.nextLong()));
         agente.setNombre(request.getNombre());
         agente.setCodigo(request.getCodigo());
         agente.setEmail(request.getEmail());
@@ -103,7 +105,7 @@ public class AgenteMapper {
             agente.getCodigo(),
             agente.getEmail(),
             agente.getTelefono(),
-            0 // Sin consultar pólizas para optimizar listados
+            0L // Sin consultar pólizas para optimizar listados
         );
     }
 }

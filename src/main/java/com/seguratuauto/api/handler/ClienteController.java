@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -85,7 +84,7 @@ public class ClienteController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ClienteResponse>> obtenerClientePorId(@PathVariable String id) {
         try {
-            UUID clienteId = UUID.fromString(id);
+            Long clienteId = Long.parseLong(id);
             Cliente cliente = clienteService.buscarClientePorId(clienteId);
             
             if (cliente == null) {
@@ -172,7 +171,7 @@ public class ClienteController {
     public ResponseEntity<ApiResponse<ClienteResponse>> actualizarCliente(@PathVariable String id, 
                                                                          @Valid @RequestBody ClienteRequest request) {
         try {
-            UUID clienteId = UUID.fromString(id);
+            Long clienteId = Long.parseLong(id);
             
             // Buscar el cliente existente
             Cliente clienteExistente = clienteService.buscarClientePorId(clienteId);
@@ -204,7 +203,7 @@ public class ClienteController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> eliminarCliente(@PathVariable String id) {
         try {
-            UUID clienteId = UUID.fromString(id);
+            Long clienteId = Long.parseLong(id);
             
             boolean eliminado = clienteService.eliminarCliente(clienteId);
             
@@ -232,12 +231,12 @@ public class ClienteController {
     @GetMapping("/{id}/existe")
     public ResponseEntity<ApiResponse<Boolean>> verificarExistenciaCliente(@PathVariable String id) {
         try {
-            UUID clienteId = UUID.fromString(id);
+            Long clienteId = Long.parseLong(id);
             boolean existe = clienteService.existeCliente(clienteId);
             
             return ResponseEntity.ok(ApiResponse.success("Verificación completada", existe));
             
-        } catch (IllegalArgumentException e) {
+        } catch (NumberFormatException e) {
             return ResponseEntity.badRequest()
                     .body(ApiResponse.error("ID de cliente no válido"));
         } catch (Exception e) {

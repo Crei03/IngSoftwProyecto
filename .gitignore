@@ -45,3 +45,6 @@ out/
 docs
 
 migration-source
+
+migration
+sql

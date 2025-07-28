@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Random;
 
 /**
  * Implementación base del servicio de pricing
@@ -18,6 +18,7 @@ import java.util.UUID;
  */
 public class BasicPricingServiceImpl implements PricingService {
     
+    private static final Random random = new Random();
     // Simulación de datos (en producción vendría de DAO)
     private static final Map<String, TarifaBase> TARIFAS_BASE = new HashMap<>();
     private static final List<FactorRiesgo> FACTORES_RIESGO = new ArrayList<>();
@@ -31,7 +32,7 @@ public class BasicPricingServiceImpl implements PricingService {
     }
     
     @Override
-    public BigDecimal calcularPrima(UUID clienteId, String tipoSeguro, Map<String, Object> parametros) {
+    public BigDecimal calcularPrima(Long clienteId, String tipoSeguro, Map<String, Object> parametros) {
         TarifaBase tarifa = obtenerTarifaBase(tipoSeguro);
         if (tarifa == null) {
             throw new IllegalArgumentException("Tipo de seguro no válido: " + tipoSeguro);
@@ -89,11 +90,11 @@ public class BasicPricingServiceImpl implements PricingService {
     }
     
     @Override
-    public BigDecimal aplicarDescuentos(BigDecimal precio, UUID clienteId) {
+    public BigDecimal aplicarDescuentos(BigDecimal precio, Long clienteId) {
         // Simulación de descuentos por cliente
-        Map<UUID, BigDecimal> descuentosCliente = new HashMap<>();
-        descuentosCliente.put(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), new BigDecimal("0.10")); // 10%
-        descuentosCliente.put(UUID.fromString("550e8400-e29b-41d4-a716-446655440001"), new BigDecimal("0.15")); // 15%
+        Map<Long, BigDecimal> descuentosCliente = new HashMap<>();
+        descuentosCliente.put(1L, new BigDecimal("0.10")); // 10%
+        descuentosCliente.put(2L, new BigDecimal("0.15")); // 15%
         
         BigDecimal porcentajeDescuento = descuentosCliente.getOrDefault(clienteId, BigDecimal.ZERO);
         BigDecimal descuento = precio.multiply(porcentajeDescuento);
@@ -137,7 +138,7 @@ public class BasicPricingServiceImpl implements PricingService {
     }
     
     @Override
-    public BigDecimal calcularPrecioTotal(String tipoSeguro, UUID clienteId, Map<String, Object> factoresRiesgo) {
+    public BigDecimal calcularPrecioTotal(String tipoSeguro, Long clienteId, Map<String, Object> factoresRiesgo) {
         // Calcular precio base
         BigDecimal precio = calcularPrecioBase(tipoSeguro);
         
@@ -153,53 +154,53 @@ public class BasicPricingServiceImpl implements PricingService {
     // Métodos de inicialización de datos de ejemplo
     private static void inicializarTarifasBase() {
         TARIFAS_BASE.put("BASICO", new TarifaBase(
-            UUID.randomUUID(), "BASICO", new BigDecimal("150.00"), 
+            Math.abs(random.nextLong()), "BASICO", new BigDecimal("150.00"), 
             "Seguro básico con cobertura mínima", true
         ));
         
         TARIFAS_BASE.put("COMPLETO", new TarifaBase(
-            UUID.randomUUID(), "COMPLETO", new BigDecimal("350.00"), 
+            Math.abs(random.nextLong()), "COMPLETO", new BigDecimal("350.00"), 
             "Seguro completo con cobertura amplia", true
         ));
         
         TARIFAS_BASE.put("PREMIUM", new TarifaBase(
-            UUID.randomUUID(), "PREMIUM", new BigDecimal("500.00"), 
+            Math.abs(random.nextLong()), "PREMIUM", new BigDecimal("500.00"), 
             "Seguro premium con cobertura total", true
         ));
     }
     
     private static void inicializarFactoresRiesgo() {
         FACTORES_RIESGO.add(new FactorRiesgo(
-            UUID.randomUUID(), "CONDUCTOR_JOVEN", "EDAD", 
+            Math.abs(random.nextLong()), "CONDUCTOR_JOVEN", "EDAD", 
             new BigDecimal("20.00"), "Conductor menor de 25 años", true
         ));
         
         FACTORES_RIESGO.add(new FactorRiesgo(
-            UUID.randomUUID(), "ZONA_RIESGO_ALTO", "UBICACION", 
+            Math.abs(random.nextLong()), "ZONA_RIESGO_ALTO", "UBICACION", 
             new BigDecimal("15.00"), "Vehículo en zona de alto riesgo", true
         ));
         
         FACTORES_RIESGO.add(new FactorRiesgo(
-            UUID.randomUUID(), "POCA_EXPERIENCIA", "EXPERIENCIA", 
+            Math.abs(random.nextLong()), "POCA_EXPERIENCIA", "EXPERIENCIA", 
             new BigDecimal("25.00"), "Conductor con menos de 2 años de experiencia", true
         ));
     }
     
     private static void inicializarDescuentos() {
         DESCUENTOS.add(new Descuento(
-            UUID.randomUUID(), "BUEN_CONDUCTOR", "HISTORIAL", 
+            Math.abs(random.nextLong()), "BUEN_CONDUCTOR", "HISTORIAL", 
             new BigDecimal("10.00"), null, null, 
             "Descuento por buen historial de conducción", true
         ));
         
         DESCUENTOS.add(new Descuento(
-            UUID.randomUUID(), "CLIENTE_FRECUENTE", "FIDELIDAD", 
+            Math.abs(random.nextLong()), "CLIENTE_FRECUENTE", "FIDELIDAD", 
             new BigDecimal("15.00"), null, null, 
             "Descuento por fidelidad del cliente", true
         ));
         
         DESCUENTOS.add(new Descuento(
-            UUID.randomUUID(), "VEHICULO_SEGURO", "SEGURIDAD", 
+            Math.abs(random.nextLong()), "VEHICULO_SEGURO", "SEGURIDAD", 
             new BigDecimal("5.00"), null, null, 
             "Descuento por características de seguridad del vehículo", true
         ));

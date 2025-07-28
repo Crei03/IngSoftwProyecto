@@ -3,15 +3,14 @@ package com.seguratuauto.model;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Entidad Reclamacion para el manejo de reclamaciones de seguros
  */
 public class Reclamacion {
     
-    private UUID idReclamacion;
-    private UUID polizaId;
+    private Long idReclamacion;
+    private Long polizaId;
     private String numeroReclamacion;
     private String descripcion;
     private BigDecimal montoReclamado;
@@ -26,7 +25,7 @@ public class Reclamacion {
     public Reclamacion() {}
     
     // Constructor para nueva reclamación
-    public Reclamacion(UUID polizaId, String descripcion, BigDecimal montoReclamado) {
+    public Reclamacion(Long polizaId, String descripcion, BigDecimal montoReclamado) {
         this.polizaId = polizaId;
         this.descripcion = descripcion;
         this.montoReclamado = montoReclamado;
@@ -35,7 +34,7 @@ public class Reclamacion {
     }
     
     // Constructor completo
-    public Reclamacion(UUID idReclamacion, UUID polizaId, String numeroReclamacion, String descripcion,
+    public Reclamacion(Long idReclamacion, Long polizaId, String numeroReclamacion, String descripcion,
                       BigDecimal montoReclamado, BigDecimal montoAprobado, EstadoReclamacion estado,
                       LocalDateTime fechaReclamacion, LocalDateTime fechaEvaluacion, String evaluador, String observaciones) {
         this.idReclamacion = idReclamacion;
@@ -52,19 +51,19 @@ public class Reclamacion {
     }
     
     // Getters y Setters
-    public UUID getIdReclamacion() {
+    public Long getIdReclamacion() {
         return idReclamacion;
     }
     
-    public void setIdReclamacion(UUID idReclamacion) {
+    public void setIdReclamacion(Long idReclamacion) {
         this.idReclamacion = idReclamacion;
     }
     
-    public UUID getPolizaId() {
+    public Long getPolizaId() {
         return polizaId;
     }
     
-    public void setPolizaId(UUID polizaId) {
+    public void setPolizaId(Long polizaId) {
         this.polizaId = polizaId;
     }
     

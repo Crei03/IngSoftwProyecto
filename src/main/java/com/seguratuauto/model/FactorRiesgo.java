@@ -2,14 +2,13 @@ package com.seguratuauto.model;
 
 import java.math.BigDecimal;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Entidad FactorRiesgo para el cálculo de recargos en pricing
  */
 public class FactorRiesgo {
     
-    private UUID idFactor;
+    private Long idFactor;
     private String nombre;
     private String tipo; // EDAD, EXPERIENCIA, UBICACION, VEHICULO, etc.
     private BigDecimal porcentajeRecargo;
@@ -20,7 +19,7 @@ public class FactorRiesgo {
     public FactorRiesgo() {}
     
     // Constructor completo
-    public FactorRiesgo(UUID idFactor, String nombre, String tipo, BigDecimal porcentajeRecargo, String descripcion, boolean activo) {
+    public FactorRiesgo(Long idFactor, String nombre, String tipo, BigDecimal porcentajeRecargo, String descripcion, boolean activo) {
         this.idFactor = idFactor;
         this.nombre = nombre;
         this.tipo = tipo;
@@ -30,11 +29,11 @@ public class FactorRiesgo {
     }
     
     // Getters y Setters
-    public UUID getIdFactor() {
+    public Long getIdFactor() {
         return idFactor;
     }
     
-    public void setIdFactor(UUID idFactor) {
+    public void setIdFactor(Long idFactor) {
         this.idFactor = idFactor;
     }
     

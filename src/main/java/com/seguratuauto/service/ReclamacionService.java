@@ -6,7 +6,6 @@ import com.seguratuauto.model.EstadoReclamacion;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Servicio para el manejo de reclamaciones de seguros
@@ -21,7 +20,7 @@ public interface ReclamacionService {
      * @param montoReclamado monto reclamado
      * @return la reclamación creada
      */
-    Reclamacion registrarReclamacion(UUID polizaId, String descripcion, BigDecimal montoReclamado);
+    Reclamacion registrarReclamacion(Long polizaId, String descripcion, BigDecimal montoReclamado);
     
     /**
      * Evalúa una reclamación usando la estrategia configurada
@@ -31,7 +30,7 @@ public interface ReclamacionService {
      * @param evaluador nombre del evaluador
      * @return true si se evaluó correctamente
      */
-    boolean evaluarReclamacion(UUID reclamacionId, BigDecimal montoAprobado, String observaciones, String evaluador);
+    boolean evaluarReclamacion(Long reclamacionId, BigDecimal montoAprobado, String observaciones, String evaluador);
     
     /**
      * Aprueba una reclamación para pago
@@ -39,7 +38,7 @@ public interface ReclamacionService {
      * @param evaluador nombre del evaluador
      * @return true si se aprobó correctamente
      */
-    boolean aprobarReclamacion(UUID reclamacionId, String evaluador);
+    boolean aprobarReclamacion(Long reclamacionId, String evaluador);
     
     /**
      * Rechaza una reclamación
@@ -48,28 +47,28 @@ public interface ReclamacionService {
      * @param evaluador nombre del evaluador
      * @return true si se rechazó correctamente
      */
-    boolean rechazarReclamacion(UUID reclamacionId, String motivo, String evaluador);
+    boolean rechazarReclamacion(Long reclamacionId, String motivo, String evaluador);
     
     /**
      * Procesa el pago de una reclamación aprobada
      * @param reclamacionId ID de la reclamación
      * @return true si se procesó el pago correctamente
      */
-    boolean procesarPago(UUID reclamacionId);
+    boolean procesarPago(Long reclamacionId);
     
     /**
      * Busca una reclamación por ID
      * @param reclamacionId ID de la reclamación
      * @return la reclamación encontrada o null
      */
-    Reclamacion buscarReclamacionPorId(UUID reclamacionId);
+    Reclamacion buscarReclamacionPorId(Long reclamacionId);
     
     /**
      * Obtiene reclamaciones por póliza
      * @param polizaId ID de la póliza
      * @return lista de reclamaciones
      */
-    List<Reclamacion> obtenerReclamacionesPorPoliza(UUID polizaId);
+    List<Reclamacion> obtenerReclamacionesPorPoliza(Long polizaId);
     
     /**
      * Obtiene reclamaciones por estado

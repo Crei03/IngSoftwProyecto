@@ -3,14 +3,13 @@ package com.seguratuauto.model;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Entidad Descuento para aplicar descuentos en pricing
  */
 public class Descuento {
     
-    private UUID idDescuento;
+    private Long idDescuento;
     private String nombre;
     private String tipo; // CLIENTE_NUEVO, BUEN_CONDUCTOR, VEHICULO_SEGURO, etc.
     private BigDecimal porcentaje;
@@ -23,7 +22,7 @@ public class Descuento {
     public Descuento() {}
     
     // Constructor completo
-    public Descuento(UUID idDescuento, String nombre, String tipo, BigDecimal porcentaje, 
+    public Descuento(Long idDescuento, String nombre, String tipo, BigDecimal porcentaje, 
                     LocalDateTime vigenciaInicio, LocalDateTime vigenciaFin, String descripcion, boolean activo) {
         this.idDescuento = idDescuento;
         this.nombre = nombre;
@@ -36,11 +35,11 @@ public class Descuento {
     }
     
     // Getters y Setters
-    public UUID getIdDescuento() {
+    public Long getIdDescuento() {
         return idDescuento;
     }
     
-    public void setIdDescuento(UUID idDescuento) {
+    public void setIdDescuento(Long idDescuento) {
         this.idDescuento = idDescuento;
     }
     

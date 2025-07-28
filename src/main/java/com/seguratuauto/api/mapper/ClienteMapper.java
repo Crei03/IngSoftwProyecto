@@ -5,7 +5,6 @@ import com.seguratuauto.api.dto.ClienteResponse;
 import com.seguratuauto.model.Cliente;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
 
 /**
  * Mapper para convertir entre entidades Cliente y DTOs

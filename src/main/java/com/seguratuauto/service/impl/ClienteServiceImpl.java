@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
+import java.util.Random;
 
 /**
  * Implementación del servicio de clientes usando Spring Data JPA
@@ -17,6 +17,7 @@ import java.util.UUID;
 @Transactional
 public class ClienteServiceImpl implements ClienteService {
     
+    private static final Random random = new Random();
     private final ClienteRepository clienteRepository;
     
     @Autowired
@@ -47,7 +48,7 @@ public class ClienteServiceImpl implements ClienteService {
         
         // Asignar ID si no tiene
         if (cliente.getIdCliente() == null) {
-            cliente.setIdCliente(UUID.randomUUID());
+            cliente.setIdCliente(Math.abs(random.nextLong()));
         }
         
         return clienteRepository.save(cliente);
@@ -55,7 +56,7 @@ public class ClienteServiceImpl implements ClienteService {
     
     @Override
     @Transactional(readOnly = true)
-    public Cliente buscarClientePorId(UUID id) {
+    public Cliente buscarClientePorId(Long id) {
         return clienteRepository.findById(id).orElse(null);
     }
     
@@ -129,7 +130,7 @@ public class ClienteServiceImpl implements ClienteService {
     }
     
     @Override
-    public boolean eliminarCliente(UUID id) {
+    public boolean eliminarCliente(Long id) {
         if (id == null) {
             return false;
         }
@@ -149,7 +150,7 @@ public class ClienteServiceImpl implements ClienteService {
     
     @Override
     @Transactional(readOnly = true)
-    public boolean existeCliente(UUID id) {
+    public boolean existeCliente(Long id) {
         return id != null && clienteRepository.existsById(id);
     }
     

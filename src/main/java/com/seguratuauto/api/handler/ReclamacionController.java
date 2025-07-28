@@ -19,7 +19,6 @@ import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * Controlador REST para funcionalidades de reclamaciones
@@ -85,7 +84,7 @@ public class ReclamacionController {
             @PathVariable String reclamacionId,
             @Valid @RequestBody EvaluacionRequest request) {
         try {
-            UUID id = UUID.fromString(reclamacionId);
+            Long id = Long.parseLong(reclamacionId);
             
             boolean resultado = reclamacionService.evaluarReclamacion(
                 id,
@@ -104,7 +103,7 @@ public class ReclamacionController {
             
             return ResponseEntity.ok(response);
             
-        } catch (IllegalArgumentException e) {
+        } catch (NumberFormatException e) {
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("error", "ID de reclamación inválido o datos incorrectos");
             errorResponse.put("mensaje", e.getMessage());
@@ -136,7 +135,7 @@ public class ReclamacionController {
             @PathVariable String reclamacionId,
             @RequestParam String evaluador) {
         try {
-            UUID id = UUID.fromString(reclamacionId);
+            Long id = Long.parseLong(reclamacionId);
             
             boolean resultado = reclamacionService.aprobarReclamacion(id, evaluador);
             Reclamacion reclamacion = reclamacionService.buscarReclamacionPorId(id);
@@ -174,7 +173,7 @@ public class ReclamacionController {
             @PathVariable String reclamacionId,
             @Valid @RequestBody RechazoRequest request) {
         try {
-            UUID id = UUID.fromString(reclamacionId);
+            Long id = Long.parseLong(reclamacionId);
             
             boolean resultado = reclamacionService.rechazarReclamacion(
                 id,
@@ -191,7 +190,7 @@ public class ReclamacionController {
             
             return ResponseEntity.ok(response);
             
-        } catch (IllegalArgumentException e) {
+        } catch (NumberFormatException e) {
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("error", "ID de reclamación inválido");
             errorResponse.put("mensaje", e.getMessage());
@@ -214,7 +213,7 @@ public class ReclamacionController {
     @PostMapping("/{reclamacionId}/pagar")
     public ResponseEntity<Map<String, Object>> procesarPago(@PathVariable String reclamacionId) {
         try {
-            UUID id = UUID.fromString(reclamacionId);
+            Long id = Long.parseLong(reclamacionId);
             
             boolean resultado = reclamacionService.procesarPago(id);
             Reclamacion reclamacion = reclamacionService.buscarReclamacionPorId(id);
@@ -226,7 +225,7 @@ public class ReclamacionController {
             
             return ResponseEntity.ok(response);
             
-        } catch (IllegalArgumentException e) {
+        } catch (NumberFormatException e) {
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("error", "ID de reclamación inválido");
             errorResponse.put("mensaje", e.getMessage());
@@ -249,7 +248,7 @@ public class ReclamacionController {
     @GetMapping("/{reclamacionId}")
     public ResponseEntity<Map<String, Object>> buscarReclamacion(@PathVariable String reclamacionId) {
         try {
-            UUID id = UUID.fromString(reclamacionId);
+            Long id = Long.parseLong(reclamacionId);
             Reclamacion reclamacion = reclamacionService.buscarReclamacionPorId(id);
             
             if (reclamacion == null) {
@@ -265,7 +264,7 @@ public class ReclamacionController {
             
             return ResponseEntity.ok(response);
             
-        } catch (IllegalArgumentException e) {
+        } catch (NumberFormatException e) {
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("error", "ID de reclamación inválido");
             errorResponse.put("mensaje", "El formato del ID no es válido");
@@ -282,7 +281,7 @@ public class ReclamacionController {
     @GetMapping("/poliza/{polizaId}")
     public ResponseEntity<Map<String, Object>> obtenerReclamacionesPorPoliza(@PathVariable String polizaId) {
         try {
-            UUID id = UUID.fromString(polizaId);
+            Long id = Long.parseLong(polizaId);
             List<Reclamacion> reclamaciones = reclamacionService.obtenerReclamacionesPorPoliza(id);
             
             Map<String, Object> response = new HashMap<>();
@@ -292,7 +291,7 @@ public class ReclamacionController {
             
             return ResponseEntity.ok(response);
             
-        } catch (IllegalArgumentException e) {
+        } catch (NumberFormatException e) {
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("error", "ID de póliza inválido");
             errorResponse.put("mensaje", "El formato del ID no es válido");

@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Entidad Poliza que representa una póliza de seguro en el sistema
@@ -14,8 +13,9 @@ import java.util.UUID;
 public class Poliza {
     
     @Id
-    @Column(name = "id_poliza", columnDefinition = "BINARY(16)")
-    private UUID idPoliza;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_poliza")
+    private Long idPoliza;
     
     @Column(name = "fecha_emision", nullable = false)
     private LocalDateTime fechaEmision;
@@ -24,11 +24,11 @@ public class Poliza {
     @Column(name = "estado", nullable = false, length = 20)
     private EstadoPoliza estado;
     
-    @Column(name = "cliente_id", columnDefinition = "BINARY(16)", nullable = false)
-    private UUID clienteId;
+    @Column(name = "cliente_id", nullable = false)
+    private Long clienteId;
     
-    @Column(name = "agente_id", columnDefinition = "BINARY(16)", nullable = false)
-    private UUID agenteId;
+    @Column(name = "agente_id", nullable = false)
+    private Long agenteId;
     
     @Column(name = "numero_poliza", unique = true, length = 50)
     private String numeroPoliza;
@@ -49,7 +49,7 @@ public class Poliza {
     public Poliza() {}
     
     // Constructor con parámetros principales
-    public Poliza(UUID idPoliza, LocalDateTime fechaEmision, EstadoPoliza estado, UUID clienteId, UUID agenteId) {
+    public Poliza(Long idPoliza, LocalDateTime fechaEmision, EstadoPoliza estado, Long clienteId, Long agenteId) {
         this.idPoliza = idPoliza;
         this.fechaEmision = fechaEmision;
         this.estado = estado;
@@ -58,8 +58,8 @@ public class Poliza {
     }
     
     // Constructor completo
-    public Poliza(UUID idPoliza, LocalDateTime fechaEmision, EstadoPoliza estado, 
-                  UUID clienteId, UUID agenteId, String numeroPoliza, 
+    public Poliza(Long idPoliza, LocalDateTime fechaEmision, EstadoPoliza estado, 
+                  Long clienteId, Long agenteId, String numeroPoliza, 
                   BigDecimal prima, String tipoSeguro, LocalDateTime fechaVencimiento, 
                   String observaciones) {
         this.idPoliza = idPoliza;
@@ -75,11 +75,11 @@ public class Poliza {
     }
     
     // Getters y Setters
-    public UUID getIdPoliza() {
+    public Long getIdPoliza() {
         return idPoliza;
     }
     
-    public void setIdPoliza(UUID idPoliza) {
+    public void setIdPoliza(Long idPoliza) {
         this.idPoliza = idPoliza;
     }
     
@@ -99,19 +99,19 @@ public class Poliza {
         this.estado = estado;
     }
     
-    public UUID getClienteId() {
+    public Long getClienteId() {
         return clienteId;
     }
     
-    public void setClienteId(UUID clienteId) {
+    public void setClienteId(Long clienteId) {
         this.clienteId = clienteId;
     }
     
-    public UUID getAgenteId() {
+    public Long getAgenteId() {
         return agenteId;
     }
     
-    public void setAgenteId(UUID agenteId) {
+    public void setAgenteId(Long agenteId) {
         this.agenteId = agenteId;
     }
     

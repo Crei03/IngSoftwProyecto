@@ -2,7 +2,6 @@ package com.seguratuauto.model;
 
 import jakarta.persistence.*;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Entidad Agente que representa un agente de seguros en el sistema
@@ -12,8 +11,9 @@ import java.util.UUID;
 public class Agente {
     
     @Id
-    @Column(name = "id_agente", columnDefinition = "BINARY(16)")
-    private UUID idAgente;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_agente")
+    private Long idAgente;
     
     @Column(name = "nombre", nullable = false, length = 100)
     private String nombre;
@@ -31,13 +31,13 @@ public class Agente {
     public Agente() {}
     
     // Constructor con parámetros principales
-    public Agente(UUID idAgente, String nombre) {
+    public Agente(Long idAgente, String nombre) {
         this.idAgente = idAgente;
         this.nombre = nombre;
     }
     
     // Constructor completo
-    public Agente(UUID idAgente, String nombre, String codigo, String email, String telefono) {
+    public Agente(Long idAgente, String nombre, String codigo, String email, String telefono) {
         this.idAgente = idAgente;
         this.nombre = nombre;
         this.codigo = codigo;
@@ -46,11 +46,11 @@ public class Agente {
     }
     
     // Getters y Setters
-    public UUID getIdAgente() {
+    public Long getIdAgente() {
         return idAgente;
     }
     
-    public void setIdAgente(UUID idAgente) {
+    public void setIdAgente(Long idAgente) {
         this.idAgente = idAgente;
     }
     

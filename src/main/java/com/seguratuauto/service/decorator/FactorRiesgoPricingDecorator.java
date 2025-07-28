@@ -6,7 +6,6 @@ import com.seguratuauto.service.PricingService;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * Decorator que aplica recargos por factores de riesgo al cálculo de prima
@@ -19,7 +18,7 @@ public class FactorRiesgoPricingDecorator extends PricingServiceDecorator {
     }
     
     @Override
-    public BigDecimal calcularPrima(UUID clienteId, String tipoSeguro, Map<String, Object> parametros) {
+    public BigDecimal calcularPrima(Long clienteId, String tipoSeguro, Map<String, Object> parametros) {
         // Obtener la prima base del servicio decorado
         BigDecimal primaBase = super.calcularPrima(clienteId, tipoSeguro, parametros);
         
@@ -32,7 +31,7 @@ public class FactorRiesgoPricingDecorator extends PricingServiceDecorator {
     /**
      * Aplica recargos según los factores de riesgo identificados
      */
-    private BigDecimal aplicarRecargos(UUID clienteId, BigDecimal primaBase, Map<String, Object> parametros) {
+    private BigDecimal aplicarRecargos(Long clienteId, BigDecimal primaBase, Map<String, Object> parametros) {
         BigDecimal primaFinal = primaBase;
         BigDecimal recargoTotal = BigDecimal.ZERO;
         
@@ -69,7 +68,7 @@ public class FactorRiesgoPricingDecorator extends PricingServiceDecorator {
     /**
      * Determina si un factor de riesgo aplica para el cliente y parámetros dados
      */
-    private boolean aplicaFactorRiesgo(FactorRiesgo factor, UUID clienteId, Map<String, Object> parametros) {
+    private boolean aplicaFactorRiesgo(FactorRiesgo factor, Long clienteId, Map<String, Object> parametros) {
         if (!factor.isActivo()) {
             return false;
         }

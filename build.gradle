@@ -25,8 +25,21 @@ dependencies {
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	
+	// Dependencias para migración de datos
+	implementation('com.github.javafaker:javafaker:1.0.2') {
+		exclude group: 'org.yaml', module: 'snakeyaml'
+	}
+	implementation 'org.yaml:snakeyaml:2.0'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+// Tarea para imprimir el classpath (necesaria para los scripts de migración)
+task printClasspath {
+	doLast {
+		println configurations.runtimeClasspath.asPath
+	}
 }

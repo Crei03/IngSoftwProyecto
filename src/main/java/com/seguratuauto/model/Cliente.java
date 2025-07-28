@@ -2,7 +2,6 @@ package com.seguratuauto.model;
 
 import jakarta.persistence.*;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Entidad Cliente que representa un cliente del sistema de seguros
@@ -12,8 +11,9 @@ import java.util.UUID;
 public class Cliente {
     
     @Id
-    @Column(name = "id_cliente", columnDefinition = "BINARY(16)")
-    private UUID idCliente;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_cliente")
+    private Long idCliente;
     
     @Column(name = "nombre", nullable = false, length = 100)
     private String nombre;
@@ -28,13 +28,13 @@ public class Cliente {
     public Cliente() {}
     
     // Constructor con parámetros
-    public Cliente(UUID idCliente, String nombre) {
+    public Cliente(Long idCliente, String nombre) {
         this.idCliente = idCliente;
         this.nombre = nombre;
     }
     
     // Constructor completo
-    public Cliente(UUID idCliente, String nombre, String email, String telefono) {
+    public Cliente(Long idCliente, String nombre, String email, String telefono) {
         this.idCliente = idCliente;
         this.nombre = nombre;
         this.email = email;
@@ -42,11 +42,11 @@ public class Cliente {
     }
     
     // Getters y Setters
-    public UUID getIdCliente() {
+    public Long getIdCliente() {
         return idCliente;
     }
     
-    public void setIdCliente(UUID idCliente) {
+    public void setIdCliente(Long idCliente) {
         this.idCliente = idCliente;
     }
     

@@ -1,7 +1,6 @@
 package com.seguratuauto.api.dto;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.DecimalMin;
@@ -12,7 +11,7 @@ import jakarta.validation.constraints.DecimalMin;
 public class ReclamacionRequest {
     
     @NotNull(message = "ID de póliza es requerido")
-    private UUID polizaId;
+    private Long polizaId;
     
     @NotBlank(message = "Descripción es requerida")
     private String descripcion;
@@ -25,18 +24,18 @@ public class ReclamacionRequest {
     public ReclamacionRequest() {}
     
     // Constructor completo
-    public ReclamacionRequest(UUID polizaId, String descripcion, BigDecimal montoReclamado) {
+    public ReclamacionRequest(Long polizaId, String descripcion, BigDecimal montoReclamado) {
         this.polizaId = polizaId;
         this.descripcion = descripcion;
         this.montoReclamado = montoReclamado;
     }
     
     // Getters y Setters
-    public UUID getPolizaId() {
+    public Long getPolizaId() {
         return polizaId;
     }
     
-    public void setPolizaId(UUID polizaId) {
+    public void setPolizaId(Long polizaId) {
         this.polizaId = polizaId;
     }
     

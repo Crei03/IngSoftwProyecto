@@ -6,7 +6,6 @@ import com.seguratuauto.model.Poliza;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Servicio de negocio para el manejo de pólizas
@@ -26,7 +25,7 @@ public interface PolizaService {
      * @param id el ID de la póliza
      * @return la póliza encontrada o null si no existe
      */
-    Poliza buscarPolizaPorId(UUID id);
+    Poliza buscarPolizaPorId(Long id);
     
     /**
      * Busca una póliza por su número
@@ -40,14 +39,14 @@ public interface PolizaService {
      * @param clienteId el ID del cliente
      * @return lista de pólizas del cliente
      */
-    List<Poliza> obtenerPolizasPorCliente(UUID clienteId);
+    List<Poliza> obtenerPolizasPorCliente(Long clienteId);
     
     /**
      * Obtiene todas las pólizas de un agente
      * @param agenteId el ID del agente
      * @return lista de pólizas del agente
      */
-    List<Poliza> obtenerPolizasPorAgente(UUID agenteId);
+    List<Poliza> obtenerPolizasPorAgente(Long agenteId);
     
     /**
      * Obtiene pólizas por estado
@@ -61,7 +60,7 @@ public interface PolizaService {
      * @param polizaId el ID de la póliza a aprobar
      * @return la póliza aprobada
      */
-    Poliza aprobarPoliza(UUID polizaId);
+    Poliza aprobarPoliza(Long polizaId);
     
     /**
      * Rechaza una póliza cambiando su estado
@@ -69,7 +68,7 @@ public interface PolizaService {
      * @param motivo el motivo del rechazo
      * @return la póliza rechazada
      */
-    Poliza rechazarPoliza(UUID polizaId, String motivo);
+    Poliza rechazarPoliza(Long polizaId, String motivo);
     
     /**
      * Cancela una póliza
@@ -77,7 +76,7 @@ public interface PolizaService {
      * @param motivo el motivo de la cancelación
      * @return la póliza cancelada
      */
-    Poliza cancelarPoliza(UUID polizaId, String motivo);
+    Poliza cancelarPoliza(Long polizaId, String motivo);
     
     /**
      * Actualiza una póliza existente

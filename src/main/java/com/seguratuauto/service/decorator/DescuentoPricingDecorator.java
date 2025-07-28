@@ -6,7 +6,6 @@ import com.seguratuauto.service.PricingService;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * Decorator que aplica descuentos al cálculo de prima
@@ -19,7 +18,7 @@ public class DescuentoPricingDecorator extends PricingServiceDecorator {
     }
     
     @Override
-    public BigDecimal calcularPrima(UUID clienteId, String tipoSeguro, Map<String, Object> parametros) {
+    public BigDecimal calcularPrima(Long clienteId, String tipoSeguro, Map<String, Object> parametros) {
         // Obtener la prima base del servicio decorado
         BigDecimal primaBase = super.calcularPrima(clienteId, tipoSeguro, parametros);
         
@@ -32,7 +31,7 @@ public class DescuentoPricingDecorator extends PricingServiceDecorator {
     /**
      * Aplica descuentos según el perfil del cliente
      */
-    private BigDecimal aplicarDescuentos(UUID clienteId, BigDecimal primaBase, Map<String, Object> parametros) {
+    private BigDecimal aplicarDescuentos(Long clienteId, BigDecimal primaBase, Map<String, Object> parametros) {
         BigDecimal primaFinal = primaBase;
         BigDecimal descuentoTotal = BigDecimal.ZERO;
         
@@ -69,7 +68,7 @@ public class DescuentoPricingDecorator extends PricingServiceDecorator {
     /**
      * Determina si un descuento aplica para el cliente y parámetros dados
      */
-    private boolean aplicaDescuento(Descuento descuento, UUID clienteId, Map<String, Object> parametros) {
+    private boolean aplicaDescuento(Descuento descuento, Long clienteId, Map<String, Object> parametros) {
         if (!descuento.esVigente()) {
             return false;
         }

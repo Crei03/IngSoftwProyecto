@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
+import java.util.Random;
 
 /**
  * Implementación del servicio de agentes usando Spring Data JPA
@@ -17,6 +17,7 @@ import java.util.UUID;
 @Transactional
 public class AgenteServiceImpl implements AgenteService {
     
+    private static final Random random = new Random();
     private final AgenteRepository agenteRepository;
     
     @Autowired
@@ -54,7 +55,7 @@ public class AgenteServiceImpl implements AgenteService {
         
         // Asignar ID si no tiene
         if (agente.getIdAgente() == null) {
-            agente.setIdAgente(UUID.randomUUID());
+            agente.setIdAgente(Math.abs(random.nextLong()));
         }
         
         // Generar código si no tiene
@@ -67,7 +68,7 @@ public class AgenteServiceImpl implements AgenteService {
     
     @Override
     @Transactional(readOnly = true)
-    public Agente buscarAgentePorId(UUID id) {
+    public Agente buscarAgentePorId(Long id) {
         return agenteRepository.findById(id).orElse(null);
     }
     
@@ -164,7 +165,7 @@ public class AgenteServiceImpl implements AgenteService {
     }
     
     @Override
-    public boolean eliminarAgente(UUID id) {
+    public boolean eliminarAgente(Long id) {
         if (id == null) {
             return false;
         }
@@ -189,7 +190,7 @@ public class AgenteServiceImpl implements AgenteService {
     
     @Override
     @Transactional(readOnly = true)
-    public boolean existeAgente(UUID id) {
+    public boolean existeAgente(Long id) {
         return id != null && agenteRepository.existsById(id);
     }
     
@@ -225,7 +226,7 @@ public class AgenteServiceImpl implements AgenteService {
     
     @Override
     @Transactional(readOnly = true)
-    public long contarPolizasPorAgente(UUID agenteId) {
+    public long contarPolizasPorAgente(Long agenteId) {
         if (agenteId == null) {
             return 0;
         }
