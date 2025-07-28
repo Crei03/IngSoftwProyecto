@@ -5,6 +5,7 @@ import com.seguratuauto.api.dto.PolizaRequest;
 import com.seguratuauto.api.dto.PolizaResponse;
 import com.seguratuauto.api.mapper.PolizaMapper;
 import com.seguratuauto.dao.ClienteRepository;
+import com.seguratuauto.dao.AgenteRepository;
 import com.seguratuauto.model.Cliente;
 import com.seguratuauto.model.EstadoPoliza;
 import com.seguratuauto.model.Poliza;
@@ -28,14 +29,17 @@ public class PolizaController {
     
     private final PolizaService polizaService;
     private final ClienteRepository clienteRepository;
+    private final AgenteRepository agenteRepository;
     private final PolizaMapper polizaMapper;
     
     @Autowired
     public PolizaController(PolizaService polizaService, 
                           ClienteRepository clienteRepository,
+                          AgenteRepository agenteRepository,
                           PolizaMapper polizaMapper) {
         this.polizaService = polizaService;
         this.clienteRepository = clienteRepository;
+        this.agenteRepository = agenteRepository;
         this.polizaMapper = polizaMapper;
     }
     
@@ -45,29 +49,34 @@ public class PolizaController {
     @PostMapping
     public ResponseEntity<ApiResponse<PolizaResponse>> crearPoliza(@Valid @RequestBody PolizaRequest request) {
         try {
-            // Buscar el cliente
+            // Validar cliente
             Long clienteId = Long.parseLong(request.getClienteId());
             Cliente cliente = clienteRepository.findById(clienteId)
-                    .orElseThrow(() -> new IllegalArgumentException("Cliente no encontrado"));
-            
-            // Convertir request a entidad
+                .orElseThrow(() -> new IllegalArgumentException("Cliente no encontrado"));
+
+            // Validar agente
+            Long agenteId = Long.parseLong(request.getAgenteId());
+            if (!agenteRepository.existsById(agenteId)) {
+                throw new IllegalArgumentException("Agente no encontrado");
+            }
+
+            // Mapear request a entidad
             Poliza polizaDatos = polizaMapper.toEntity(request);
-            
-            // Crear la póliza
+
+            // Crear póliza
             Poliza polizaCreada = polizaService.crearPoliza(cliente, polizaDatos);
-            
-            // Convertir a response
+
+            // Mapear a response (incluye objetos completos)
             PolizaResponse response = polizaMapper.toResponse(polizaCreada);
-            
+
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(ApiResponse.success("Póliza creada exitosamente", response));
-                    
+                .body(ApiResponse.success("Póliza creada exitosamente", response));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("Error en los datos: " + e.getMessage()));
+                .body(ApiResponse.error("Error en los datos: " + e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.error("Error interno del servidor", e.getMessage()));
+                .body(ApiResponse.error("Error interno del servidor", e.getMessage()));
         }
     }
     
