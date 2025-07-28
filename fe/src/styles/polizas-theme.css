@@ -1,0 +1,411 @@
+/* Estilos personalizados para el Sistema de Pólizas Vue.js */
+
+/* Variables CSS para temas */
+:root {
+  /* Tema Claro - Colores Cálidos */
+  --warm-bg-primary: #fef7ed;
+  --warm-bg-secondary: #fed7aa;
+  --warm-bg-accent: #fb923c;
+  --warm-text-primary: #9a3412;
+  --warm-text-secondary: #ea580c;
+  --warm-border: #fdba74;
+  --warm-shadow: rgba(251, 146, 60, 0.25);
+
+  /* Tema Oscuro - Colores Fríos */
+  --cool-bg-primary: #0f172a;
+  --cool-bg-secondary: #1e293b;
+  --cool-bg-accent: #3b82f6;
+  --cool-text-primary: #e2e8f0;
+  --cool-text-secondary: #94a3b8;
+  --cool-border: #475569;
+  --cool-shadow: rgba(59, 130, 246, 0.25);
+}
+
+/* Animaciones personalizadas para Vue */
+@keyframes vue-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes vue-fade-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes vue-pulse-warm {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(251, 146, 60, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(251, 146, 60, 0);
+  }
+}
+
+@keyframes vue-pulse-cool {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+  }
+}
+
+/* Transiciones Vue específicas */
+.v-enter-active,
+.v-leave-active {
+  transition: all 0.3s ease;
+}
+
+.v-enter-from {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+
+.v-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+/* Clases de utilidad para Vue */
+.vue-slide-up {
+  animation: vue-slide-up 0.5s ease-out;
+}
+
+.vue-fade-scale {
+  animation: vue-fade-scale 0.3s ease-out;
+}
+
+.vue-pulse-warm {
+  animation: vue-pulse-warm 2s infinite;
+}
+
+.vue-pulse-cool {
+  animation: vue-pulse-cool 2s infinite;
+}
+
+/* Estilos específicos para componentes Vue */
+.vue-form-warm {
+  background: linear-gradient(135deg, #fef7ed 0%, #fed7aa 100%);
+  border: 1px solid #fdba74;
+  box-shadow: 0 4px 6px -1px rgba(251, 146, 60, 0.1);
+  border-radius: 1rem;
+}
+
+.vue-form-cool {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  border: 1px solid #475569;
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1);
+  border-radius: 1rem;
+}
+
+/* Estilos para tarjetas Vue */
+.vue-card-warm {
+  background: rgba(254, 247, 237, 0.8);
+  border: 1px solid rgba(253, 186, 116, 0.3);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(251, 146, 60, 0.1);
+  border-radius: 1rem;
+  transition: all 0.3s ease;
+}
+
+.vue-card-cool {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(71, 85, 105, 0.3);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.1);
+  border-radius: 1rem;
+  transition: all 0.3s ease;
+}
+
+.vue-card-warm:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(251, 146, 60, 0.15);
+}
+
+.vue-card-cool:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(59, 130, 246, 0.15);
+}
+
+/* Estilos para inputs Vue */
+.vue-input-warm {
+  background: rgba(254, 247, 237, 0.5);
+  border: 1px solid rgba(253, 186, 116, 0.5);
+  color: #9a3412;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  transition: all 0.2s ease;
+}
+
+.vue-input-warm:focus {
+  outline: none;
+  border-color: #fb923c;
+  box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.1);
+  background: rgba(254, 247, 237, 0.8);
+}
+
+.vue-input-cool {
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(71, 85, 105, 0.5);
+  color: #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  transition: all 0.2s ease;
+}
+
+.vue-input-cool:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  background: rgba(30, 41, 59, 0.8);
+}
+
+/* Estilos para botones Vue */
+.vue-btn-primary-warm {
+  background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+  color: #fef7ed;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(251, 146, 60, 0.3);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.vue-btn-primary-warm:hover {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  box-shadow: 0 6px 20px rgba(251, 146, 60, 0.4);
+  transform: translateY(-2px);
+}
+
+.vue-btn-primary-cool {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: #e2e8f0;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.vue-btn-primary-cool:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Estilos para badges de estado Vue */
+.vue-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.vue-status-pendiente-warm {
+  background-color: rgba(245, 158, 11, 0.2);
+  color: #92400e;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.vue-status-pendiente-cool {
+  background-color: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.vue-status-aprobada-warm {
+  background-color: rgba(34, 197, 94, 0.2);
+  color: #166534;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.vue-status-aprobada-cool {
+  background-color: rgba(34, 197, 94, 0.2);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.vue-status-rechazada-warm {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.vue-status-rechazada-cool {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Estilos para grid responsivo Vue */
+.vue-grid-responsive {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .vue-grid-responsive {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .vue-grid-responsive {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Estilos para loading states Vue */
+.vue-loading-warm {
+  background: linear-gradient(
+    90deg,
+    rgba(251, 146, 60, 0.1) 0%,
+    rgba(251, 146, 60, 0.3) 50%,
+    rgba(251, 146, 60, 0.1) 100%
+  );
+  background-size: 200% 100%;
+  animation: vue-loading 1.5s infinite;
+}
+
+.vue-loading-cool {
+  background: linear-gradient(
+    90deg,
+    rgba(59, 130, 246, 0.1) 0%,
+    rgba(59, 130, 246, 0.3) 50%,
+    rgba(59, 130, 246, 0.1) 100%
+  );
+  background-size: 200% 100%;
+  animation: vue-loading 1.5s infinite;
+}
+
+@keyframes vue-loading {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Estilos para tooltips Vue */
+.vue-tooltip {
+  position: relative;
+  cursor: help;
+}
+
+.vue-tooltip::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  z-index: 1000;
+}
+
+.vue-tooltip:hover::before {
+  opacity: 1;
+}
+
+/* Estilos para modo oscuro mejorado */
+.dark-mode-transition {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Estilos para accesibilidad mejorada */
+.vue-focus-visible:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* Estilos para animaciones de lista Vue */
+.vue-list-enter-active,
+.vue-list-leave-active {
+  transition: all 0.5s ease;
+}
+
+.vue-list-enter-from,
+.vue-list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+.vue-list-move {
+  transition: transform 0.5s ease;
+}
+
+/* Media queries para responsive design */
+@media (max-width: 640px) {
+  .vue-card-warm,
+  .vue-card-cool {
+    margin: 0.25rem;
+    padding: 0.75rem;
+  }
+
+  .vue-btn-primary-warm,
+  .vue-btn-primary-cool {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+
+  .vue-grid-responsive {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+/* Estilos para modo de alto contraste */
+@media (prefers-contrast: high) {
+  .vue-card-warm {
+    border-width: 2px;
+    border-color: #fb923c;
+  }
+
+  .vue-card-cool {
+    border-width: 2px;
+    border-color: #3b82f6;
+  }
+}
+
+/* Estilos para reducir movimiento */
+@media (prefers-reduced-motion: reduce) {
+  .vue-slide-up,
+  .vue-fade-scale,
+  .vue-pulse-warm,
+  .vue-pulse-cool,
+  .vue-card-warm,
+  .vue-card-cool {
+    animation: none;
+    transition: none;
+  }
+}
