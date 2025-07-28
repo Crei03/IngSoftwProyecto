@@ -6,28 +6,28 @@ package com.seguratuauto.api.dto;
  */
 public class AgenteResponse {
     
-    private Long idAgente;
+    private String idAgente;
     private String nombre;
     private String codigo;
     private String email;
     private String telefono;
-    private Long cantidadPolizas;
+    private String cantidadPolizas;
     
     // Constructor por defecto
     public AgenteResponse() {}
     
     // Constructor con parámetros básicos
-    public AgenteResponse(Long idAgente, String nombre, String codigo, String email, String telefono) {
+    public AgenteResponse(String idAgente, String nombre, String codigo, String email, String telefono) {
         this.idAgente = idAgente;
         this.nombre = nombre;
         this.codigo = codigo;
         this.email = email;
         this.telefono = telefono;
-        this.cantidadPolizas = 0L;
+        this.cantidadPolizas = "0";
     }
     
     // Constructor completo
-    public AgenteResponse(Long idAgente, String nombre, String codigo, String email, String telefono, Long cantidadPolizas) {
+    public AgenteResponse(String idAgente, String nombre, String codigo, String email, String telefono, String cantidadPolizas) {
         this.idAgente = idAgente;
         this.nombre = nombre;
         this.codigo = codigo;
@@ -37,11 +37,11 @@ public class AgenteResponse {
     }
     
     // Getters y Setters
-    public Long getIdAgente() {
+    public String getIdAgente() {
         return idAgente;
     }
     
-    public void setIdAgente(Long idAgente) {
+    public void setIdAgente(String idAgente) {
         this.idAgente = idAgente;
     }
     
@@ -77,11 +77,11 @@ public class AgenteResponse {
         this.telefono = telefono;
     }
     
-    public Long getCantidadPolizas() {
+    public String getCantidadPolizas() {
         return cantidadPolizas;
     }
     
-    public void setCantidadPolizas(Long cantidadPolizas) {
+    public void setCantidadPolizas(String cantidadPolizas) {
         this.cantidadPolizas = cantidadPolizas;
     }
     

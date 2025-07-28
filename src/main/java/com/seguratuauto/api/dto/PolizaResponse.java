@@ -12,8 +12,10 @@ public class PolizaResponse {
     private String fechaEmision;
     private String fechaVencimiento;
     private String estado;
-    private String clienteId;
-    private String agenteId;
+    private String clienteId; // Mantener por compatibilidad
+    private String agenteId;  // Mantener por compatibilidad
+    private ClienteResponse cliente; // Nuevo objeto cliente
+    private AgenteResponse agente;   // Nuevo objeto agente
     private BigDecimal prima;
     private String tipoSeguro;
     private String observaciones;
@@ -27,7 +29,8 @@ public class PolizaResponse {
     // Constructor completo
     public PolizaResponse(String idPoliza, String numeroPoliza, String fechaEmision, 
                          String fechaVencimiento, String estado, String clienteId, 
-                         String agenteId, BigDecimal prima, String tipoSeguro, String observaciones,
+                         String agenteId, ClienteResponse cliente, AgenteResponse agente,
+                         BigDecimal prima, String tipoSeguro, String observaciones,
                          String marca, String modelo, String anioVehiculo) {
         this.idPoliza = idPoliza;
         this.numeroPoliza = numeroPoliza;
@@ -36,6 +39,8 @@ public class PolizaResponse {
         this.estado = estado;
         this.clienteId = clienteId;
         this.agenteId = agenteId;
+        this.cliente = cliente;
+        this.agente = agente;
         this.prima = prima;
         this.tipoSeguro = tipoSeguro;
         this.observaciones = observaciones;
@@ -99,6 +104,22 @@ public class PolizaResponse {
     
     public void setAgenteId(String agenteId) {
         this.agenteId = agenteId;
+    }
+    
+    public ClienteResponse getCliente() {
+        return cliente;
+    }
+    
+    public void setCliente(ClienteResponse cliente) {
+        this.cliente = cliente;
+    }
+    
+    public AgenteResponse getAgente() {
+        return agente;
+    }
+    
+    public void setAgente(AgenteResponse agente) {
+        this.agente = agente;
     }
     
     public BigDecimal getPrima() {

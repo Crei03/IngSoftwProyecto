@@ -1,9 +1,16 @@
 package com.seguratuauto.api.mapper;
 
+import com.seguratuauto.api.dto.AgenteResponse;
+import com.seguratuauto.api.dto.ClienteResponse;
 import com.seguratuauto.api.dto.PolizaRequest;
 import com.seguratuauto.api.dto.PolizaResponse;
+import com.seguratuauto.dao.AgenteRepository;
+import com.seguratuauto.dao.ClienteRepository;
+import com.seguratuauto.model.Agente;
+import com.seguratuauto.model.Cliente;
 import com.seguratuauto.model.EstadoPoliza;
 import com.seguratuauto.model.Poliza;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -19,6 +26,46 @@ public class PolizaMapper {
     
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
     private static final DateTimeFormatter DATE_ONLY_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
+    
+    private final ClienteRepository clienteRepository;
+    private final AgenteRepository agenteRepository;
+    
+    @Autowired
+    public PolizaMapper(ClienteRepository clienteRepository, AgenteRepository agenteRepository) {
+        this.clienteRepository = clienteRepository;
+        this.agenteRepository = agenteRepository;
+    }
+    
+    /**
+     * Convierte una entidad Cliente a ClienteResponse
+     */
+    private ClienteResponse toClienteResponse(Cliente cliente) {
+        if (cliente == null) {
+            return null;
+        }
+        return new ClienteResponse(
+            cliente.getIdCliente() != null ? cliente.getIdCliente().toString() : null,
+            cliente.getNombre(),
+            cliente.getEmail(),
+            cliente.getTelefono()
+        );
+    }
+    
+    /**
+     * Convierte una entidad Agente a AgenteResponse
+     */
+    private AgenteResponse toAgenteResponse(Agente agente) {
+        if (agente == null) {
+            return null;
+        }
+        return new AgenteResponse(
+            agente.getIdAgente() != null ? agente.getIdAgente().toString() : null,
+            agente.getNombre(),
+            agente.getCodigo(),
+            agente.getEmail(),
+            agente.getTelefono()
+        );
+    }
     
     /**
      * Convierte una fecha string a LocalDate soportando múltiples formatos
@@ -79,6 +126,19 @@ public class PolizaMapper {
         response.setEstado(poliza.getEstado() != null ? poliza.getEstado().name() : null);
         response.setClienteId(poliza.getClienteId() != null ? poliza.getClienteId().toString() : null);
         response.setAgenteId(poliza.getAgenteId() != null ? poliza.getAgenteId().toString() : null);
+        
+        // Cargar datos de Cliente
+        if (poliza.getClienteId() != null) {
+            Cliente cliente = clienteRepository.findById(poliza.getClienteId()).orElse(null);
+            response.setCliente(toClienteResponse(cliente));
+        }
+        
+        // Cargar datos de Agente
+        if (poliza.getAgenteId() != null) {
+            Agente agente = agenteRepository.findById(poliza.getAgenteId()).orElse(null);
+            response.setAgente(toAgenteResponse(agente));
+        }
+        
         response.setPrima(poliza.getPrima());
         response.setTipoSeguro(poliza.getTipoSeguro());
         response.setObservaciones(poliza.getObservaciones());

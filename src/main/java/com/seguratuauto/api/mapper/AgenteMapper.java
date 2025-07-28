@@ -38,12 +38,12 @@ public class AgenteMapper {
         long cantidadPolizas = agenteService.contarPolizasPorAgente(agente.getIdAgente());
         
         return new AgenteResponse(
-            agente.getIdAgente(),
+            agente.getIdAgente() != null ? agente.getIdAgente().toString() : null,
             agente.getNombre(),
             agente.getCodigo(),
             agente.getEmail(),
             agente.getTelefono(),
-            cantidadPolizas
+            String.valueOf(cantidadPolizas)
         );
     }
     
@@ -100,12 +100,12 @@ public class AgenteMapper {
         }
         
         return new AgenteResponse(
-            agente.getIdAgente(),
+            agente.getIdAgente() != null ? agente.getIdAgente().toString() : null,
             agente.getNombre(),
             agente.getCodigo(),
             agente.getEmail(),
             agente.getTelefono(),
-            0L // Sin consultar pólizas para optimizar listados
+            "0" // Sin consultar pólizas para optimizar listados
         );
     }
 }
