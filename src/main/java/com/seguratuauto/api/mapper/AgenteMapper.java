@@ -58,7 +58,7 @@ public class AgenteMapper {
         }
         
         Agente agente = new Agente();
-        agente.setIdAgente(Math.abs(random.nextLong()));
+        // Removed manual ID assignment - let JPA handle it
         agente.setNombre(request.getNombre());
         agente.setCodigo(request.getCodigo());
         agente.setEmail(request.getEmail());

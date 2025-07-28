@@ -53,11 +53,6 @@ public class AgenteServiceImpl implements AgenteService {
             }
         }
         
-        // Asignar ID si no tiene
-        if (agente.getIdAgente() == null) {
-            agente.setIdAgente(Math.abs(random.nextLong()));
-        }
-        
         // Generar código si no tiene
         if (agente.getCodigo() == null || agente.getCodigo().trim().isEmpty()) {
             agente.setCodigo(generarSiguienteCodigoAgente());
@@ -236,10 +231,10 @@ public class AgenteServiceImpl implements AgenteService {
     @Override
     public String generarSiguienteCodigoAgente() {
         // Buscar el último código de agente
-        String ultimoCodigo = agenteRepository.findLastCodigo().orElse("AGT000");
+        String ultimoCodigo = agenteRepository.findLastCodigo().orElse("AG0000");
         
         // Extraer el número secuencial
-        String prefijo = "AGT";
+        String prefijo = "AG";
         int siguienteNumero = 1;
         
         if (ultimoCodigo.startsWith(prefijo)) {
@@ -253,8 +248,8 @@ public class AgenteServiceImpl implements AgenteService {
             }
         }
         
-        // Formatear con ceros a la izquierda
-        return String.format("%s%03d", prefijo, siguienteNumero);
+        // Formatear con ceros a la izquierda (4 dígitos para coincidir con AG0001)
+        return String.format("%s%04d", prefijo, siguienteNumero);
     }
     
     @Override

@@ -59,10 +59,9 @@ public class PolizaServiceImpl implements PolizaService {
             throw new IllegalArgumentException("Los datos de la póliza no son válidos");
         }
         
-        // Asignar ID si no tiene
-        if (polizaDatos.getIdPoliza() == null) {
-            polizaDatos.setIdPoliza(Math.abs(random.nextLong()));
-        }
+        // No asignar ID manualmente - se genera automáticamente por @GeneratedValue
+        // Asegurar que el ID sea null para nuevas entidades
+        polizaDatos.setIdPoliza(null);
         
         // Asignar cliente ID
         polizaDatos.setClienteId(cliente.getIdCliente());

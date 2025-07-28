@@ -2,18 +2,21 @@ package com.seguratuauto.service.impl;
 
 import com.seguratuauto.model.Reclamacion;
 import com.seguratuauto.model.EstadoReclamacion;
+import com.seguratuauto.dao.ReclamacionRepository;
 import com.seguratuauto.service.ReclamacionService;
 import com.seguratuauto.service.strategy.EvaluacionStrategy;
 import com.seguratuauto.service.strategy.EvaluacionAutomaticaStrategy;
 import com.seguratuauto.service.strategy.EvaluacionManualStrategy;
 import com.seguratuauto.service.strategy.EvaluacionEspecializadaStrategy;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -21,17 +24,21 @@ import java.util.stream.Collectors;
  * Implementación del servicio de reclamaciones usando el patrón Strategy
  * Utiliza diferentes estrategias de evaluación según el tipo y monto de la reclamación
  */
+@Service
+@Transactional
 public class ReclamacionServiceImpl implements ReclamacionService {
     
     private static final Random random = new Random();
-    // Simulación de almacenamiento (en producción sería un DAO)
-    private static final Map<Long, Reclamacion> RECLAMACIONES = new HashMap<>();
     private static int NUMERO_SECUENCIAL = 1;
+    
+    private final ReclamacionRepository reclamacionRepository;
     
     // Estrategias de evaluación disponibles
     private final List<EvaluacionStrategy> estrategias;
     
-    public ReclamacionServiceImpl() {
+    @Autowired
+    public ReclamacionServiceImpl(ReclamacionRepository reclamacionRepository) {
+        this.reclamacionRepository = reclamacionRepository;
         this.estrategias = new ArrayList<>();
         this.estrategias.add(new EvaluacionAutomaticaStrategy());
         this.estrategias.add(new EvaluacionManualStrategy());
@@ -51,12 +58,12 @@ public class ReclamacionServiceImpl implements ReclamacionService {
         }
         
         Reclamacion reclamacion = new Reclamacion(polizaId, descripcion, montoReclamado);
-        reclamacion.setIdReclamacion(Math.abs(random.nextLong()));
         reclamacion.setNumeroReclamacion(generarNumeroReclamacion());
         reclamacion.setFechaReclamacion(LocalDateTime.now());
         reclamacion.setEstado(EstadoReclamacion.REGISTRADA);
         
-        RECLAMACIONES.put(reclamacion.getIdReclamacion(), reclamacion);
+        // Guardar en la base de datos (JPA manejará el ID automáticamente)
+        reclamacion = reclamacionRepository.save(reclamacion);
         
         System.out.println("Reclamación registrada: " + reclamacion.getNumeroReclamacion());
         System.out.println("Monto reclamado: $" + montoReclamado);
@@ -173,27 +180,27 @@ public class ReclamacionServiceImpl implements ReclamacionService {
     }
     
     @Override
+    @Transactional(readOnly = true)
     public Reclamacion buscarReclamacionPorId(Long reclamacionId) {
-        return RECLAMACIONES.get(reclamacionId);
+        return reclamacionRepository.findById(reclamacionId).orElse(null);
     }
     
     @Override
+    @Transactional(readOnly = true)
     public List<Reclamacion> obtenerReclamacionesPorPoliza(Long polizaId) {
-        return RECLAMACIONES.values().stream()
-                .filter(r -> polizaId.equals(r.getPolizaId()))
-                .collect(Collectors.toList());
+        return reclamacionRepository.findByPolizaId(polizaId);
     }
     
     @Override
+    @Transactional(readOnly = true)
     public List<Reclamacion> obtenerReclamacionesPorEstado(EstadoReclamacion estado) {
-        return RECLAMACIONES.values().stream()
-                .filter(r -> estado.equals(r.getEstado()))
-                .collect(Collectors.toList());
+        return reclamacionRepository.findByEstado(estado);
     }
     
     @Override
+    @Transactional(readOnly = true)
     public List<Reclamacion> obtenerReclamacionesPorFecha(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
-        return RECLAMACIONES.values().stream()
+        return reclamacionRepository.findAll().stream()
                 .filter(r -> r.getFechaReclamacion() != null &&
                            !r.getFechaReclamacion().isBefore(fechaInicio) &&
                            !r.getFechaReclamacion().isAfter(fechaFin))
@@ -201,8 +208,9 @@ public class ReclamacionServiceImpl implements ReclamacionService {
     }
     
     @Override
+    @Transactional(readOnly = true)
     public List<Reclamacion> obtenerTodasLasReclamaciones() {
-        return new ArrayList<>(RECLAMACIONES.values());
+        return reclamacionRepository.findAll();
     }
     
     /**

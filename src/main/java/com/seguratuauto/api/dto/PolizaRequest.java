@@ -12,7 +12,8 @@ public class PolizaRequest {
     @Size(max = 50, message = "El número de póliza no puede exceder 50 caracteres")
     private String numeroPoliza;
     
-    @NotBlank(message = "La fecha de emisión es obligatoria")
+    @NotNull(message = "La fecha de emisión es obligatoria")
+    @NotBlank(message = "La fecha de emisión no puede estar vacía")
     private String fechaEmision;
     
     private String fechaVencimiento;
@@ -38,13 +39,22 @@ public class PolizaRequest {
     @Size(max = 1000, message = "Las observaciones no pueden exceder 1000 caracteres")
     private String observaciones;
     
+    @Size(max = 100, message = "La marca no puede exceder 100 caracteres")
+    private String marca;
+    
+    @Size(max = 100, message = "El modelo no puede exceder 100 caracteres")
+    private String modelo;
+    
+    private String anioVehiculo; // Formato: YYYY-MM-DD
+    
     // Constructor por defecto
     public PolizaRequest() {}
     
     // Constructor completo
     public PolizaRequest(String numeroPoliza, String fechaEmision, String fechaVencimiento, 
                         String estado, String clienteId, String agenteId, 
-                        BigDecimal prima, String tipoSeguro, String observaciones) {
+                        BigDecimal prima, String tipoSeguro, String observaciones,
+                        String marca, String modelo, String anioVehiculo) {
         this.numeroPoliza = numeroPoliza;
         this.fechaEmision = fechaEmision;
         this.fechaVencimiento = fechaVencimiento;
@@ -54,6 +64,9 @@ public class PolizaRequest {
         this.prima = prima;
         this.tipoSeguro = tipoSeguro;
         this.observaciones = observaciones;
+        this.marca = marca;
+        this.modelo = modelo;
+        this.anioVehiculo = anioVehiculo;
     }
     
     // Getters y Setters
@@ -127,5 +140,29 @@ public class PolizaRequest {
     
     public void setObservaciones(String observaciones) {
         this.observaciones = observaciones;
+    }
+    
+    public String getMarca() {
+        return marca;
+    }
+    
+    public void setMarca(String marca) {
+        this.marca = marca;
+    }
+    
+    public String getModelo() {
+        return modelo;
+    }
+    
+    public void setModelo(String modelo) {
+        this.modelo = modelo;
+    }
+    
+    public String getAnioVehiculo() {
+        return anioVehiculo;
+    }
+    
+    public void setAnioVehiculo(String anioVehiculo) {
+        this.anioVehiculo = anioVehiculo;
     }
 }

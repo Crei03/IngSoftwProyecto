@@ -1,8 +1,11 @@
 package com.seguratuauto.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Objects;
 
 /**
@@ -45,23 +48,40 @@ public class Poliza {
     @Column(name = "observaciones", columnDefinition = "TEXT")
     private String observaciones;
     
+    @Column(name = "marca", length = 100)
+    private String marca;
+    
+    @Column(name = "modelo", length = 100)
+    private String modelo;
+    
+    @Column(name = "anio_vehiculo")
+    private LocalDate anioVehiculo;
+    
+    @CreationTimestamp
+    @Column(name = "fecha_creacion", updatable = false)
+    private LocalDateTime fechaCreacion;
+    
+    @UpdateTimestamp
+    @Column(name = "fecha_modificacion")
+    private LocalDateTime fechaModificacion;
+    
     // Constructor por defecto
     public Poliza() {}
     
-    // Constructor con parámetros principales
-    public Poliza(Long idPoliza, LocalDateTime fechaEmision, EstadoPoliza estado, Long clienteId, Long agenteId) {
-        this.idPoliza = idPoliza;
+    // Constructor con parámetros principales (sin ID para nuevas entidades)
+    public Poliza(LocalDateTime fechaEmision, EstadoPoliza estado, Long clienteId, Long agenteId) {
         this.fechaEmision = fechaEmision;
         this.estado = estado;
         this.clienteId = clienteId;
         this.agenteId = agenteId;
     }
     
-    // Constructor completo
+    // Constructor completo (para uso interno, como en mappers de base de datos)
     public Poliza(Long idPoliza, LocalDateTime fechaEmision, EstadoPoliza estado, 
                   Long clienteId, Long agenteId, String numeroPoliza, 
                   BigDecimal prima, String tipoSeguro, LocalDateTime fechaVencimiento, 
-                  String observaciones) {
+                  String observaciones, String marca, String modelo, LocalDate anioVehiculo,
+                  LocalDateTime fechaCreacion, LocalDateTime fechaModificacion) {
         this.idPoliza = idPoliza;
         this.fechaEmision = fechaEmision;
         this.estado = estado;
@@ -72,6 +92,11 @@ public class Poliza {
         this.tipoSeguro = tipoSeguro;
         this.fechaVencimiento = fechaVencimiento;
         this.observaciones = observaciones;
+        this.marca = marca;
+        this.modelo = modelo;
+        this.anioVehiculo = anioVehiculo;
+        this.fechaCreacion = fechaCreacion;
+        this.fechaModificacion = fechaModificacion;
     }
     
     // Getters y Setters
@@ -155,6 +180,46 @@ public class Poliza {
         this.observaciones = observaciones;
     }
     
+    public String getMarca() {
+        return marca;
+    }
+    
+    public void setMarca(String marca) {
+        this.marca = marca;
+    }
+    
+    public String getModelo() {
+        return modelo;
+    }
+    
+    public void setModelo(String modelo) {
+        this.modelo = modelo;
+    }
+    
+    public LocalDate getAnioVehiculo() {
+        return anioVehiculo;
+    }
+    
+    public void setAnioVehiculo(LocalDate anioVehiculo) {
+        this.anioVehiculo = anioVehiculo;
+    }
+    
+    public LocalDateTime getFechaCreacion() {
+        return fechaCreacion;
+    }
+    
+    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
+    }
+    
+    public LocalDateTime getFechaModificacion() {
+        return fechaModificacion;
+    }
+    
+    public void setFechaModificacion(LocalDateTime fechaModificacion) {
+        this.fechaModificacion = fechaModificacion;
+    }
+    
     // Métodos equals, hashCode y toString
     @Override
     public boolean equals(Object o) {
@@ -182,6 +247,11 @@ public class Poliza {
                 ", tipoSeguro='" + tipoSeguro + '\'' +
                 ", fechaVencimiento=" + fechaVencimiento +
                 ", observaciones='" + observaciones + '\'' +
+                ", marca='" + marca + '\'' +
+                ", modelo='" + modelo + '\'' +
+                ", anioVehiculo=" + anioVehiculo +
+                ", fechaCreacion=" + fechaCreacion +
+                ", fechaModificacion=" + fechaModificacion +
                 '}';
     }
 }

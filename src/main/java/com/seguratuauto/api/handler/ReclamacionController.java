@@ -6,8 +6,8 @@ import com.seguratuauto.api.dto.RechazoRequest;
 import com.seguratuauto.model.Reclamacion;
 import com.seguratuauto.model.EstadoReclamacion;
 import com.seguratuauto.service.ReclamacionService;
-import com.seguratuauto.service.impl.ReclamacionServiceImpl;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -32,8 +32,9 @@ public class ReclamacionController {
     
     private final ReclamacionService reclamacionService;
     
-    public ReclamacionController() {
-        this.reclamacionService = new ReclamacionServiceImpl();
+    @Autowired
+    public ReclamacionController(ReclamacionService reclamacionService) {
+        this.reclamacionService = reclamacionService;
     }
     
     /**

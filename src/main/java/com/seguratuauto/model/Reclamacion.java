@@ -1,5 +1,6 @@
 package com.seguratuauto.model;
 
+import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -7,19 +8,48 @@ import java.util.Objects;
 /**
  * Entidad Reclamacion para el manejo de reclamaciones de seguros
  */
+@Entity
+@Table(name = "reclamaciones")
 public class Reclamacion {
     
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_reclamacion")
     private Long idReclamacion;
+    
+    @Column(name = "poliza_id")
     private Long polizaId;
+    
+    @Column(name = "numero_reclamacion")
     private String numeroReclamacion;
+    
+    @Column(name = "descripcion")
     private String descripcion;
+    
+    @Column(name = "monto_reclamado")
     private BigDecimal montoReclamado;
+    
+    @Column(name = "monto_aprobado")
     private BigDecimal montoAprobado;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado")
     private EstadoReclamacion estado;
+    
+    @Column(name = "fecha_reclamacion")
     private LocalDateTime fechaReclamacion;
+    
+    @Column(name = "fecha_evaluacion")
     private LocalDateTime fechaEvaluacion;
-    private String evaluador;
+    
+    @Column(name = "fecha_resolucion")
+    private LocalDateTime fechaResolucion;
+    
+    @Column(name = "observaciones")
     private String observaciones;
+    
+    @Column(name = "evaluador_id")
+    private String evaluador;
     
     // Constructor por defecto
     public Reclamacion() {}
@@ -36,7 +66,8 @@ public class Reclamacion {
     // Constructor completo
     public Reclamacion(Long idReclamacion, Long polizaId, String numeroReclamacion, String descripcion,
                       BigDecimal montoReclamado, BigDecimal montoAprobado, EstadoReclamacion estado,
-                      LocalDateTime fechaReclamacion, LocalDateTime fechaEvaluacion, String evaluador, String observaciones) {
+                      LocalDateTime fechaReclamacion, LocalDateTime fechaEvaluacion, LocalDateTime fechaResolucion,
+                      String observaciones, String evaluador) {
         this.idReclamacion = idReclamacion;
         this.polizaId = polizaId;
         this.numeroReclamacion = numeroReclamacion;
@@ -46,8 +77,9 @@ public class Reclamacion {
         this.estado = estado;
         this.fechaReclamacion = fechaReclamacion;
         this.fechaEvaluacion = fechaEvaluacion;
-        this.evaluador = evaluador;
+        this.fechaResolucion = fechaResolucion;
         this.observaciones = observaciones;
+        this.evaluador = evaluador;
     }
     
     // Getters y Setters
@@ -121,6 +153,14 @@ public class Reclamacion {
     
     public void setFechaEvaluacion(LocalDateTime fechaEvaluacion) {
         this.fechaEvaluacion = fechaEvaluacion;
+    }
+    
+    public LocalDateTime getFechaResolucion() {
+        return fechaResolucion;
+    }
+    
+    public void setFechaResolucion(LocalDateTime fechaResolucion) {
+        this.fechaResolucion = fechaResolucion;
     }
     
     public String getEvaluador() {

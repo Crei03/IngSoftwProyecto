@@ -17,6 +17,9 @@ public class PolizaResponse {
     private BigDecimal prima;
     private String tipoSeguro;
     private String observaciones;
+    private String marca;
+    private String modelo;
+    private String anioVehiculo;
     
     // Constructor por defecto
     public PolizaResponse() {}
@@ -24,7 +27,8 @@ public class PolizaResponse {
     // Constructor completo
     public PolizaResponse(String idPoliza, String numeroPoliza, String fechaEmision, 
                          String fechaVencimiento, String estado, String clienteId, 
-                         String agenteId, BigDecimal prima, String tipoSeguro, String observaciones) {
+                         String agenteId, BigDecimal prima, String tipoSeguro, String observaciones,
+                         String marca, String modelo, String anioVehiculo) {
         this.idPoliza = idPoliza;
         this.numeroPoliza = numeroPoliza;
         this.fechaEmision = fechaEmision;
@@ -35,6 +39,9 @@ public class PolizaResponse {
         this.prima = prima;
         this.tipoSeguro = tipoSeguro;
         this.observaciones = observaciones;
+        this.marca = marca;
+        this.modelo = modelo;
+        this.anioVehiculo = anioVehiculo;
     }
     
     // Getters y Setters
@@ -116,5 +123,29 @@ public class PolizaResponse {
     
     public void setObservaciones(String observaciones) {
         this.observaciones = observaciones;
+    }
+    
+    public String getMarca() {
+        return marca;
+    }
+    
+    public void setMarca(String marca) {
+        this.marca = marca;
+    }
+    
+    public String getModelo() {
+        return modelo;
+    }
+    
+    public void setModelo(String modelo) {
+        this.modelo = modelo;
+    }
+    
+    public String getAnioVehiculo() {
+        return anioVehiculo;
+    }
+    
+    public void setAnioVehiculo(String anioVehiculo) {
+        this.anioVehiculo = anioVehiculo;
     }
 }

@@ -7,7 +7,9 @@ import com.seguratuauto.model.Poliza;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 /**
  * Mapper para convertir entre entidades Poliza y DTOs
@@ -16,6 +18,48 @@ import java.time.format.DateTimeFormatter;
 public class PolizaMapper {
     
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+    private static final DateTimeFormatter DATE_ONLY_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
+    
+    /**
+     * Convierte una fecha string a LocalDate soportando múltiples formatos
+     */
+    private LocalDate parseDate(String dateString) {
+        if (dateString == null || dateString.trim().isEmpty()) {
+            return null;
+        }
+        
+        try {
+            // Intentar con formato ISO_LOCAL_DATE (YYYY-MM-DD)
+            return LocalDate.parse(dateString, DATE_ONLY_FORMATTER);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Formato de fecha no válido: " + dateString + 
+                ". Use formato YYYY-MM-DD");
+        }
+    }
+    
+    /**
+     * Convierte una fecha string a LocalDateTime soportando múltiples formatos
+     */
+    private LocalDateTime parseDateTime(String dateString) {
+        if (dateString == null || dateString.trim().isEmpty()) {
+            return null;
+        }
+        
+        try {
+            // Primero intentar con formato completo ISO_LOCAL_DATE_TIME
+            return LocalDateTime.parse(dateString, DATE_FORMATTER);
+        } catch (DateTimeParseException e1) {
+            try {
+                // Si falla, intentar con formato de solo fecha ISO_LOCAL_DATE
+                LocalDate date = LocalDate.parse(dateString, DATE_ONLY_FORMATTER);
+                // Convertir a LocalDateTime agregando hora 00:00:00
+                return date.atStartOfDay();
+            } catch (DateTimeParseException e2) {
+                throw new IllegalArgumentException("Formato de fecha no válido: " + dateString + 
+                    ". Use formato YYYY-MM-DD o YYYY-MM-DDTHH:MM:SS");
+            }
+        }
+    }
     
     /**
      * Convierte una entidad Poliza a PolizaResponse
@@ -38,6 +82,10 @@ public class PolizaMapper {
         response.setPrima(poliza.getPrima());
         response.setTipoSeguro(poliza.getTipoSeguro());
         response.setObservaciones(poliza.getObservaciones());
+        response.setMarca(poliza.getMarca());
+        response.setModelo(poliza.getModelo());
+        response.setAnioVehiculo(poliza.getAnioVehiculo() != null ? 
+                poliza.getAnioVehiculo().format(DATE_ONLY_FORMATTER) : null);
         
         return response;
     }
@@ -57,11 +105,11 @@ public class PolizaMapper {
         
         // Convertir fechas
         if (request.getFechaEmision() != null && !request.getFechaEmision().trim().isEmpty()) {
-            poliza.setFechaEmision(LocalDateTime.parse(request.getFechaEmision(), DATE_FORMATTER));
+            poliza.setFechaEmision(parseDateTime(request.getFechaEmision()));
         }
         
         if (request.getFechaVencimiento() != null && !request.getFechaVencimiento().trim().isEmpty()) {
-            poliza.setFechaVencimiento(LocalDateTime.parse(request.getFechaVencimiento(), DATE_FORMATTER));
+            poliza.setFechaVencimiento(parseDateTime(request.getFechaVencimiento()));
         }
         
         // Convertir estado
@@ -93,6 +141,13 @@ public class PolizaMapper {
         poliza.setPrima(request.getPrima());
         poliza.setTipoSeguro(request.getTipoSeguro());
         poliza.setObservaciones(request.getObservaciones());
+        poliza.setMarca(request.getMarca());
+        poliza.setModelo(request.getModelo());
+        
+        // Convertir año del vehículo
+        if (request.getAnioVehiculo() != null && !request.getAnioVehiculo().trim().isEmpty()) {
+            poliza.setAnioVehiculo(parseDate(request.getAnioVehiculo()));
+        }
         
         return poliza;
     }
@@ -139,6 +194,18 @@ public class PolizaMapper {
         
         if (request.getObservaciones() != null) {
             poliza.setObservaciones(request.getObservaciones());
+        }
+        
+        if (request.getMarca() != null) {
+            poliza.setMarca(request.getMarca());
+        }
+        
+        if (request.getModelo() != null) {
+            poliza.setModelo(request.getModelo());
+        }
+        
+        if (request.getAnioVehiculo() != null && !request.getAnioVehiculo().trim().isEmpty()) {
+            poliza.setAnioVehiculo(parseDate(request.getAnioVehiculo()));
         }
     }
 }

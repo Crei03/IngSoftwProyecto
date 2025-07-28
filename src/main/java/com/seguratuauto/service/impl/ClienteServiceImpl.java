@@ -46,11 +46,6 @@ public class ClienteServiceImpl implements ClienteService {
             }
         }
         
-        // Asignar ID si no tiene
-        if (cliente.getIdCliente() == null) {
-            cliente.setIdCliente(Math.abs(random.nextLong()));
-        }
-        
         return clienteRepository.save(cliente);
     }
     
