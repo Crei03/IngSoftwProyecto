@@ -74,12 +74,57 @@
           <button
             @click="currentRF = 'RF002'"
             :class="['nav-button', { active: currentRF === 'RF002' }]"
-            :title="sidebarCollapsed ? 'RF-002 - Automatización del Registro' : ''"
+            :title="sidebarCollapsed ? 'RF-002 - Gestión de Pólizas' : ''"
           >
             <FileText class="nav-icon" />
             <div class="nav-text">
               <div class="nav-title">RF-002</div>
-              <div class="nav-subtitle">Automatización del Registro</div>
+              <div class="nav-subtitle">Gestión de Pólizas</div>
+            </div>
+          </button>
+          <button
+            @click="navegarARegistroPoliza"
+            :class="['nav-button', { active: currentRF === 'clientePoliza' }]"
+            :title="sidebarCollapsed ? 'Registro de Póliza - Cliente' : ''"
+          >
+            <Car class="nav-icon" />
+            <div class="nav-text">
+              <div class="nav-title">Registro</div>
+              <div class="nav-subtitle">Póliza Cliente</div>
+            </div>
+          </button>
+          <button
+            @click="navegarAMisPolizas"
+            :class="['nav-button', { active: currentRF === 'misPolizas' }]"
+            :title="sidebarCollapsed ? 'Mis Pólizas' : ''"
+          >
+            <List class="nav-icon" />
+            <div class="nav-text">
+              <div class="nav-title">Mis Pólizas</div>
+              <div class="nav-subtitle">Gestionar Pólizas</div>
+            </div>
+          </button>
+          <button
+            @click="navegarAGestionReclamaciones"
+            :class="['nav-button', { active: currentRF === 'gestionReclamaciones' }]"
+            :title="sidebarCollapsed ? 'Gestión de Reclamaciones' : ''"
+          >
+            <FileX class="nav-icon" />
+            <div class="nav-text">
+              <div class="nav-title">Gestión</div>
+              <div class="nav-subtitle">Reclamaciones</div>
+            </div>
+          </button>
+          <button
+            @click="navegarAFormularioReclamaciones"
+            :class="['nav-button', { active: currentRF === 'formularioReclamaciones' }]"
+            :title="sidebarCollapsed ? 'Nueva Reclamación' : ''"
+            v-if="isLoggedIn"
+          >
+            <AlertTriangle class="nav-icon" />
+            <div class="nav-text">
+              <div class="nav-title">Nueva</div>
+              <div class="nav-subtitle">Reclamación</div>
             </div>
           </button>
         </div>
@@ -90,19 +135,45 @@
     <main :class="['main-content', { 'sidebar-collapsed': sidebarCollapsed }]">
       <transition name="fade" mode="out-in">
         <div :key="currentRF">
-          <LandingPage v-if="currentRF === 'landing'" :isDark="isDark" />
+          <LandingPage 
+            v-if="currentRF === 'landing'" 
+            :isDark="isDark" 
+            @clienteRegistrado="handleClienteRegistrado"
+          />
           <RF001ClienteAgente v-if="currentRF === 'RF001'" :isDark="isDark" />
           <RF002RegistroPolizas v-if="currentRF === 'RF002'" :isDark="isDark" />
+          <ClienteRegistroPoliza 
+            v-if="currentRF === 'clientePoliza'" 
+            :isDark="isDark" 
+            :cliente="clienteRegistrado"
+          />
+          <MisPolizas 
+            v-if="currentRF === 'misPolizas'" 
+            :isDark="isDark" 
+            :cliente="currentUser"
+            @navegarARegistro="navegarARegistroPoliza"
+          />
+          <GestionReclamaciones
+            v-if="currentRF === 'gestionReclamaciones'"
+            :isDark="isDark"
+          />
+          <FormularioReclamaciones
+            v-if="currentRF === 'formularioReclamaciones'"
+            :isDark="isDark"
+            :cliente="currentUser"
+            @navegarARegistro="navegarARegistroPoliza"
+            @reclamacionCreada="handleReclamacionCreada"
+          />
         </div>
       </transition>
     </main>
 
     <!-- Modal de Login -->
-    <div v-if="showLoginModal" class="modal-overlay" @click="showLoginModal = false">
+    <div v-if="showLoginModal" class="modal-overlay" @click="cerrarModalLogin">
       <div :class="['modal-content', themeClass]" @click.stop>
         <div class="modal-header">
           <h3>Iniciar Sesión</h3>
-          <button @click="showLoginModal = false" class="close-button">
+          <button @click="cerrarModalLogin" class="close-button">
             <X class="close-icon" />
           </button>
         </div>
@@ -165,10 +236,14 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
-import { Sun, Moon, Menu, Home, Users, FileText, LogIn, User, X } from 'lucide-vue-next'
+import { Sun, Moon, Menu, Home, Users, FileText, Car, List, LogIn, User, X, FileX, AlertTriangle } from 'lucide-vue-next'
 import LandingPage from './components/LandingPage.vue'
 import RF001ClienteAgente from './components/RF001-cliente-agente.vue'
 import RF002RegistroPolizas from './components/RF002-registro-polizas.vue'
+import ClienteRegistroPoliza from './components/ClienteRegistroPoliza.vue'
+import MisPolizas from './components/MisPolizas.vue'
+import GestionReclamaciones from './components/GestionReclamaciones.vue'
+import FormularioReclamaciones from './components/FormularioReclamaciones.vue'
 import apiService from './services/apiService.js'
 
 const isDark = ref(false)
@@ -176,8 +251,10 @@ const currentRF = ref('landing')
 const sidebarCollapsed = ref(false)
 const isLoggedIn = ref(false)
 const currentUser = ref({})
+const clienteRegistrado = ref({})
 const showLoginModal = ref(false)
 const showProfileModal = ref(false)
+const intentandoNavegarAPoliza = ref(false)
 
 // Datos de login
 const loginData = reactive({
@@ -216,18 +293,19 @@ const login = async () => {
     
     if (clienteEncontrado) {
       isLoggedIn.value = true
-      currentUser.value = {
-        nombre: clienteEncontrado.nombre,
-        email: clienteEncontrado.email,
-        telefono: clienteEncontrado.telefono
-      }
+      currentUser.value = clienteEncontrado // Guardar el cliente completo con ID
       showLoginModal.value = false
       
       // Limpiar formulario
       loginData.email = ''
       loginData.telefono = ''
       
-      alert('¡Inicio de sesión exitoso!')
+      // Si el usuario estaba intentando navegar al registro de póliza, redirigir automáticamente
+      if (intentandoNavegarAPoliza.value) {
+        navegarARegistroPoliza()
+      } else {
+        alert('¡Inicio de sesión exitoso!')
+      }
     } else {
       alert('Credenciales incorrectas. Verifica tu email y teléfono.')
     }
@@ -241,6 +319,63 @@ const logout = () => {
   isLoggedIn.value = false
   currentUser.value = {}
   showProfileModal.value = false
+}
+
+const handleClienteRegistrado = (cliente) => {
+  clienteRegistrado.value = cliente
+  currentRF.value = 'clientePoliza'
+  isLoggedIn.value = true
+  currentUser.value = cliente
+}
+
+const navegarARegistroPoliza = () => {
+  if (!isLoggedIn.value || !currentUser.value.idCliente) {
+    // Si no hay usuario logueado, mostrar modal de login
+    intentandoNavegarAPoliza.value = true
+    showLoginModal.value = true
+    return
+  }
+  
+  // Si hay usuario logueado, navegar directamente
+  clienteRegistrado.value = currentUser.value
+  currentRF.value = 'clientePoliza'
+  intentandoNavegarAPoliza.value = false
+}
+
+const navegarAMisPolizas = () => {
+  if (!isLoggedIn.value || !currentUser.value.idCliente) {
+    // Si no hay usuario logueado, mostrar modal de login
+    showLoginModal.value = true
+    return
+  }
+  
+  // Si hay usuario logueado, navegar directamente
+  currentRF.value = 'misPolizas'
+}
+
+const navegarAGestionReclamaciones = () => {
+  currentRF.value = 'gestionReclamaciones'
+}
+
+const navegarAFormularioReclamaciones = () => {
+  if (!isLoggedIn.value || !currentUser.value.idCliente) {
+    // Si no hay usuario logueado, mostrar modal de login
+    showLoginModal.value = true
+    return
+  }
+  
+  // Si hay usuario logueado, navegar directamente
+  currentRF.value = 'formularioReclamaciones'
+}
+
+const handleReclamacionCreada = (reclamacion) => {
+  // Opcionalmente navegar a gestión de reclamaciones o mostrar mensaje
+  console.log('Reclamación creada:', reclamacion)
+}
+
+const cerrarModalLogin = () => {
+  showLoginModal.value = false
+  intentandoNavegarAPoliza.value = false
 }
 
 onMounted(() => {

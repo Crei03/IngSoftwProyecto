@@ -81,7 +81,7 @@ public interface PolizaRepository extends JpaRepository<Poliza, Long> {
      * Obtiene el último número de póliza para generar el siguiente
      * @return el número de póliza más alto actualmente
      */
-    @Query("SELECT p.numeroPoliza FROM Poliza p WHERE p.numeroPoliza IS NOT NULL ORDER BY p.numeroPoliza DESC LIMIT 1")
+    @Query(value = "SELECT numero_poliza FROM polizas WHERE numero_poliza IS NOT NULL ORDER BY numero_poliza DESC LIMIT 1", nativeQuery = true)
     Optional<String> findLastNumeroPoliza();
     
     /**

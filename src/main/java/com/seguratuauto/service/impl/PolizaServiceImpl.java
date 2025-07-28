@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 /**
@@ -218,25 +219,39 @@ public class PolizaServiceImpl implements PolizaService {
     
     @Override
     public String generarSiguienteNumeroPoliza() {
-        // Buscar el último número de póliza
-        String ultimoNumero = polizaRepository.findLastNumeroPoliza().orElse("POL-000000");
-        
-        // Extraer el número secuencial
-        String prefijo = "POL-";
-        int siguienteNumero = 1;
-        
-        if (ultimoNumero.startsWith(prefijo)) {
-            try {
-                String numeroStr = ultimoNumero.substring(prefijo.length());
-                int numeroActual = Integer.parseInt(numeroStr);
-                siguienteNumero = numeroActual + 1;
-            } catch (NumberFormatException e) {
-                // Si hay error, comenzar desde 1
-                siguienteNumero = 1;
+        try {
+            // Buscar el último número de póliza
+            Optional<String> ultimoNumeroOpt = polizaRepository.findLastNumeroPoliza();
+            
+            if (ultimoNumeroOpt.isEmpty()) {
+                // Si no hay pólizas, comenzar desde POL-000001
+                return "POL-000001";
             }
+            
+            String ultimoNumero = ultimoNumeroOpt.get();
+            
+            // Extraer el número secuencial
+            String prefijo = "POL-";
+            int siguienteNumero = 1;
+            
+            if (ultimoNumero.startsWith(prefijo)) {
+                try {
+                    String numeroStr = ultimoNumero.substring(prefijo.length());
+                    int numeroActual = Integer.parseInt(numeroStr);
+                    siguienteNumero = numeroActual + 1;
+                } catch (NumberFormatException e) {
+                    // Si hay error en el formato, comenzar desde 1
+                    siguienteNumero = 1;
+                }
+            }
+            
+            // Formatear con ceros a la izquierda
+            return String.format("%s%06d", prefijo, siguienteNumero);
+            
+        } catch (Exception e) {
+            // En caso de cualquier error, generar un número basado en timestamp
+            long timestamp = System.currentTimeMillis() % 1000000; // Últimos 6 dígitos
+            return String.format("POL-%06d", timestamp);
         }
-        
-        // Formatear con ceros a la izquierda
-        return String.format("%s%06d", prefijo, siguienteNumero);
     }
 }

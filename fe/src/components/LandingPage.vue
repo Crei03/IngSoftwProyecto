@@ -227,6 +227,8 @@ const props = defineProps({
   isDark: Boolean
 })
 
+const emit = defineEmits(['clienteRegistrado'])
+
 // Computed properties
 const themeClass = computed(() => {
   return props.isDark ? 'theme-dark' : 'theme-light'
@@ -320,7 +322,11 @@ const registrarCliente = async () => {
       nuevoCliente[key] = ''
     })
     
-    alert('¡Registro exitoso! Uno de nuestros agentes se pondrá en contacto contigo pronto.')
+    // Guardar cliente en localStorage para la sesión automática
+    localStorage.setItem('currentUser', JSON.stringify(clienteCreado))
+    
+    // Emitir evento para cambiar a la vista de registro de póliza
+    emit('clienteRegistrado', clienteCreado)
     
   } catch (error) {
     alert('Error al registrar: ' + error.message)
