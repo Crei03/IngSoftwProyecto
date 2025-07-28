@@ -132,7 +132,7 @@ class ApiService {
   }
 
   async crearReclamacion(reclamacionData) {
-    const response = await this.request('/reclamaciones', {
+    const response = await this.request('/reclamaciones/registrar', {
       method: 'POST',
       body: JSON.stringify(reclamacionData)
     })
@@ -151,6 +151,29 @@ class ApiService {
 
   async getReclamacionPorId(id) {
     const response = await this.request(`/reclamaciones/${id}`)
+    return response.data
+  }
+
+  async evaluarReclamacion(reclamacionId, evaluacionData) {
+    const response = await this.request(`/reclamaciones/${reclamacionId}/evaluar`, {
+      method: 'POST',
+      body: JSON.stringify(evaluacionData)
+    })
+    return response.data
+  }
+
+  async aprobarReclamacion(reclamacionId, evaluador = '10') {
+    const response = await this.request(`/reclamaciones/${reclamacionId}/aprobar?evaluador=${encodeURIComponent(evaluador)}`, {
+      method: 'POST'
+    })
+    return response.data
+  }
+
+  async rechazarReclamacion(reclamacionId, motivo, evaluador = '10') {
+    const response = await this.request(`/reclamaciones/${reclamacionId}/rechazar`, {
+      method: 'POST',
+      body: JSON.stringify({ motivo, evaluador })
+    })
     return response.data
   }
 }

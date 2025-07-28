@@ -123,8 +123,8 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="reclamacion in reclamacionesFiltradas" :key="reclamacion.id" class="table-row">
-              <td>{{ reclamacion.id }}</td>
+            <tr v-for="reclamacion in reclamacionesFiltradas" :key="reclamacion.idReclamacion" class="table-row">
+              <td>{{ reclamacion.idReclamacion }}</td>
               <td>
                 <span class="poliza-badge">{{ reclamacion.numeroPoliza || 'N/A' }}</span>
               </td>
@@ -188,7 +188,7 @@
     <div v-if="showDetallesModal" class="modal-overlay" @click="cerrarDetalles">
       <div :class="['modal-content', 'modal-large', themeClass]" @click.stop>
         <div class="modal-header">
-          <h3>Detalles de Reclamación #{{ reclamacionSeleccionada?.id }}</h3>
+          <h3>Detalles de Reclamación #{{ reclamacionSeleccionada?.idReclamacion }}</h3>
           <button @click="cerrarDetalles" class="close-button">
             <X class="close-icon" />
           </button>
@@ -200,7 +200,7 @@
               <h4>Información General</h4>
               <div class="detalle-row">
                 <span class="detalle-label">ID:</span>
-                <span class="detalle-value">{{ reclamacionSeleccionada.id }}</span>
+                <span class="detalle-value">{{ reclamacionSeleccionada.idReclamacion }}</span>
               </div>
               <div class="detalle-row">
                 <span class="detalle-label">Póliza:</span>
@@ -347,14 +347,54 @@ const cerrarDetalles = () => {
 
 const cambiarEstado = async (reclamacion, nuevoEstado) => {
   try {
-    // Aquí iría la llamada para cambiar el estado
-    // Por ahora solo actualizamos localmente
-    const index = reclamaciones.value.findIndex(r => r.id === reclamacion.id)
-    if (index !== -1) {
-      reclamaciones.value[index].estado = nuevoEstado
-      calcularEstadisticas()
-      mensaje.value = `Estado cambiado a ${formatearEstado(nuevoEstado)}`
+    mensaje.value = ''
+    let response = null
+    
+    switch (nuevoEstado) {
+      case 'EN_EVALUACION':
+        // Evaluar reclamación - cambiar estado a EN_EVALUACION
+        response = await apiService.evaluarReclamacion(reclamacion.idReclamacion, {
+          montoAprobado: null,
+          observaciones: 'Reclamación puesta en evaluación',
+          evaluador: '10'
+        })
+        break
+        
+      case 'APROBADA':
+        // Aprobar reclamación
+        response = await apiService.aprobarReclamacion(reclamacion.idReclamacion, '10')
+        break
+        
+      case 'RECHAZADA':
+        // Rechazar reclamación
+        const motivo = prompt('Ingrese el motivo del rechazo:')
+        if (!motivo || !motivo.trim()) {
+          mensaje.value = 'Se requiere un motivo para rechazar la reclamación'
+          tipoMensaje.value = 'error'
+          return
+        }
+        response = await apiService.rechazarReclamacion(reclamacion.idReclamacion, motivo, '10')
+        break
+        
+      default:
+        throw new Error('Estado no válido')
+    }
+    
+    if (response) {
+      // Actualizar la reclamación localmente
+      const index = reclamaciones.value.findIndex(r => r.idReclamacion === reclamacion.idReclamacion)
+      if (index !== -1) {
+        reclamaciones.value[index].estado = nuevoEstado
+        calcularEstadisticas()
+      }
+      
+      mensaje.value = `Reclamación ${formatearEstado(nuevoEstado).toLowerCase()} exitosamente`
       tipoMensaje.value = 'success'
+      
+      // Recargar datos para asegurar consistencia
+      setTimeout(() => {
+        cargarReclamaciones()
+      }, 1000)
     }
   } catch (error) {
     console.error('Error al cambiar estado:', error)
@@ -375,9 +415,9 @@ const formatearFecha = (fecha) => {
 
 const formatearMonto = (monto) => {
   if (!monto) return 'N/A'
-  return new Intl.NumberFormat('es-ES', {
+  return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'EUR'
+    currency: 'USD'
   }).format(monto)
 }
 

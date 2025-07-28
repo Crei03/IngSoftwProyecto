@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
 public class ReclamacionServiceImpl implements ReclamacionService {
     
     private static final Random random = new Random();
-    private static int NUMERO_SECUENCIAL = 1;
     
     private final ReclamacionRepository reclamacionRepository;
     
@@ -224,9 +223,28 @@ public class ReclamacionServiceImpl implements ReclamacionService {
     }
     
     /**
-     * Genera un número de reclamación secuencial
+     * Genera un número de reclamación secuencial basado en las reclamaciones existentes
      */
     private String generarNumeroReclamacion() {
-        return String.format("REC%06d", NUMERO_SECUENCIAL++);
+        // Obtener la última reclamación para generar el próximo número secuencial
+        List<Reclamacion> todas = reclamacionRepository.findAll();
+        int nextNumber = todas.size() + 1;
+        
+        // Asegurar que el número generado no exista ya
+        String numeroGenerado;
+        do {
+            numeroGenerado = String.format("REC%06d", nextNumber);
+            nextNumber++;
+        } while (existeNumeroReclamacion(numeroGenerado));
+        
+        return numeroGenerado;
+    }
+    
+    /**
+     * Verifica si ya existe una reclamación con el número dado
+     */
+    private boolean existeNumeroReclamacion(String numeroReclamacion) {
+        return reclamacionRepository.findAll().stream()
+                .anyMatch(r -> r.getNumeroReclamacion().equals(numeroReclamacion));
     }
 }

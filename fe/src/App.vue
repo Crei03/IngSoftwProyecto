@@ -286,14 +286,19 @@ const login = async () => {
     
     // Buscar cliente en la base de datos
     const clientes = await apiService.getClientes()
+    console.log('Clientes obtenidos del API:', clientes)
+    
     const clienteEncontrado = clientes.find(cliente => 
       cliente.email.toLowerCase() === loginData.email.toLowerCase() &&
       cliente.telefono === loginData.telefono
     )
     
+    console.log('Cliente encontrado:', clienteEncontrado)
+    
     if (clienteEncontrado) {
       isLoggedIn.value = true
       currentUser.value = clienteEncontrado // Guardar el cliente completo con ID
+      console.log('currentUser asignado:', currentUser.value)
       showLoginModal.value = false
       
       // Limpiar formulario

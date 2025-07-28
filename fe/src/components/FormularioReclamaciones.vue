@@ -59,8 +59,8 @@
       <div v-else class="polizas-grid">
         <div 
           v-for="poliza in polizasAprobadas" 
-          :key="poliza.id"
-          :class="['poliza-card', { selected: formulario.polizaId === poliza.id }]"
+          :key="poliza.id || poliza.idPoliza || poliza.polizaId"
+          :class="['poliza-card', { selected: formulario.polizaId === (poliza.id || poliza.idPoliza || poliza.polizaId) }]"
           @click="seleccionarPoliza(poliza)"
         >
           <div class="poliza-header">
@@ -83,7 +83,7 @@
               </span>
             </div>
           </div>
-          <div v-if="formulario.polizaId === poliza.id" class="selected-indicator">
+          <div v-if="formulario.polizaId === (poliza.id || poliza.idPoliza || poliza.polizaId)" class="selected-indicator">
             <CheckCircle class="check-icon" />
           </div>
         </div>
@@ -91,7 +91,7 @@
     </div>
 
     <!-- Formulario de Reclamación -->
-    <div v-if="formulario.polizaId" class="formulario-section">
+    <div v-if="polizaSeleccionada" class="formulario-section">
       <div class="section-header">
         <AlertTriangle class="section-icon" />
         <h3>Detalles de la Reclamación</h3>
@@ -211,23 +211,25 @@
         
         <!-- Botones -->
         <div class="form-actions">
-          <button
-            type="button"
-            @click="limpiarFormulario"
-            class="btn-secondary"
-            :disabled="enviando"
-          >
-            Limpiar Formulario
-          </button>
-          <button
-            type="submit"
-            class="btn-primary"
-            :disabled="!formulario.aceptaTerminos || enviando || !formulario.polizaId"
-          >
-            <AlertTriangle v-if="enviando" class="btn-icon spinning" />
-            <Send v-else class="btn-icon" />
-            {{ enviando ? 'Enviando...' : 'Enviar Reclamación' }}
-          </button>
+          <div class="action-buttons">
+            <button
+              type="button"
+              @click="limpiarFormulario"
+              class="btn-secondary"
+              :disabled="enviando"
+            >
+              Limpiar Formulario
+            </button>
+            <button
+              type="submit"
+              class="btn-primary"
+              :disabled="enviando"
+            >
+              <AlertTriangle v-if="enviando" class="btn-icon spinning" />
+              <Send v-else class="btn-icon" />
+              {{ enviando ? 'Enviando...' : 'Enviar Reclamación' }}
+            </button>
+          </div>
         </div>
       </form>
     </div>
@@ -339,9 +341,24 @@ const fechaMaxima = computed(() => {
   return new Date().toISOString().split('T')[0]
 })
 
+const formularioValido = computed(() => {
+  return (
+    formulario.polizaId && 
+    formulario.descripcion.trim() && 
+    formulario.fechaSiniestro && 
+    formulario.montoReclamado && 
+    parseFloat(formulario.montoReclamado) > 0 &&
+    formulario.aceptaTerminos
+  )
+})
+
 // Métodos
 const cargarPolizasAprobadas = async () => {
-  if (!props.cliente?.id) {
+  console.log('Cliente recibido en FormularioReclamaciones:', props.cliente)
+  console.log('Cliente.idCliente:', props.cliente?.idCliente)
+  console.log('Cliente.id:', props.cliente?.id)
+  
+  if (!props.cliente?.idCliente && !props.cliente?.id) {
     mensaje.value = 'Error: No se pudo identificar el cliente'
     tipoMensaje.value = 'error'
     return
@@ -350,8 +367,20 @@ const cargarPolizasAprobadas = async () => {
   loadingPolizas.value = true
   
   try {
-    const polizas = await apiService.getPolizasPorCliente(props.cliente.id)
+    // Intentar con idCliente primero, luego con id
+    const clienteId = props.cliente.idCliente || props.cliente.id
+    console.log('Usando clienteId:', clienteId)
+    
+    const polizas = await apiService.getPolizasPorCliente(clienteId)
+    console.log('Todas las pólizas recibidas:', polizas)
     polizasAprobadas.value = polizas.filter(poliza => poliza.estado === 'APROBADA')
+    console.log('Pólizas aprobadas:', polizasAprobadas.value)
+    
+    // Verificar las propiedades de las pólizas
+    if (polizasAprobadas.value.length > 0) {
+      console.log('Primera póliza aprobada:', polizasAprobadas.value[0])
+      console.log('Propiedades de la primera póliza:', Object.keys(polizasAprobadas.value[0]))
+    }
     
     if (polizasAprobadas.value.length === 0) {
       mensaje.value = 'No tienes pólizas aprobadas. Necesitas una póliza aprobada para hacer una reclamación.'
@@ -367,15 +396,36 @@ const cargarPolizasAprobadas = async () => {
 }
 
 const seleccionarPoliza = (poliza) => {
-  formulario.polizaId = poliza.id
+  console.log('Seleccionando póliza:', poliza)
+  console.log('Propiedades de la póliza:', Object.keys(poliza))
+  
+  // Manejar diferentes campos posibles para el ID
+  const polizaId = poliza.id || poliza.idPoliza || poliza.polizaId
+  console.log('ID de la póliza encontrado:', polizaId)
+  
+  if (!polizaId) {
+    console.error('No se pudo encontrar un ID válido para la póliza')
+    mensaje.value = 'Error: No se pudo identificar la póliza seleccionada'
+    tipoMensaje.value = 'error'
+    return
+  }
+  
+  formulario.polizaId = polizaId
   polizaSeleccionada.value = poliza
+  console.log('formulario.polizaId después de asignar:', formulario.polizaId)
   mensaje.value = `Póliza ${poliza.numeroPoliza} seleccionada`
   tipoMensaje.value = 'success'
 }
 
 const enviarReclamacion = () => {
+  console.log('Intentando enviar reclamación...')
+  console.log('formulario.polizaId:', formulario.polizaId)
+  console.log('Tipo de formulario.polizaId:', typeof formulario.polizaId)
+  console.log('polizaSeleccionada.value:', polizaSeleccionada.value)
+  
   // Validaciones adicionales
   if (!formulario.polizaId) {
+    console.log('Error: No hay póliza seleccionada')
     mensaje.value = 'Debes seleccionar una póliza'
     tipoMensaje.value = 'error'
     return
@@ -410,14 +460,10 @@ const confirmarEnvio = async () => {
     const reclamacionData = {
       polizaId: formulario.polizaId,
       descripcion: formulario.descripcion.trim(),
-      fechaSiniestro: formulario.fechaSiniestro,
-      horaSiniestro: formulario.horaSiniestro || null,
-      lugar: formulario.lugar?.trim() || null,
-      montoReclamado: parseFloat(formulario.montoReclamado),
-      tipoSiniestro: formulario.tipoSiniestro || null,
-      informacionAdicional: formulario.informacionAdicional?.trim() || null,
-      clienteId: props.cliente.id
+      montoReclamado: parseFloat(formulario.montoReclamado)
     }
+    
+    console.log('Enviando datos de reclamación:', reclamacionData)
     
     const resultado = await apiService.crearReclamacion(reclamacionData)
     
@@ -461,9 +507,9 @@ const limpiarFormulario = () => {
 // Utilidades
 const formatearMonto = (monto) => {
   if (!monto) return 'N/A'
-  return new Intl.NumberFormat('es-ES', {
+  return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'EUR'
+    currency: 'USD'
   }).format(monto)
 }
 
@@ -865,6 +911,11 @@ onMounted(() => {
 /* Botones */
 .form-actions {
   display: flex;
+  justify-content: flex-end;
+}
+
+.action-buttons {
+  display: flex;
   gap: 1rem;
   justify-content: flex-end;
 }
@@ -1082,6 +1133,10 @@ onMounted(() => {
   }
   
   .form-actions {
+    gap: 1rem;
+  }
+  
+  .action-buttons {
     flex-direction: column;
   }
   
@@ -1118,6 +1173,7 @@ onMounted(() => {
   --info-border: rgba(66, 153, 225, 0.3);
   --warning-bg: rgba(237, 137, 54, 0.1);
   --warning-border: rgba(237, 137, 54, 0.3);
+  --warning-color: #ed8936;
 }
 
 /* Tema claro */
@@ -1148,6 +1204,7 @@ onMounted(() => {
   --info-border: rgba(66, 153, 225, 0.3);
   --warning-bg: rgba(237, 137, 54, 0.1);
   --warning-border: rgba(237, 137, 54, 0.3);
+  --warning-color: #d69e2e;
 }
 
 @keyframes spin {
