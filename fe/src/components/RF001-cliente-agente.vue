@@ -100,10 +100,6 @@ import { ref, computed, onMounted } from 'vue'
 import { Users, Link, CheckCircle } from 'lucide-vue-next'
 import apiService from '../services/apiService.js'
 
-const props = defineProps({
-  isDark: Boolean
-})
-
 const clientes = ref([])
 const agentes = ref([])
 const loading = ref(false)
@@ -111,39 +107,39 @@ const error = ref(null)
 
 // Estilos computados
 const cardClass = computed(() => {
-  return props.isDark ? 'dark-card' : 'light-card'
+  return 'dark-card'
 })
 
 const buttonSecondaryClass = computed(() => {
-  return props.isDark ? 'dark-button-secondary' : 'light-button-secondary'
+  return 'dark-button-secondary'
 })
 
 const iconContainerClass = computed(() => {
-  return props.isDark ? 'dark-icon-container' : 'light-icon-container'
+  return 'dark-icon-container'
 })
 
 const iconSecondaryClass = computed(() => {
-  return props.isDark ? 'dark-icon-secondary' : 'light-icon-secondary'
+  return 'dark-icon-secondary'
 })
 
 const iconTertiaryClass = computed(() => {
-  return props.isDark ? 'dark-icon-tertiary' : 'light-icon-tertiary'
+  return 'dark-icon-tertiary'
 })
 
 const successIconClass = computed(() => {
-  return props.isDark ? 'dark-success-icon' : 'light-success-icon'
+  return 'dark-success-icon'
 })
 
 const itemCardClass = computed(() => {
-  return props.isDark ? 'dark-item-card' : 'light-item-card'
+  return 'dark-item-card'
 })
 
 const badgeClass = computed(() => {
-  return props.isDark ? 'dark-badge' : 'light-badge'
+  return 'dark-badge'
 })
 
 const successBadgeClass = computed(() => {
-  return props.isDark ? 'dark-success-badge' : 'light-success-badge'
+  return 'dark-success-badge'
 })
 
 // Métodos

@@ -129,8 +129,8 @@
     </section>
 
     <!-- Modal de Login -->
-    <div v-if="showLoginModal" class="modal-overlay" @click="showLoginModal = false">
-      <div class="modal-content" @click.stop>
+    <div v-if="showLoginModal" class="modal-overlay">
+      <div class="modal-content">
         <div class="modal-header">
           <h3>Iniciar Sesión</h3>
           <button @click="showLoginModal = false" class="close-button">
@@ -199,7 +199,7 @@
     <footer class="landing-footer">
       <div class="footer-content">
         <div class="footer-section">
-          <h4>SeguraTuAuto</h4>
+          <h4>SeguraTuAutoa</h4>
           <p>Tu seguridad en la carretera es nuestra prioridad</p>
         </div>
         <div class="footer-section">

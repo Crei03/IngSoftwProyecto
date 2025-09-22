@@ -1,9 +1,9 @@
 <template>
   <div class="cliente-poliza-container">
     <!-- Header -->
-    <div :class="['header-card', cardClass]">
+    <div class="header-card dark-card">
       <div class="header-content">
-        <div :class="['icon-container', iconContainerClass]">
+        <div class="icon-container dark-icon-container">
           <FileText class="header-icon" />
         </div>
         <div class="header-text">
@@ -26,7 +26,7 @@
     </div>
 
     <!-- Información del Cliente -->
-    <div :class="['client-info-card', cardClass]">
+    <div class="client-info-card dark-card">
       <div class="card-header">
         <User class="card-icon" />
         <h3 class="card-title">Información del Cliente</h3>
@@ -52,7 +52,7 @@
     </div>
 
     <!-- Formulario de Póliza -->
-    <div :class="['form-card', cardClass]">
+    <div class="form-card dark-card">
       <div class="card-header">
         <Car class="card-icon" />
         <h3 class="card-title">Datos del Vehículo</h3>
@@ -65,7 +65,7 @@
             <input
               v-model="polizaData.marcaVehiculo"
               type="text"
-              :class="['form-input', inputClass]"
+              class="form-input dark-input"
               placeholder="Toyota, Honda, Ford, etc."
               required
             />
@@ -76,7 +76,7 @@
             <input
               v-model="polizaData.modeloVehiculo"
               type="text"
-              :class="['form-input', inputClass]"
+              class="form-input dark-input"
               placeholder="Corolla, Civic, Focus, etc."
               required
             />
@@ -89,7 +89,7 @@
             <input
               v-model="polizaData.anoVehiculo"
               type="number"
-              :class="['form-input', inputClass]"
+              class="form-input dark-input"
               placeholder="2020"
               min="1990"
               max="2024"
@@ -102,7 +102,7 @@
             <input
               v-model="polizaData.colorVehiculo"
               type="text"
-              :class="['form-input', inputClass]"
+              class="form-input dark-input"
               placeholder="Blanco, Negro, Azul, etc."
             />
           </div>
@@ -111,7 +111,7 @@
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Tipo de Seguro *</label>
-            <select v-model="polizaData.tipoSeguro" :class="['form-input', inputClass]" required>
+            <select v-model="polizaData.tipoSeguro" class="form-input dark-input" required>
               <option value="">Seleccionar tipo de seguro</option>
               <option value="AUTO">Seguro Básico</option>
               <option value="TODO_RIESGO">Seguro Todo Riesgo</option>
@@ -122,7 +122,7 @@
           
           <div class="form-group">
             <label class="form-label">Agente Asignado *</label>
-            <select v-model="polizaData.agenteId" :class="['form-input', inputClass]" required>
+            <select v-model="polizaData.agenteId" class="form-input dark-input" required>
               <option value="">Seleccionar agente</option>
               <option v-for="agente in agentes" :key="agente.id" :value="agente.id">
                 {{ agente.nombre }} - {{ agente.codigo }}
@@ -138,7 +138,7 @@
               v-model="polizaData.primaMensual"
               type="number"
               step="0.01"
-              :class="['form-input', inputClass]"
+              class="form-input dark-input"
               placeholder="0.00"
               required
             />
@@ -148,7 +148,7 @@
             <label class="form-label">Observaciones</label>
             <textarea
               v-model="polizaData.observaciones"
-              :class="['form-input', 'form-textarea', inputClass]"
+              class="form-input form-textarea dark-input"
               placeholder="Información adicional sobre el vehículo..."
               rows="3"
             ></textarea>
@@ -157,7 +157,7 @@
         
         <button
           type="submit"
-          :class="['submit-button', buttonPrimaryClass]"
+          class="submit-button dark-button-primary"
           :disabled="loading"
         >
           {{ loading ? 'Creando Póliza...' : 'Crear Póliza' }}
@@ -166,7 +166,7 @@
     </div>
 
     <!-- Información de la Póliza Creada -->
-    <div v-if="polizaCreada" :class="['success-card', cardClass]">
+    <div v-if="polizaCreada" class="success-card dark-card">
       <div class="card-header">
         <CheckCircle2 class="card-icon success-icon" />
         <h3 class="card-title">¡Póliza Creada Exitosamente!</h3>
@@ -203,12 +203,11 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { FileText, User, Car, CheckCircle2 } from 'lucide-vue-next'
 import apiService from '../services/apiService.js'
 
 const props = defineProps({
-  isDark: Boolean,
   cliente: {
     type: Object,
     required: true
@@ -230,23 +229,6 @@ const agentes = ref([])
 const polizaCreada = ref(null)
 const loading = ref(false)
 const error = ref(null)
-
-// Computed properties
-const cardClass = computed(() => {
-  return props.isDark ? 'dark-card' : 'light-card'
-})
-
-const inputClass = computed(() => {
-  return props.isDark ? 'dark-input' : 'light-input'
-})
-
-const buttonPrimaryClass = computed(() => {
-  return props.isDark ? 'dark-button-primary' : 'light-button-primary'
-})
-
-const iconContainerClass = computed(() => {
-  return props.isDark ? 'dark-icon-container' : 'light-icon-container'
-})
 
 // Métodos
 const cargarAgentes = async () => {
@@ -376,15 +358,15 @@ const obtenerNombreAgente = (agenteId) => {
 const getStatusBadgeClass = (estado) => {
   switch (estado) {
     case 'PENDIENTE':
-      return props.isDark ? 'status-pendiente-dark' : 'status-pendiente-light'
+      return 'status-pendiente-dark'
     case 'APROBADA':
-      return props.isDark ? 'status-aprobada-dark' : 'status-aprobada-light'
+      return 'status-aprobada-dark'
     case 'RECHAZADA':
-      return props.isDark ? 'status-rechazada-dark' : 'status-rechazada-light'
+      return 'status-rechazada-dark'
     case 'CANCELADA':
-      return props.isDark ? 'status-cancelada-dark' : 'status-cancelada-light'
+      return 'status-cancelada-dark'
     default:
-      return props.isDark ? 'status-default-dark' : 'status-default-light'
+      return 'status-default-dark'
   }
 }
 
