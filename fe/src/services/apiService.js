@@ -11,9 +11,18 @@ class ApiService {
       ...options
     }
 
+    console.log('🔄 API Request:', {
+      url: url,
+      method: config.method || 'GET',
+      headers: config.headers
+    })
+
     try {
       const response = await fetch(url, config)
+      console.log('📡 Response status:', response.status, response.statusText)
+      
       const data = await response.json()
+      console.log('📥 Response data:', data)
       
       if (!response.ok) {
         throw new Error(data.message || `Error ${response.status}: ${response.statusText}`)
@@ -21,7 +30,9 @@ class ApiService {
       
       return data
     } catch (error) {
-      console.error('Error en API request:', error)
+      console.error('❌ Error en API request:', error)
+      console.error('🔍 URL que falló:', url)
+      console.error('⚙️ Config:', config)
       throw error
     }
   }

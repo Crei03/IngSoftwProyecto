@@ -1,7 +1,7 @@
 <template>
   <div class="mis-polizas-container">
     <!-- Header -->
-    <div :class="['header-card', cardClass]">
+    <div class="header-card dark-card">
       <div class="header-content">
         <div :class="['icon-container', iconContainerClass]">
           <FileText class="header-icon" />
@@ -14,7 +14,7 @@
     </div>
 
     <!-- Información del Cliente -->
-    <div :class="['client-info-card', cardClass]">
+    <div class="client-info-card dark-card">
       <div class="card-header">
         <User class="card-icon" />
         <h3 class="card-title">Información del Cliente</h3>
@@ -52,7 +52,7 @@
     </div>
 
     <!-- Filtros -->
-    <div :class="['filters-card', cardClass]">
+    <div class="filters-card dark-card">
       <div class="card-header">
         <Filter class="card-icon" />
         <h3 class="card-title">Filtros</h3>
@@ -61,7 +61,7 @@
         <div class="filter-row">
           <div class="filter-group">
             <label class="filter-label">Estado</label>
-            <select v-model="filtros.estado" :class="['filter-input', inputClass]">
+            <select v-model="filtros.estado" class="filter-input dark-input">
               <option value="">Todos los estados</option>
               <option value="PENDIENTE">PENDIENTE</option>
               <option value="APROBADA">APROBADA</option>
@@ -71,7 +71,7 @@
           </div>
           <div class="filter-group">
             <label class="filter-label">Tipo de Seguro</label>
-            <select v-model="filtros.tipoSeguro" :class="['filter-input', inputClass]">
+            <select v-model="filtros.tipoSeguro" class="filter-input dark-input">
               <option value="">Todos los tipos</option>
               <option value="AUTO">AUTO</option>
               <option value="TODO_RIESGO">TODO RIESGO</option>
@@ -80,7 +80,7 @@
             </select>
           </div>
           <div class="filter-actions">
-            <button @click="limpiarFiltros" :class="['filter-button', buttonSecondaryClass]">
+            <button @click="limpiarFiltros" class="filter-button dark-button-secondary">
               Limpiar
             </button>
           </div>
@@ -89,7 +89,7 @@
     </div>
 
     <!-- Lista de Pólizas -->
-    <div :class="['polizas-card', cardClass]">
+    <div class="polizas-card dark-card">
       <div class="card-header">
         <List class="card-icon" />
         <h3 class="card-title">Mis Pólizas ({{ polizasFiltradas.length }})</h3>
@@ -97,7 +97,7 @@
 
       <div v-if="polizasFiltradas.length === 0 && !loading" class="no-polizas">
         <p>No tienes pólizas con los filtros aplicados</p>
-        <button @click="navegarARegistro" :class="['action-button', buttonPrimaryClass]">
+        <button @click="navegarARegistro" class="action-button dark-button-primary">
           Crear Nueva Póliza
         </button>
       </div>
@@ -106,7 +106,7 @@
         <div
           v-for="poliza in polizasFiltradas"
           :key="poliza.id"
-          :class="['poliza-item', itemCardClass]"
+          class="poliza-item dark-item-card"
         >
           <div class="poliza-header">
             <div class="poliza-info">
@@ -160,7 +160,7 @@
 
     <!-- Modal de Edición -->
     <div v-if="showEditModal" class="modal-overlay" @click="cerrarModal">
-      <div :class="['modal-content', cardClass]" @click.stop>
+      <div class="modal-content dark-card" @click.stop>
         <div class="modal-header">
           <h3>Editar Póliza</h3>
           <button @click="cerrarModal" class="close-button">
@@ -175,7 +175,7 @@
               <input
                 v-model="polizaEditando.marca"
                 type="text"
-                :class="['form-input', inputClass]"
+                class="form-input dark-input"
                 placeholder="Toyota, Honda, Ford, etc."
                 required
               />
@@ -186,7 +186,7 @@
               <input
                 v-model="polizaEditando.modelo"
                 type="text"
-                :class="['form-input', inputClass]"
+                class="form-input dark-input"
                 placeholder="Corolla, Civic, Focus, etc."
                 required
               />
@@ -199,7 +199,7 @@
               <input
                 v-model="polizaEditando.anioVehiculo"
                 type="number"
-                :class="['form-input', inputClass]"
+                class="form-input dark-input"
                 placeholder="2020"
                 min="1990"
                 max="2024"
@@ -209,7 +209,7 @@
             
             <div class="form-group">
               <label class="form-label">Tipo de Seguro *</label>
-              <select v-model="polizaEditando.tipoSeguro" :class="['form-input', inputClass]" required>
+              <select v-model="polizaEditando.tipoSeguro" class="form-input dark-input" required>
                 <option value="AUTO">Seguro Básico</option>
                 <option value="TODO_RIESGO">Seguro Todo Riesgo</option>
                 <option value="TERCEROS">Seguro a Terceros</option>
@@ -225,7 +225,7 @@
                 v-model="polizaEditando.prima"
                 type="number"
                 step="0.01"
-                :class="['form-input', inputClass]"
+                class="form-input dark-input"
                 placeholder="0.00"
                 required
               />
@@ -235,7 +235,7 @@
               <label class="form-label">Observaciones</label>
               <textarea
                 v-model="polizaEditando.observaciones"
-                :class="['form-input', 'form-textarea', inputClass]"
+                class="form-input form-textarea dark-input"
                 placeholder="Información adicional..."
                 rows="3"
               ></textarea>
@@ -243,10 +243,10 @@
           </div>
           
           <div class="modal-actions">
-            <button type="button" @click="cerrarModal" :class="['modal-button', buttonSecondaryClass]">
+            <button type="button" @click="cerrarModal" class="modal-button dark-button-secondary">
               Cancelar
             </button>
-            <button type="submit" :class="['modal-button', buttonPrimaryClass]" :disabled="saving">
+            <button type="submit" class="modal-button dark-button-primary" :disabled="saving">
               {{ saving ? 'Guardando...' : 'Guardar Cambios' }}
             </button>
           </div>
@@ -256,7 +256,7 @@
 
     <!-- Modal de Detalles -->
     <div v-if="showDetailsModal" class="modal-overlay" @click="cerrarModal">
-      <div :class="['modal-content', cardClass]" @click.stop>
+      <div class="modal-content dark-card" @click.stop>
         <div class="modal-header">
           <h3>Detalles de la Póliza</h3>
           <button @click="cerrarModal" class="close-button">
@@ -337,7 +337,6 @@ import { FileText, User, Filter, List, Edit, Eye, X } from 'lucide-vue-next'
 import apiService from '../services/apiService.js'
 
 const props = defineProps({
-  isDark: Boolean,
   cliente: {
     type: Object,
     required: true
@@ -374,38 +373,6 @@ const polizasFiltradas = computed(() => {
   }
 
   return resultado
-})
-
-const cardClass = computed(() => {
-  return props.isDark ? 'dark-card' : 'light-card'
-})
-
-const inputClass = computed(() => {
-  return props.isDark ? 'dark-input' : 'light-input'
-})
-
-const buttonPrimaryClass = computed(() => {
-  return props.isDark ? 'dark-button-primary' : 'light-button-primary'
-})
-
-const buttonSecondaryClass = computed(() => {
-  return props.isDark ? 'dark-button-secondary' : 'light-button-secondary'
-})
-
-const iconContainerClass = computed(() => {
-  return props.isDark ? 'dark-icon-container' : 'light-icon-container'
-})
-
-const itemCardClass = computed(() => {
-  return props.isDark ? 'dark-item-card' : 'light-item-card'
-})
-
-const editButtonClass = computed(() => {
-  return props.isDark ? 'dark-edit-button' : 'light-edit-button'
-})
-
-const viewButtonClass = computed(() => {
-  return props.isDark ? 'dark-view-button' : 'light-view-button'
 })
 
 // Métodos
@@ -506,15 +473,15 @@ const formatearFecha = (fecha) => {
 const getStatusBadgeClass = (estado) => {
   switch (estado) {
     case 'PENDIENTE':
-      return props.isDark ? 'status-pendiente-dark' : 'status-pendiente-light'
+      return 'status-pendiente-dark'
     case 'APROBADA':
-      return props.isDark ? 'status-aprobada-dark' : 'status-aprobada-light'
+      return 'status-aprobada-dark'
     case 'RECHAZADA':
-      return props.isDark ? 'status-rechazada-dark' : 'status-rechazada-light'
+      return 'status-rechazada-dark'
     case 'CANCELADA':
-      return props.isDark ? 'status-cancelada-dark' : 'status-cancelada-light'
+      return 'status-cancelada-dark'
     default:
-      return props.isDark ? 'status-default-dark' : 'status-default-light'
+      return 'status-default-dark'
   }
 }
 

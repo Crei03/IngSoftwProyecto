@@ -258,10 +258,6 @@ import { ref, computed, onMounted } from 'vue'
 import { FileText, Shield, CheckCircle2, Clock, XCircle, AlertCircle } from 'lucide-vue-next'
 import apiService from '../services/apiService.js'
 
-const props = defineProps({
-  isDark: Boolean
-})
-
 const polizas = ref([])
 const agentes = ref([])
 const loading = ref(false)
@@ -339,59 +335,59 @@ const polizasRechazadas = computed(() => {
 
 // Estilos computados
 const cardClass = computed(() => {
-  return props.isDark ? 'dark-card' : 'light-card'
+  return 'dark-card'
 })
 
 const inputClass = computed(() => {
-  return props.isDark ? 'dark-input' : 'light-input'
+  return 'dark-input'
 })
 
 const buttonPrimaryClass = computed(() => {
-  return props.isDark ? 'dark-button-primary' : 'light-button-primary'
+  return 'dark-button-primary'
 })
 
 const buttonSecondaryClass = computed(() => {
-  return props.isDark ? 'dark-button-secondary' : 'light-button-secondary'
+  return 'dark-button-secondary'
 })
 
 const iconContainerClass = computed(() => {
-  return props.isDark ? 'dark-icon-container' : 'light-icon-container'
+  return 'dark-icon-container'
 })
 
 const iconSecondaryClass = computed(() => {
-  return props.isDark ? 'dark-icon-secondary' : 'light-icon-secondary'
+  return 'dark-icon-secondary'
 })
 
 const iconTertiaryClass = computed(() => {
-  return props.isDark ? 'dark-icon-tertiary' : 'light-icon-tertiary'
+  return 'dark-icon-tertiary'
 })
 
 const itemCardClass = computed(() => {
-  return props.isDark ? 'dark-item-card' : 'light-item-card'
+  return 'dark-item-card'
 })
 
 const statsCardClass = computed(() => {
-  return props.isDark ? 'dark-stats-card' : 'light-stats-card'
+  return 'dark-stats-card'
 })
 
 const featureCardGreen = computed(() => {
-  return props.isDark ? 'dark-feature-green' : 'light-feature-green'
+  return 'dark-feature-green'
 })
 
 const featureCardBlue = computed(() => {
-  return props.isDark ? 'dark-feature-blue' : 'light-feature-blue'
+  return 'dark-feature-blue'
 })
 
 const featureCardYellow = computed(() => {
-  return props.isDark ? 'dark-feature-yellow' : 'light-feature-yellow'
+  return 'dark-feature-yellow'
 })
 
 const approveButtonClass = computed(() => {
-  return props.isDark ? 'dark-approve-button' : 'light-approve-button'
+  return 'dark-approve-button'
 })
 
 const rejectButtonClass = computed(() => {
-  return props.isDark ? 'dark-reject-button' : 'light-reject-button'
+  return 'dark-reject-button'
 })
 
 // Métodos
@@ -558,15 +554,15 @@ const getStatusIcon = (estado) => {
 const getStatusBadgeClass = (estado) => {
   switch (estado) {
     case 'PENDIENTE':
-      return props.isDark ? 'status-pendiente-dark' : 'status-pendiente-light'
+      return 'status-pendiente-dark'
     case 'APROBADA':
-      return props.isDark ? 'status-aprobada-dark' : 'status-aprobada-light'
+      return 'status-aprobada-dark'
     case 'RECHAZADA':
-      return props.isDark ? 'status-rechazada-dark' : 'status-rechazada-light'
+      return 'status-rechazada-dark'
     case 'CANCELADA':
-      return props.isDark ? 'status-cancelada-dark' : 'status-cancelada-light'
+      return 'status-cancelada-dark'
     default:
-      return props.isDark ? 'status-default-dark' : 'status-default-light'
+      return 'status-default-dark'
   }
 }
 

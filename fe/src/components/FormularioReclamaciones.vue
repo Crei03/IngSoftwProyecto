@@ -1,5 +1,5 @@
 <template>
-  <div :class="['formulario-reclamaciones', themeClass]">
+  <div class="formulario-reclamaciones theme-dark">
     <!-- Header -->
     <div class="page-header">
       <div class="header-content">
@@ -240,7 +240,7 @@
 
     <!-- Modal de Confirmación -->
     <div v-if="showConfirmModal" class="modal-overlay" @click="cancelarEnvio">
-      <div :class="['modal-content', themeClass]" @click.stop>
+      <div class="modal-content theme-dark" @click.stop>
         <div class="modal-header">
           <h3>Confirmar Envío de Reclamación</h3>
           <button @click="cancelarEnvio" class="close-button">
@@ -296,10 +296,6 @@ import {
 import apiService from '../services/apiService.js'
 
 const props = defineProps({
-  isDark: {
-    type: Boolean,
-    default: false
-  },
   cliente: {
     type: Object,
     required: true
@@ -307,10 +303,6 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['navegarARegistro', 'reclamacionCreada'])
-
-const themeClass = computed(() => {
-  return props.isDark ? 'theme-dark' : 'theme-light'
-})
 
 // Estado reactivo
 const loadingPolizas = ref(false)

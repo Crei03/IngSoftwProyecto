@@ -251,15 +251,8 @@ import {
 } from 'lucide-vue-next'
 import apiService from '../services/apiService.js'
 
-const props = defineProps({
-  isDark: {
-    type: Boolean,
-    default: false
-  }
-})
-
 const themeClass = computed(() => {
-  return props.isDark ? 'theme-dark' : 'theme-light'
+  return 'theme-dark'
 })
 
 // Estado reactivo
