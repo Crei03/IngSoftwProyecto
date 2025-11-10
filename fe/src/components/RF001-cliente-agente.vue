@@ -7,7 +7,7 @@
           <Users class="header-icon" />
         </div>
         <div class="header-text">
-          <h2 class="header-title">RF-001: Gestión de Clientes y Agentes</h2>
+          <h2 class="header-title">Gestión de Clientes y Agentes</h2>
           <p class="header-subtitle">Registro automático y vinculación cliente-agente</p>
         </div>
       </div>
@@ -31,6 +31,14 @@
         <div class="card-header">
           <Users :class="['card-icon', iconSecondaryClass]" />
           <h3 class="card-title">Agentes Disponibles</h3>
+          <button 
+            @click="mostrarModalAgente" 
+            :class="['add-button', addButtonClass]"
+            title="Crear nuevo agente"
+          >
+            <Plus class="add-icon" />
+            Crear Agente
+          </button>
         </div>
 
         <div class="agents-list">
@@ -48,6 +56,47 @@
               <div class="agent-stats">
                 <div :class="['agent-badge', badgeClass]">
                   {{ agente.clientesAsignados }} clientes
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lista de Evaluadores -->
+      <div :class="['evaluators-card', cardClass]">
+        <div class="card-header">
+          <Shield :class="['card-icon', iconTertiaryClass]" />
+          <h3 class="card-title">Evaluadores Disponibles</h3>
+          <button 
+            @click="mostrarModalEvaluador" 
+            :class="['add-button', addButtonClass]"
+            title="Crear nuevo evaluador"
+          >
+            <Plus class="add-icon" />
+            Crear Evaluador
+          </button>
+        </div>
+
+        <div class="evaluators-list">
+          <div
+            v-for="evaluador in evaluadores"
+            :key="evaluador.id"
+            :class="['evaluator-item', itemCardClass]"
+          >
+            <div class="evaluator-content">
+              <div class="evaluator-info">
+                <h4 class="evaluator-nombre">{{ evaluador.nombre }}</h4>
+                <p class="evaluator-email">{{ evaluador.email }}</p>
+                <p class="evaluator-telefono">{{ evaluador.telefono }}</p>
+                <p class="evaluator-especialidad">{{ evaluador.especialidad || 'Sin especialidad' }}</p>
+              </div>
+              <div class="evaluator-stats">
+                <div :class="['evaluator-badge', evaluador.activo ? 'active-badge' : 'inactive-badge', badgeClass]">
+                  {{ evaluador.activo ? 'ACTIVO' : 'INACTIVO' }}
+                </div>
+                <div :class="['code-badge', badgeClass]">
+                  {{ evaluador.codigo || 'Sin código' }}
                 </div>
               </div>
             </div>
@@ -92,18 +141,40 @@
         </div>
       </div>
     </div>
+
+    <!-- Modales -->
+    <AgenteRegistroModal 
+      :show-modal="showAgenteModal"
+      :is-dark="isDark"
+      @close="cerrarModalAgente"
+      @agente-creado="onAgenteCreado"
+    />
+
+    <EvaluadorRegistroModal 
+      :show-modal="showEvaluadorModal"
+      :is-dark="isDark"
+      @close="cerrarModalEvaluador"
+      @evaluador-creado="onEvaluadorCreado"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { Users, Link, CheckCircle } from 'lucide-vue-next'
+import { Users, Link, CheckCircle, Shield, Plus } from 'lucide-vue-next'
 import apiService from '../services/apiService.js'
+import AgenteRegistroModal from './AgenteRegistroModal.vue'
+import EvaluadorRegistroModal from './EvaluadorRegistroModal.vue'
 
 const clientes = ref([])
 const agentes = ref([])
+const evaluadores = ref([])
 const loading = ref(false)
 const error = ref(null)
+
+// Estados para modales
+const showAgenteModal = ref(false)
+const showEvaluadorModal = ref(false)
 
 // Estilos computados
 const cardClass = computed(() => {
@@ -142,16 +213,25 @@ const successBadgeClass = computed(() => {
   return 'dark-success-badge'
 })
 
+const buttonPrimaryClass = computed(() => {
+  return props.isDark ? 'dark-button-primary' : 'light-button-primary'
+})
+
+const addButtonClass = computed(() => {
+  return props.isDark ? 'dark-add-button' : 'light-add-button'
+})
+
 // Métodos
 const cargarDatos = async () => {
   loading.value = true
   error.value = null
   
   try {
-    // Cargar agentes y clientes en paralelo
-    const [agentesData, clientesData] = await Promise.all([
+    // Cargar agentes, clientes y evaluadores en paralelo
+    const [agentesData, clientesData, evaluadoresData] = await Promise.all([
       apiService.getAgentes(),
-      apiService.getClientes()
+      apiService.getClientes(),
+      apiService.getEvaluadores()
     ])
     
     agentes.value = agentesData.map(agente => ({
@@ -170,6 +250,16 @@ const cargarDatos = async () => {
       telefono: cliente.telefono,
       fechaRegistro: new Date().toISOString().split('T')[0], // Valor por defecto
       agenteAsignado: null // Por ahora no hay vinculación directa
+    }))
+
+    evaluadores.value = evaluadoresData.map(evaluador => ({
+      id: evaluador.idEvaluador,
+      nombre: evaluador.nombre,
+      email: evaluador.email,
+      telefono: evaluador.telefono,
+      codigo: evaluador.codigo,
+      especialidad: evaluador.especialidad,
+      activo: evaluador.activo
     }))
     
   } catch (err) {
@@ -191,6 +281,35 @@ const obtenerNombreAgente = (agenteId) => {
   if (!agenteId) return 'No asignado'
   const agente = agentes.value.find(a => a.id === agenteId)
   return agente ? agente.nombre : 'No asignado'
+}
+
+// Métodos para modales
+const mostrarModalAgente = () => {
+  showAgenteModal.value = true
+}
+
+const cerrarModalAgente = () => {
+  showAgenteModal.value = false
+}
+
+const onAgenteCreado = (nuevoAgente) => {
+  console.log('Agente creado:', nuevoAgente)
+  // Recargar datos para mostrar el nuevo agente
+  cargarDatos()
+}
+
+const mostrarModalEvaluador = () => {
+  showEvaluadorModal.value = true
+}
+
+const cerrarModalEvaluador = () => {
+  showEvaluadorModal.value = false
+}
+
+const onEvaluadorCreado = (nuevoEvaluador) => {
+  console.log('Evaluador creado:', nuevoEvaluador)
+  // Recargar datos para mostrar el nuevo evaluador
+  cargarDatos()
 }
 
 onMounted(() => {
@@ -251,6 +370,7 @@ onMounted(() => {
 
 /* Tarjetas */
 .agents-card,
+.evaluators-card,
 .clients-card {
   border-radius: 1rem;
   padding: 1.5rem;
@@ -262,6 +382,7 @@ onMounted(() => {
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 1.5rem;
+  justify-content: space-between;
 }
 
 .card-icon {
@@ -273,6 +394,31 @@ onMounted(() => {
   font-size: 1.25rem;
   font-weight: 600;
   margin: 0;
+  flex: 1;
+}
+
+/* Botón para agregar */
+.add-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.add-button:hover {
+  transform: translateY(-1px);
+}
+
+.add-icon {
+  width: 1rem;
+  height: 1rem;
 }
 
 
@@ -322,6 +468,62 @@ onMounted(() => {
 }
 
 .agent-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Lista de evaluadores */
+.evaluators-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.evaluator-item {
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid;
+  transition: all 0.2s ease;
+}
+
+.evaluator-item:hover {
+  transform: scale(1.01);
+}
+
+.evaluator-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.evaluator-info {
+  flex: 1;
+}
+
+.evaluator-nombre {
+  font-weight: 600;
+  margin: 0 0 0.25rem 0;
+}
+
+.evaluator-email,
+.evaluator-telefono,
+.evaluator-especialidad {
+  font-size: 0.875rem;
+  opacity: 0.7;
+  margin: 0.125rem 0;
+}
+
+.evaluator-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  text-align: right;
+}
+
+.evaluator-badge,
+.code-badge {
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
   font-size: 0.75rem;
@@ -446,6 +648,17 @@ onMounted(() => {
   color: #166534;
 }
 
+.light-add-button {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  color: #f0fdf4;
+  box-shadow: 0 4px 15px rgba(22, 163, 74, 0.3);
+}
+
+.light-add-button:hover {
+  background: linear-gradient(135deg, #15803d 0%, #166534 100%);
+  box-shadow: 0 6px 20px rgba(22, 163, 74, 0.4);
+}
+
 /* Tema oscuro */
 .dark-card {
   background: rgba(30, 41, 59, 0.6);
@@ -498,6 +711,17 @@ onMounted(() => {
 .dark-success-badge {
   background: rgba(34, 197, 94, 0.2);
   color: #4ade80;
+}
+
+.dark-add-button {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ecfdf5;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.dark-add-button:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
 }
 
 /* Indicadores de carga y error */
@@ -563,13 +787,25 @@ onMounted(() => {
   }
   
   .client-content,
-  .agent-content {
+  .agent-content,
+  .evaluator-content {
     flex-direction: column;
     gap: 1rem;
   }
   
   .client-actions {
     align-items: flex-start;
+  }
+  
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .add-button {
+    align-self: stretch;
+    justify-content: center;
   }
 }
 </style>

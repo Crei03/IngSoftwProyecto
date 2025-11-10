@@ -7,7 +7,7 @@
           <Shield class="header-icon" />
         </div>
         <div class="header-text">
-          <h2 class="header-title">RF-002: Gestión de Pólizas</h2>
+          <h2 class="header-title">Gestión de Pólizas</h2>
           <p class="header-subtitle">Panel de administración y control de pólizas</p>
         </div>
       </div>
@@ -121,7 +121,7 @@
               </select>
             </div>
 
-            <!-- Filtro por Tipo de Seguro -->
+            <!-- Filtro por Tipo de Seguro
             <div class="filter-group">
               <label class="filter-label">Tipo de Seguro</label>
               <select v-model="filtros.tipoSeguro" :class="['filter-input', inputClass]">
@@ -131,7 +131,7 @@
                 <option value="TERCEROS">TERCEROS</option>
                 <option value="ROBO_HURTO">ROBO Y HURTO</option>
               </select>
-            </div>
+            </div> -->
 
             <!-- Filtro por Rango de Prima -->
             <div class="filter-group">

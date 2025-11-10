@@ -81,40 +81,6 @@
               />
               <span v-if="errors.telefono" class="error-message">{{ errors.telefono }}</span>
             </div>
-            
-            <div class="form-group">
-              <label class="form-label">Marca del Vehículo</label>
-              <input
-                v-model="nuevoCliente.marcaVehiculo"
-                type="text"
-                class="form-input"
-                placeholder="Toyota, Honda, etc."
-              />
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Modelo del Vehículo</label>
-              <input
-                v-model="nuevoCliente.modeloVehiculo"
-                type="text"
-                class="form-input"
-                placeholder="Corolla, Civic, etc."
-              />
-            </div>
-            
-            <div class="form-group">
-              <label class="form-label">Año del Vehículo</label>
-              <input
-                v-model="nuevoCliente.anoVehiculo"
-                type="number"
-                class="form-input"
-                placeholder="2020"
-                min="1990"
-                max="2024"
-              />
-            </div>
           </div>
           
           <button
@@ -245,10 +211,7 @@ const showProfileModal = ref(false)
 const nuevoCliente = reactive({
   nombre: '',
   email: '',
-  telefono: '',
-  marcaVehiculo: '',
-  modeloVehiculo: '',
-  anoVehiculo: ''
+  telefono: ''
 })
 
 // Datos de login

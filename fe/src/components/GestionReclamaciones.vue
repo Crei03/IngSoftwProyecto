@@ -112,23 +112,17 @@
         <table class="reclamaciones-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Póliza</th>
-              <th>Cliente</th>
-              <th>Fecha</th>
-              <th>Monto</th>
-              <th>Estado</th>
-              <th>Descripción</th>
-              <th>Acciones</th>
+              <th style="width: 8%">ID</th>
+              <th style="width: 16%">Fecha</th>
+              <th style="width: 14%">Monto</th>
+              <th style="width: 14%">Estado</th>
+              <th style="width: 34%">Descripción</th>
+              <th style="width: 14%">Acciones</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="reclamacion in reclamacionesFiltradas" :key="reclamacion.id" class="table-row">
-              <td>{{ reclamacion.id }}</td>
-              <td>
-                <span class="poliza-badge">{{ reclamacion.numeroPoliza || 'N/A' }}</span>
-              </td>
-              <td>{{ reclamacion.nombreCliente || 'N/A' }}</td>
+            <tr v-for="reclamacion in reclamacionesFiltradas" :key="reclamacion.idReclamacion || reclamacion.id" class="table-row">
+              <td>{{ reclamacion.idReclamacion || reclamacion.id }}</td>
               <td>{{ formatearFecha(reclamacion.fechaReclamacion) }}</td>
               <td>
                 <span class="monto">{{ formatearMonto(reclamacion.montoReclamado) }}</span>
@@ -155,26 +149,32 @@
                   <button 
                     v-if="reclamacion.estado === 'REGISTRADA'"
                     @click="cambiarEstado(reclamacion, 'EN_EVALUACION')" 
-                    class="action-button evaluate"
+                    :class="['action-button', 'evaluate', { processing: procesandoReclamacion === (reclamacion.idReclamacion || reclamacion.id) }]"
+                    :disabled="procesandoReclamacion === (reclamacion.idReclamacion || reclamacion.id)"
                     title="Evaluar"
                   >
-                    <Search class="action-icon" />
+                    <div v-if="procesandoReclamacion === (reclamacion.idReclamacion || reclamacion.id)" class="action-spinner"></div>
+                    <Search v-else class="action-icon" />
                   </button>
                   <button 
                     v-if="reclamacion.estado === 'EN_EVALUACION'"
                     @click="cambiarEstado(reclamacion, 'APROBADA')" 
-                    class="action-button approve"
+                    :class="['action-button', 'approve', { processing: procesandoReclamacion === (reclamacion.idReclamacion || reclamacion.id) }]"
+                    :disabled="procesandoReclamacion === (reclamacion.idReclamacion || reclamacion.id)"
                     title="Aprobar"
                   >
-                    <CheckCircle class="action-icon" />
+                    <div v-if="procesandoReclamacion === (reclamacion.idReclamacion || reclamacion.id)" class="action-spinner"></div>
+                    <CheckCircle v-else class="action-icon" />
                   </button>
                   <button 
                     v-if="reclamacion.estado === 'EN_EVALUACION'"
                     @click="cambiarEstado(reclamacion, 'RECHAZADA')" 
-                    class="action-button reject"
+                    :class="['action-button', 'reject', { processing: procesandoReclamacion === (reclamacion.idReclamacion || reclamacion.id) }]"
+                    :disabled="procesandoReclamacion === (reclamacion.idReclamacion || reclamacion.id)"
                     title="Rechazar"
                   >
-                    <XCircle class="action-icon" />
+                    <div v-if="procesandoReclamacion === (reclamacion.idReclamacion || reclamacion.id)" class="action-spinner"></div>
+                    <XCircle v-else class="action-icon" />
                   </button>
                 </div>
               </td>
@@ -188,7 +188,7 @@
     <div v-if="showDetallesModal" class="modal-overlay" @click="cerrarDetalles">
       <div :class="['modal-content', 'modal-large', themeClass]" @click.stop>
         <div class="modal-header">
-          <h3>Detalles de Reclamación #{{ reclamacionSeleccionada?.id }}</h3>
+          <h3>Detalles de Reclamación #{{ reclamacionSeleccionada?.idReclamacion || reclamacionSeleccionada?.id }}</h3>
           <button @click="cerrarDetalles" class="close-button">
             <X class="close-icon" />
           </button>
@@ -200,16 +200,9 @@
               <h4>Información General</h4>
               <div class="detalle-row">
                 <span class="detalle-label">ID:</span>
-                <span class="detalle-value">{{ reclamacionSeleccionada.id }}</span>
+                <span class="detalle-value">{{ reclamacionSeleccionada.idReclamacion || reclamacionSeleccionada.id }}</span>
               </div>
-              <div class="detalle-row">
-                <span class="detalle-label">Póliza:</span>
-                <span class="detalle-value">{{ reclamacionSeleccionada.numeroPoliza || 'N/A' }}</span>
-              </div>
-              <div class="detalle-row">
-                <span class="detalle-label">Cliente:</span>
-                <span class="detalle-value">{{ reclamacionSeleccionada.nombreCliente || 'N/A' }}</span>
-              </div>
+              <!-- Columnas de póliza y cliente eliminadas del modal -->
               <div class="detalle-row">
                 <span class="detalle-label">Fecha:</span>
                 <span class="detalle-value">{{ formatearFecha(reclamacionSeleccionada.fechaReclamacion) }}</span>
@@ -262,6 +255,7 @@ const tipoMensaje = ref('info')
 const reclamaciones = ref([])
 const reclamacionSeleccionada = ref(null)
 const showDetallesModal = ref(false)
+const procesandoReclamacion = ref(null) // ID de la reclamación que se está procesando
 
 // Filtros
 const filtroEstado = ref('')
@@ -299,18 +293,32 @@ const cargarReclamaciones = async () => {
   mensaje.value = ''
   
   try {
+    console.log('Cargando reclamaciones desde la API...');
     const data = await apiService.getReclamaciones()
-    reclamaciones.value = data
-    calcularEstadisticas()
+    console.log('Datos recibidos:', data);
     
-    if (data.length === 0) {
+    // Verificar que data sea un array
+    if (!Array.isArray(data)) {
+      console.warn('Los datos recibidos no son un array:', data);
+      reclamaciones.value = [];
+    } else {
+      reclamaciones.value = data;
+    }
+    
+    calcularEstadisticas()
+    console.log('Estadísticas calculadas:', estadisticas);
+    
+    if (reclamaciones.value.length === 0) {
       mensaje.value = 'No hay reclamaciones registradas en el sistema'
       tipoMensaje.value = 'info'
+    } else {
+      console.log(`${reclamaciones.value.length} reclamaciones cargadas exitosamente`);
     }
   } catch (error) {
     console.error('Error al cargar reclamaciones:', error)
     mensaje.value = 'Error al cargar las reclamaciones: ' + error.message
     tipoMensaje.value = 'error'
+    reclamaciones.value = []; // Limpiar en caso de error
   } finally {
     loading.value = false
   }
@@ -339,20 +347,69 @@ const cerrarDetalles = () => {
 }
 
 const cambiarEstado = async (reclamacion, nuevoEstado) => {
+  // Obtener el ID correcto de la reclamación
+  const reclamacionId = reclamacion.idReclamacion || reclamacion.id;
+  
+  console.log('Reclamación objeto completo:', reclamacion);
+  console.log('ID extraído:', reclamacionId, 'Tipo:', typeof reclamacionId);
+  
+  if (!reclamacionId || reclamacionId === 'undefined' || isNaN(reclamacionId)) {
+    console.error('Error: ID de reclamación inválido', { reclamacion, reclamacionId });
+    mensaje.value = 'Error: ID de reclamación inválido';
+    tipoMensaje.value = 'error';
+    return;
+  }
+  
+  // Marcar que esta reclamación se está procesando
+  procesandoReclamacion.value = reclamacionId;
+  mensaje.value = '';
+  
   try {
-    // Aquí iría la llamada para cambiar el estado
-    // Por ahora solo actualizamos localmente
-    const index = reclamaciones.value.findIndex(r => r.id === reclamacion.id)
-    if (index !== -1) {
-      reclamaciones.value[index].estado = nuevoEstado
-      calcularEstadisticas()
-      mensaje.value = `Estado cambiado a ${formatearEstado(nuevoEstado)}`
-      tipoMensaje.value = 'success'
+    console.log(`Cambiando estado de reclamación ${reclamacionId} a ${nuevoEstado}`);
+    
+    let resultado;
+    if (nuevoEstado === 'EN_EVALUACION') {
+      console.log('Llamando a evaluarReclamacion...');
+      resultado = await apiService.evaluarReclamacion(reclamacionId);
+    } else if (nuevoEstado === 'APROBADA') {
+      console.log('Llamando a aprobarReclamacion...');
+      resultado = await apiService.aprobarReclamacion(reclamacionId);
+    } else if (nuevoEstado === 'RECHAZADA') {
+      console.log('Llamando a rechazarReclamacion...');
+      resultado = await apiService.rechazarReclamacion(reclamacionId);
+    } else {
+      throw new Error('Acción no soportada');
     }
+    
+    console.log('Resultado de la API:', resultado);
+    
+    // Recargar datos sin mostrar spinner global
+    console.log('Recargando lista de reclamaciones...');
+    
+    await cargarReclamaciones();
+    
+    console.log('Lista recargada exitosamente');
+    
+    mensaje.value = `Reclamación ${formatearEstado(nuevoEstado).toLowerCase()} exitosamente`;
+    tipoMensaje.value = 'success';
+    
+    // Auto-limpiar mensaje después de 3 segundos
+    setTimeout(() => {
+      mensaje.value = '';
+    }, 3000);
+    
   } catch (error) {
-    console.error('Error al cambiar estado:', error)
-    mensaje.value = 'Error al cambiar el estado: ' + error.message
-    tipoMensaje.value = 'error'
+    console.error('Error completo al cambiar estado:', error);
+    mensaje.value = 'Error al cambiar el estado: ' + error.message;
+    tipoMensaje.value = 'error';
+    
+    // Auto-limpiar mensaje de error después de 5 segundos
+    setTimeout(() => {
+      mensaje.value = '';
+    }, 5000);
+  } finally {
+    // Limpiar el estado de procesamiento
+    procesandoReclamacion.value = null;
   }
 }
 
@@ -368,9 +425,9 @@ const formatearFecha = (fecha) => {
 
 const formatearMonto = (monto) => {
   if (!monto) return 'N/A'
-  return new Intl.NumberFormat('es-ES', {
+  return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'EUR'
+    currency: 'USD',
   }).format(monto)
 }
 
@@ -769,6 +826,36 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 2rem;
+  min-height: 2rem;
+}
+
+.action-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.action-button.processing {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+.action-spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .action-button.view {

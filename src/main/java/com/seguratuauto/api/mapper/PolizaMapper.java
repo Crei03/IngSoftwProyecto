@@ -76,11 +76,16 @@ public class PolizaMapper {
         }
         
         try {
+            // Si es solo un año (4 dígitos), construir fecha con 01-01
+            if (dateString.matches("\\d{4}")) {
+                return LocalDate.of(Integer.parseInt(dateString), 1, 1);
+            }
+            
             // Intentar con formato ISO_LOCAL_DATE (YYYY-MM-DD)
             return LocalDate.parse(dateString, DATE_ONLY_FORMATTER);
-        } catch (DateTimeParseException e) {
+        } catch (DateTimeParseException | NumberFormatException e) {
             throw new IllegalArgumentException("Formato de fecha no válido: " + dateString + 
-                ". Use formato YYYY-MM-DD");
+                ". Use formato YYYY-MM-DD o YYYY");
         }
     }
     

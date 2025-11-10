@@ -23,11 +23,11 @@ Todas las respuestas de la API siguen el siguiente formato:
 
 ## ENDPOINTS DE PRICING
 
-| Nombre                    | Valor                                       | Definición                                    |
-| ------------------------- | ------------------------------------------- | --------------------------------------------- |
-| **Tipos de Seguro**       | `GET /api/pricing/tipos-seguro`             | Obtiene los tipos de seguro y precios base   |
-| **Precio Base por Tipo**  | `GET /api/pricing/precio-base/{tipoSeguro}` | Obtiene el precio base de un tipo específico |
-| **Health Check**          | `GET /api/pricing/health`                   | Verifica el estado del servicio de pricing   |
+| Nombre                   | Valor                                       | Definición                                   |
+| ------------------------ | ------------------------------------------- | -------------------------------------------- |
+| **Tipos de Seguro**      | `GET /api/pricing/tipos-seguro`             | Obtiene los tipos de seguro y precios base   |
+| **Precio Base por Tipo** | `GET /api/pricing/precio-base/{tipoSeguro}` | Obtiene el precio base de un tipo específico |
+| **Health Check**         | `GET /api/pricing/health`                   | Verifica el estado del servicio de pricing   |
 
 ### JSON Response - Tipos de Seguro
 
@@ -59,18 +59,18 @@ Todas las respuestas de la API siguen el siguiente formato:
 
 ### Base URL: `/api/reclamaciones`
 
-| Nombre                      | Valor                                        | Definición                                         |
-| --------------------------- | -------------------------------------------- | -------------------------------------------------- |
-| **Registrar Reclamación**   | `POST /api/reclamaciones/registrar`          | Registra una nueva reclamación con estado inicial |
-| **Evaluar Reclamación**     | `POST /api/reclamaciones/{id}/evaluar`       | Evalúa una reclamación usando patrón Strategy     |
-| **Aprobar Reclamación**     | `POST /api/reclamaciones/{id}/aprobar`       | Aprueba una reclamación en evaluación             |
-| **Rechazar Reclamación**    | `POST /api/reclamaciones/{id}/rechazar`      | Rechaza una reclamación con motivo específico     |
-| **Procesar Pago**           | `POST /api/reclamaciones/{id}/pagar`         | Procesa el pago de una reclamación aprobada       |
-| **Obtener por ID**          | `GET /api/reclamaciones/{id}`                | Obtiene una reclamación específica                |
-| **Obtener por Póliza**      | `GET /api/reclamaciones/poliza/{polizaId}`   | Obtiene reclamaciones de una póliza específica    |
-| **Obtener por Estado**      | `GET /api/reclamaciones/estado/{estado}`     | Obtiene reclamaciones filtradas por estado        |
-| **Obtener Todas**           | `GET /api/reclamaciones/todas`               | Obtiene todas las reclamaciones del sistema       |
-| **Health Check**            | `GET /api/reclamaciones/health`              | Verifica el estado del servicio de reclamaciones  |
+| Nombre                    | Valor                                      | Definición                                        |
+| ------------------------- | ------------------------------------------ | ------------------------------------------------- |
+| **Registrar Reclamación** | `POST /api/reclamaciones/registrar`        | Registra una nueva reclamación con estado inicial |
+| **Evaluar Reclamación**   | `POST /api/reclamaciones/{id}/evaluar`     | Evalúa una reclamación usando patrón Strategy     |
+| **Aprobar Reclamación**   | `POST /api/reclamaciones/{id}/aprobar`     | Aprueba una reclamación en evaluación             |
+| **Rechazar Reclamación**  | `POST /api/reclamaciones/{id}/rechazar`    | Rechaza una reclamación con motivo específico     |
+| **Procesar Pago**         | `POST /api/reclamaciones/{id}/pagar`       | Procesa el pago de una reclamación aprobada       |
+| **Obtener por ID**        | `GET /api/reclamaciones/{id}`              | Obtiene una reclamación específica                |
+| **Obtener por Póliza**    | `GET /api/reclamaciones/poliza/{polizaId}` | Obtiene reclamaciones de una póliza específica    |
+| **Obtener por Estado**    | `GET /api/reclamaciones/estado/{estado}`   | Obtiene reclamaciones filtradas por estado        |
+| **Obtener Todas**         | `GET /api/reclamaciones/todas`             | Obtiene todas las reclamaciones del sistema       |
+| **Health Check**          | `GET /api/reclamaciones/health`            | Verifica el estado del servicio de reclamaciones  |
 
 ### Estados Válidos de Reclamación
 
@@ -86,11 +86,12 @@ Todas las respuestas de la API siguen el siguiente formato:
 {
   "polizaId": 606,
   "descripcion": "Prueba de reclamacion sin acentos",
-  "montoReclamado": 1500.00
+  "montoReclamado": 1500.0
 }
 ```
 
 **Validaciones:**
+
 - `polizaId`: Requerido, ID numérico de póliza existente
 - `descripcion`: Requerida, no vacía
 - `montoReclamado`: Requerido, mayor a 0.01
@@ -106,6 +107,7 @@ Todas las respuestas de la API siguen el siguiente formato:
 ```
 
 **Validaciones:**
+
 - `montoAprobado`: Opcional, si se proporciona debe ser >= 0
 - `observaciones`: Opcional, cadena de texto libre
 - `evaluadorId`: Opcional, ID numérico del evaluador (Long)
@@ -119,6 +121,7 @@ Todas las respuestas de la API siguen el siguiente formato:
 ```
 
 **Validaciones:**
+
 - `evaluadorId`: Requerido, ID numérico del evaluador que aprueba
 
 ### JSON Request - Rechazar Reclamación
@@ -131,6 +134,7 @@ Todas las respuestas de la API siguen el siguiente formato:
 ```
 
 **Validaciones:**
+
 - `motivo`: Requerido, razón del rechazo
 - `evaluadorId`: Requerido, ID numérico del evaluador que rechaza
 
@@ -144,7 +148,7 @@ Todas las respuestas de la API siguen el siguiente formato:
     "polizaId": 606,
     "numeroReclamacion": "REC000031",
     "descripcion": "Prueba de reclamacion sin acentos",
-    "montoReclamado": 1500.00,
+    "montoReclamado": 1500.0,
     "montoAprobado": null,
     "estado": "REGISTRADA",
     "fechaReclamacion": "2025-07-28T10:56:16.3679746",
@@ -167,7 +171,7 @@ Todas las respuestas de la API siguen el siguiente formato:
     "idReclamacion": 222,
     "numeroReclamacion": "REC000031",
     "estado": "EN_EVALUACION",
-    "montoReclamado": 1500.00,
+    "montoReclamado": 1500.0,
     "montoAprobado": 1200.0,
     "fechaEvaluacion": "2025-07-28T11:15:00",
     "evaluadorId": 72,
@@ -264,13 +268,14 @@ Todas las respuestas de la API siguen el siguiente formato:
 
 El sistema selecciona automáticamente la estrategia según el monto reclamado:
 
-| Monto Reclamado     | Estrategia                      | Porcentaje Aprobación Típico | Descripción                                    |
-| ------------------- | ------------------------------- | ---------------------------- | ---------------------------------------------- |
-| ≤ $5,000            | EvaluacionAutomaticaStrategy    | 95%                          | Evaluación automática para montos menores     |
-| $5,001 - $20,000    | EvaluacionManualStrategy        | 85%                          | Requiere evaluación manual                     |
-| > $20,000           | EvaluacionEspecializadaStrategy | 75%                          | Requiere evaluación especializada e investig. |
+| Monto Reclamado  | Estrategia                      | Porcentaje Aprobación Típico | Descripción                                   |
+| ---------------- | ------------------------------- | ---------------------------- | --------------------------------------------- |
+| ≤ $5,000         | EvaluacionAutomaticaStrategy    | 95%                          | Evaluación automática para montos menores     |
+| $5,001 - $20,000 | EvaluacionManualStrategy        | 85%                          | Requiere evaluación manual                    |
+| > $20,000        | EvaluacionEspecializadaStrategy | 75%                          | Requiere evaluación especializada e investig. |
 
-**Ejemplo Práctico**: 
+**Ejemplo Práctico**:
+
 - Monto $1,500.00 → **EvaluacionAutomaticaStrategy** (≤ $5,000)
 - Porcentaje de aprobación: ~95% del monto solicitado
 - Proceso: Automático, sin intervención manual requerida
@@ -278,21 +283,25 @@ El sistema selecciona automáticamente la estrategia según el monto reclamado:
 ### 🔄 Workflow Completo de Reclamaciones
 
 #### 1. Flujo Exitoso (Automático ≤ $5,000)
+
 ```
 REGISTRADA → EN_EVALUACION → APROBADA → PAGADA
 ```
 
 #### 2. Flujo Manual ($5,001 - $20,000)
+
 ```
 REGISTRADA → EN_EVALUACION → APROBADA → PAGADA
 ```
 
 #### 3. Flujo Especializado (> $20,000)
+
 ```
 REGISTRADA → EN_EVALUACION → APROBADA → PAGADA
 ```
 
 #### 4. Flujo de Rechazo
+
 ```
 REGISTRADA → EN_EVALUACION → RECHAZADA
 ```
@@ -300,6 +309,7 @@ REGISTRADA → EN_EVALUACION → RECHAZADA
 ### 📋 Ejemplos cURL
 
 #### Registrar Nueva Reclamación
+
 ```bash
 curl -X POST http://localhost:8080/api/reclamaciones/registrar \
   -H "Content-Type: application/json" \
@@ -311,6 +321,7 @@ curl -X POST http://localhost:8080/api/reclamaciones/registrar \
 ```
 
 #### Evaluar Reclamación
+
 ```bash
 curl -X POST http://localhost:8080/api/reclamaciones/222/evaluar \
   -H "Content-Type: application/json" \
@@ -322,6 +333,7 @@ curl -X POST http://localhost:8080/api/reclamaciones/222/evaluar \
 ```
 
 #### Aprobar Reclamación
+
 ```bash
 curl -X POST http://localhost:8080/api/reclamaciones/222/aprobar \
   -H "Content-Type: application/json" \
@@ -331,6 +343,7 @@ curl -X POST http://localhost:8080/api/reclamaciones/222/aprobar \
 ```
 
 #### Rechazar Reclamación
+
 ```bash
 curl -X POST http://localhost:8080/api/reclamaciones/222/rechazar \
   -H "Content-Type: application/json" \
@@ -341,16 +354,19 @@ curl -X POST http://localhost:8080/api/reclamaciones/222/rechazar \
 ```
 
 #### Procesar Pago
+
 ```bash
 curl -X POST http://localhost:8080/api/reclamaciones/222/pagar
 ```
 
 #### Obtener Reclamación por ID
+
 ```bash
 curl -X GET http://localhost:8080/api/reclamaciones/181
 ```
 
 #### Obtener por Estado
+
 ```bash
 curl -X GET http://localhost:8080/api/reclamaciones/estado/EN_EVALUACION
 ```
@@ -369,14 +385,17 @@ curl -X GET http://localhost:8080/api/reclamaciones/estado/EN_EVALUACION
 ### 🔧 Problemas Conocidos y Soluciones
 
 #### UTF-8 Encoding
+
 **Problema**: Errores al enviar caracteres especiales (acentos, ñ, etc.)
 **Solución**: Usar texto sin acentos en las pruebas o configurar correctamente el encoding del cliente
 
 #### Numeración Secuencial
+
 **Problema**: ~~Conflictos con números duplicados al usar contador estático~~
 **Solución**: ✅ **RESUELTO** - Implementado generador basado en database con `COUNT(*) + 1`
 
 #### Evaluador ID
+
 **Problema**: ~~Inconsistencia entre String y Long para evaluadorId~~
 **Solución**: ✅ **RESUELTO** - Standardizado a `Long evaluadorId` en toda la aplicación
 
@@ -384,13 +403,13 @@ curl -X GET http://localhost:8080/api/reclamaciones/estado/EN_EVALUACION
 
 Todos los endpoints POST de reclamaciones han sido probados y están funcionando correctamente:
 
-| Endpoint | Estado | Fecha Testing | Resultado |
-|----------|--------|---------------|-----------|
-| `POST /api/reclamaciones/registrar` | ✅ FUNCIONANDO | 2025-07-28 | REC000031 generado correctamente |
-| `POST /api/reclamaciones/{id}/evaluar` | ✅ FUNCIONANDO | 2025-07-28 | Strategy pattern operativo |
-| `POST /api/reclamaciones/{id}/aprobar` | ✅ FUNCIONANDO | 2025-07-28 | Transición de estado correcta |
-| `POST /api/reclamaciones/{id}/rechazar` | ✅ FUNCIONANDO | 2025-07-28 | Motivo y evaluador registrados |
-| `POST /api/reclamaciones/{id}/pagar` | ✅ FUNCIONANDO | 2025-07-28 | Pago procesado exitosamente |
+| Endpoint                                | Estado         | Fecha Testing | Resultado                        |
+| --------------------------------------- | -------------- | ------------- | -------------------------------- |
+| `POST /api/reclamaciones/registrar`     | ✅ FUNCIONANDO | 2025-07-28    | REC000031 generado correctamente |
+| `POST /api/reclamaciones/{id}/evaluar`  | ✅ FUNCIONANDO | 2025-07-28    | Strategy pattern operativo       |
+| `POST /api/reclamaciones/{id}/aprobar`  | ✅ FUNCIONANDO | 2025-07-28    | Transición de estado correcta    |
+| `POST /api/reclamaciones/{id}/rechazar` | ✅ FUNCIONANDO | 2025-07-28    | Motivo y evaluador registrados   |
+| `POST /api/reclamaciones/{id}/pagar`    | ✅ FUNCIONANDO | 2025-07-28    | Pago procesado exitosamente      |
 
 ---
 
@@ -1075,35 +1094,35 @@ Content-Type: application/json
 
 ### 📋 **Resumen de Pruebas**
 
-| Endpoint                              | Método | Estado | Observaciones                            |
-| ------------------------------------- | ------ | ------ | ---------------------------------------- |
-| `/api/agentes`                        | GET    | ✅     | Funciona correctamente                   |
-| `/api/agentes`                        | POST   | ✅     | **FUNCIONANDO** - Problema resuelto      |
-| `/api/agentes/buscar`                 | GET    | ✅     | Solo sin acentos                         |
-| `/api/agentes/codigo/{codigo}`        | GET    | ✅     | Funciona correctamente                   |
-| `/api/agentes/estadisticas`           | GET    | ✅     | Funciona correctamente                   |
-| `/api/agentes/nuevo-codigo`           | GET    | ✅     | Funciona correctamente                   |
-| `/api/clientes`                       | GET    | ✅     | Funciona correctamente                   |
-| `/api/clientes`                       | POST   | ✅     | **FUNCIONANDO** - Problema resuelto      |
-| `/api/clientes/buscar`                | GET    | ✅     | Funciona correctamente                   |
-| `/api/clientes/estadisticas`          | GET    | ✅     | Funciona correctamente                   |
-| `/api/polizas`                        | GET    | ✅     | Funciona correctamente                   |
-| `/api/polizas/estado/{estado}`        | GET    | ✅     | Funciona correctamente                   |
-| `/api/polizas/numero/{numero}`        | GET    | ✅     | Funciona correctamente                   |
-| `/api/polizas/{id}/aprobar`           | PUT    | ✅     | Funciona correctamente                   |
-| `/api/pricing/tipos-seguro`           | GET    | ✅     | **Patrón Decorator funcionando**         |
-| `/api/pricing/precio-base/{tipo}`     | GET    | ✅     | **Patrón Decorator funcionando**         |
-| `/api/pricing/health`                 | GET    | ✅     | Health check OK                          |
-| `/api/reclamaciones/registrar`        | POST   | ✅     | **NUEVO** - Registra nueva reclamación   |
-| `/api/reclamaciones/{id}/evaluar`     | POST   | ✅     | **NUEVO** - Patrón Strategy automático   |
-| `/api/reclamaciones/{id}/aprobar`     | POST   | ✅     | **NUEVO** - Aprueba reclamación          |
-| `/api/reclamaciones/{id}/rechazar`    | POST   | ✅     | **NUEVO** - Rechaza con motivo           |
-| `/api/reclamaciones/{id}/pagar`       | POST   | ✅     | **NUEVO** - Procesa pago                 |
-| `/api/reclamaciones/{id}`             | GET    | ✅     | **NUEVO** - Obtiene por ID               |
-| `/api/reclamaciones/todas`            | GET    | ✅     | **Patrón Strategy funcionando**          |
-| `/api/reclamaciones/estado/{estado}`  | GET    | ✅     | **Patrón Strategy funcionando**          |
-| `/api/reclamaciones/poliza/{poliza}`  | GET    | ✅     | **NUEVO** - Reclamaciones por póliza     |
-| `/api/reclamaciones/health`           | GET    | ✅     | Health check OK                          |
+| Endpoint                             | Método | Estado | Observaciones                          |
+| ------------------------------------ | ------ | ------ | -------------------------------------- |
+| `/api/agentes`                       | GET    | ✅     | Funciona correctamente                 |
+| `/api/agentes`                       | POST   | ✅     | **FUNCIONANDO** - Problema resuelto    |
+| `/api/agentes/buscar`                | GET    | ✅     | Solo sin acentos                       |
+| `/api/agentes/codigo/{codigo}`       | GET    | ✅     | Funciona correctamente                 |
+| `/api/agentes/estadisticas`          | GET    | ✅     | Funciona correctamente                 |
+| `/api/agentes/nuevo-codigo`          | GET    | ✅     | Funciona correctamente                 |
+| `/api/clientes`                      | GET    | ✅     | Funciona correctamente                 |
+| `/api/clientes`                      | POST   | ✅     | **FUNCIONANDO** - Problema resuelto    |
+| `/api/clientes/buscar`               | GET    | ✅     | Funciona correctamente                 |
+| `/api/clientes/estadisticas`         | GET    | ✅     | Funciona correctamente                 |
+| `/api/polizas`                       | GET    | ✅     | Funciona correctamente                 |
+| `/api/polizas/estado/{estado}`       | GET    | ✅     | Funciona correctamente                 |
+| `/api/polizas/numero/{numero}`       | GET    | ✅     | Funciona correctamente                 |
+| `/api/polizas/{id}/aprobar`          | PUT    | ✅     | Funciona correctamente                 |
+| `/api/pricing/tipos-seguro`          | GET    | ✅     | **Patrón Decorator funcionando**       |
+| `/api/pricing/precio-base/{tipo}`    | GET    | ✅     | **Patrón Decorator funcionando**       |
+| `/api/pricing/health`                | GET    | ✅     | Health check OK                        |
+| `/api/reclamaciones/registrar`       | POST   | ✅     | **NUEVO** - Registra nueva reclamación |
+| `/api/reclamaciones/{id}/evaluar`    | POST   | ✅     | **NUEVO** - Patrón Strategy automático |
+| `/api/reclamaciones/{id}/aprobar`    | POST   | ✅     | **NUEVO** - Aprueba reclamación        |
+| `/api/reclamaciones/{id}/rechazar`   | POST   | ✅     | **NUEVO** - Rechaza con motivo         |
+| `/api/reclamaciones/{id}/pagar`      | POST   | ✅     | **NUEVO** - Procesa pago               |
+| `/api/reclamaciones/{id}`            | GET    | ✅     | **NUEVO** - Obtiene por ID             |
+| `/api/reclamaciones/todas`           | GET    | ✅     | **Patrón Strategy funcionando**        |
+| `/api/reclamaciones/estado/{estado}` | GET    | ✅     | **Patrón Strategy funcionando**        |
+| `/api/reclamaciones/poliza/{poliza}` | GET    | ✅     | **NUEVO** - Reclamaciones por póliza   |
+| `/api/reclamaciones/health`          | GET    | ✅     | Health check OK                        |
 
 ---
 

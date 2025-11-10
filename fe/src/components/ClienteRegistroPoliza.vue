@@ -46,7 +46,7 @@
         </div>
         <div class="detail-row">
           <span class="detail-label">ID Cliente:</span>
-          <span class="detail-value">{{ cliente.id }}</span>
+          <span class="detail-value">{{ cliente.idCliente || cliente.id }}</span>
         </div>
       </div>
     </div>
@@ -92,7 +92,7 @@
               class="form-input dark-input"
               placeholder="2020"
               min="1990"
-              max="2024"
+              max="2025"
               required
             />
           </div>
@@ -113,10 +113,10 @@
             <label class="form-label">Tipo de Seguro *</label>
             <select v-model="polizaData.tipoSeguro" class="form-input dark-input" required>
               <option value="">Seleccionar tipo de seguro</option>
-              <option value="AUTO">Seguro Básico</option>
-              <option value="TODO_RIESGO">Seguro Todo Riesgo</option>
-              <option value="TERCEROS">Seguro a Terceros</option>
-              <option value="ROBO_HURTO">Seguro Robo y Hurto</option>
+              <option value="Seguro Básico">Seguro Básico</option>
+              <option value="Seguro a Todo Riesgo">Seguro a Todo Riesgo</option>
+              <option value="Seguro a Terceros">Seguro a Terceros</option>
+              <option value="Seguro Robo y Hurto">Seguro Robo y Hurto</option>
             </select>
           </div>
           
@@ -259,8 +259,8 @@ const validarDatos = (datos) => {
   }
 
   const ano = parseInt(datos.anoVehiculo)
-  if (isNaN(ano) || ano < 1990 || ano > 2024) {
-    errores.push('Año del vehículo debe estar entre 1990 y 2024')
+  if (isNaN(ano) || ano < 1990 || ano > 2025) {
+    errores.push('Año del vehículo debe estar entre 1990 y 2025')
   }
 
   if (!datos.tipoSeguro) {
@@ -280,6 +280,7 @@ const validarDatos = (datos) => {
 }
 
 const crearPoliza = async () => {
+  console.log('submit form')
   // Validación automática de datos
   const errores = validarDatos(polizaData.value)
 
@@ -292,38 +293,67 @@ const crearPoliza = async () => {
   error.value = null
   
   try {
-    // Crear la póliza
+    // Crear la póliza con el formato exacto que espera el backend
+    const fechaActual = new Date().toISOString().split('T')[0] // YYYY-MM-DD
+    const fechaVencimiento = new Date()
+    fechaVencimiento.setFullYear(fechaVencimiento.getFullYear() + 1)
+    const fechaVencimientoStr = fechaVencimiento.toISOString().split('T')[0] // YYYY-MM-DD
+    
     const polizaRequest = {
-      numeroPoliza: null, // Se generará automáticamente en el backend
-      fechaEmision: new Date().toISOString().split('T')[0], // Formato YYYY-MM-DD
-      fechaVencimiento: null, // Opcional
-      estado: 'PENDIENTE',
-      clienteId: props.cliente.idCliente.toString(), // Convertir a string
-      agenteId: polizaData.value.agenteId.toString(), // Convertir a string
+      numeroPoliza: `POL-${new Date().getFullYear()}-${Math.floor(Math.random() * 1000)}`, // Generar número de póliza
+      fechaEmision: fechaActual,
+      fechaVencimiento: fechaVencimientoStr,
+      estado: "PENDIENTE",
+      clienteId: (props.cliente.idCliente || props.cliente.id).toString(),
+      agenteId: polizaData.value.agenteId.toString(),
       prima: parseFloat(polizaData.value.primaMensual),
       tipoSeguro: polizaData.value.tipoSeguro,
-      observaciones: `Vehículo: ${polizaData.value.marcaVehiculo} ${polizaData.value.modeloVehiculo} ${polizaData.value.anoVehiculo}${polizaData.value.colorVehiculo ? ' - Color: ' + polizaData.value.colorVehiculo : ''}. ${polizaData.value.observaciones || ''}`,
-      marca: polizaData.value.marcaVehiculo || null,
-      modelo: polizaData.value.modeloVehiculo || null,
-      anioVehiculo: polizaData.value.anoVehiculo ? `${polizaData.value.anoVehiculo}-01-01` : null // Formato YYYY-MM-DD
+      observaciones: polizaData.value.observaciones || `Vehículo: ${polizaData.value.marcaVehiculo} ${polizaData.value.modeloVehiculo} ${polizaData.value.anoVehiculo}${polizaData.value.colorVehiculo ? ' - Color: ' + polizaData.value.colorVehiculo : ''}`,
+      marca: polizaData.value.marcaVehiculo,
+      modelo: polizaData.value.modeloVehiculo,
+      anioVehiculo: polizaData.value.anoVehiculo ? `${polizaData.value.anoVehiculo}-01-01` : null
     }
     
     console.log('Cliente recibido:', props.cliente)
     console.log('PolizaRequest a enviar:', polizaRequest)
     
-    // Validar que el cliente tenga ID
-    if (!props.cliente.idCliente) {
-      error.value = 'Error: Cliente sin ID válido'
-      console.error('Cliente sin ID:', props.cliente)
+    // Validar que el cliente tenga ID válido (puede ser idCliente o id)
+    const clienteId = props.cliente.idCliente || props.cliente.id
+    if (!clienteId) {
+      error.value = 'Error: Cliente sin ID válido. El cliente debe tener un idCliente o id.'
+      console.error('Cliente sin ID válido:', props.cliente)
       return
     }
     
-    // Validar que el agente tenga ID válido
-    if (!polizaData.value.agenteId) {
-      error.value = 'Error: Debe seleccionar un agente'
+    // Validar que el ID del cliente sea un número válido
+    if (isNaN(parseInt(clienteId))) {
+      error.value = 'Error: El ID del cliente no es un número válido.'
+      console.error('ID del cliente inválido:', clienteId)
       return
     }
     
+    // Validar que todos los campos requeridos estén presentes
+    if (!polizaRequest.marca || !polizaRequest.modelo) {
+      error.value = 'Error: Marca y modelo del vehículo son obligatorios'
+      return
+    }
+    
+    if (!polizaRequest.anioVehiculo) {
+      error.value = 'Error: Año del vehículo es obligatorio'
+      return
+    }
+    
+    if (!polizaRequest.tipoSeguro) {
+      error.value = 'Error: Tipo de seguro es obligatorio'
+      return
+    }
+    
+    if (!polizaRequest.prima || polizaRequest.prima <= 0) {
+      error.value = 'Error: Prima debe ser mayor a 0'
+      return
+    }
+    
+    console.log('Enviando solicitud de registro de póliza:', polizaRequest)
     const polizaCreadaData = await apiService.crearPoliza(polizaRequest)
     
     // Guardar la póliza creada
@@ -375,6 +405,7 @@ const limpiarError = () => {
 }
 
 onMounted(() => {
+  console.log('ClienteRegistroPoliza montado')
   cargarAgentes()
 })
 </script>
