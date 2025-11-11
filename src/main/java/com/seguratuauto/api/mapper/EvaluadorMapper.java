@@ -29,16 +29,16 @@ public class EvaluadorMapper {
                 ? evaluador.getFechaIngreso().format(DATE_FORMATTER) 
                 : null;
         
-        return new EvaluadorResponse(
-            evaluador.getIdEvaluador() != null ? evaluador.getIdEvaluador().toString() : null,
-            evaluador.getNombre(),
-            evaluador.getCodigo(),
-            evaluador.getEmail(),
-            evaluador.getTelefono(),
-            evaluador.getEspecialidad(),
-            evaluador.getActivo() != null ? evaluador.getActivo().toString() : "true",
-            fechaIngresoStr
-        );
+        return EvaluadorResponse.builder()
+            .idEvaluador(evaluador.getIdEvaluador() != null ? evaluador.getIdEvaluador().toString() : null)
+            .nombre(evaluador.getNombre())
+            .codigo(evaluador.getCodigo())
+            .email(evaluador.getEmail())
+            .telefono(evaluador.getTelefono())
+            .especialidad(evaluador.getEspecialidad())
+            .activo(evaluador.getActivo() != null ? evaluador.getActivo().toString() : "true")
+            .fechaIngreso(fechaIngresoStr)
+            .build();
     }
     
     /**
