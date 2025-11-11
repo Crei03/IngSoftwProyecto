@@ -2,7 +2,10 @@ package com.seguratuauto.model;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -51,6 +54,10 @@ public class Reclamacion {
     @Column(name = "evaluador_id")
     private Long evaluadorId;
     
+    // Relación con documentos adjuntos
+    @OneToMany(mappedBy = "reclamacionId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<DocumentoAdjunto> documentosAdjuntos = new ArrayList<>();
+    
     // Constructor por defecto
     public Reclamacion() {}
     
@@ -65,9 +72,9 @@ public class Reclamacion {
     
     // Constructor completo
     public Reclamacion(Long idReclamacion, Long polizaId, String numeroReclamacion, String descripcion,
-                      BigDecimal montoReclamado, BigDecimal montoAprobado, EstadoReclamacion estado,
-                      LocalDateTime fechaReclamacion, LocalDateTime fechaEvaluacion, LocalDateTime fechaResolucion,
-                      String observaciones, Long evaluadorId) {
+                    BigDecimal montoReclamado, BigDecimal montoAprobado, EstadoReclamacion estado,
+                    LocalDateTime fechaReclamacion, LocalDateTime fechaEvaluacion, LocalDateTime fechaResolucion,
+                    String observaciones, Long evaluadorId) {
         this.idReclamacion = idReclamacion;
         this.polizaId = polizaId;
         this.numeroReclamacion = numeroReclamacion;
@@ -206,7 +213,33 @@ public class Reclamacion {
             return BigDecimal.ZERO;
         }
         return montoAprobado.divide(montoReclamado, 4, BigDecimal.ROUND_HALF_UP)
-                          .multiply(new BigDecimal("100"));
+                        .multiply(new BigDecimal("100"));
+    }
+    
+    // Métodos para gestión de documentos adjuntos
+    public List<DocumentoAdjunto> getDocumentosAdjuntos() {
+        return documentosAdjuntos;
+    }
+    
+    public void setDocumentosAdjuntos(List<DocumentoAdjunto> documentosAdjuntos) {
+        this.documentosAdjuntos = documentosAdjuntos;
+    }
+    
+    public void agregarDocumento(DocumentoAdjunto documento) {
+        if (this.documentosAdjuntos == null) {
+            this.documentosAdjuntos = new ArrayList<>();
+        }
+        this.documentosAdjuntos.add(documento);
+    }
+    
+    public void removerDocumento(DocumentoAdjunto documento) {
+        if (this.documentosAdjuntos != null) {
+            this.documentosAdjuntos.remove(documento);
+        }
+    }
+    
+    public int getNumeroDocumentosAdjuntos() {
+        return documentosAdjuntos != null ? documentosAdjuntos.size() : 0;
     }
     
     // Métodos equals, hashCode y toString

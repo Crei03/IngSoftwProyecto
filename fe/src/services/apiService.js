@@ -277,6 +277,88 @@ class ApiService {
     return response
   }
 
+  // Métodos para Documentos
+  async subirDocumento(formData) {
+    const url = `${API_BASE_URL}/documentos/subir`
+    
+    console.log('🔄 Subiendo documento:', {
+      url: url,
+      files: formData.get('archivo')?.name || 'No file'
+    })
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        body: formData
+        // No incluir Content-Type header para FormData
+      })
+
+      console.log('📡 Upload response status:', response.status, response.statusText)
+      
+      const data = await response.json()
+      console.log('📥 Upload response data:', data)
+      
+      if (!response.ok) {
+        throw new Error(data.message || `Error ${response.status}: ${response.statusText}`)
+      }
+      
+      return data
+    } catch (error) {
+      console.error('❌ Error subiendo documento:', error)
+      throw error
+    }
+  }
+
+  async getDocumentosPorReclamacion(reclamacionId) {
+    try {
+      const response = await this.request(`/documentos/reclamacion/${reclamacionId}`)
+      
+      // Procesar datos para agregar propiedades computadas
+      const documentos = response.data || []
+      return {
+        ...response,
+        data: documentos.map(doc => this.procesarDocumento(doc))
+      }
+    } catch (error) {
+      console.error('Error obteniendo documentos:', error)
+      // Si no hay documentos o error 404, devolver array vacío
+      if (error.message.includes('404')) {
+        return { data: [] }
+      }
+      throw error
+    }
+  }
+
+  async descargarDocumento(idDocumento) {
+    const url = `${API_BASE_URL}/documentos/${idDocumento}/descargar`
+    
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          // No incluir Content-Type para descarga
+        }
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`)
+      }
+
+      return response // Devolver la respuesta para manejar el blob
+    } catch (error) {
+      console.error('❌ Error descargando documento:', error)
+      throw error
+    }
+  }
+
+  async eliminarDocumento(idDocumento) {
+    const response = await this.request(`/documentos/${idDocumento}`, {
+      method: 'DELETE'
+    })
+    return response
+  }
+
   // Rechazar reclamación (con evaluador automático)
   async rechazarReclamacion(id, motivo = 'Rechazada mediante acción rápida', evaluadorId = null) {
     console.log(`API: Rechazando reclamación ${id} con motivo: ${motivo}`);
@@ -317,6 +399,45 @@ class ApiService {
       body: JSON.stringify(datosEvaluacion)
     })
     return response
+  }
+
+  async getDocumentoPorId(idDocumento) {
+    const response = await this.request(`/documentos/${idDocumento}`)
+    return response.data ? this.procesarDocumento(response.data) : null
+  }
+
+  // Método auxiliar para procesar datos de documento
+  procesarDocumento(doc) {
+    return {
+      ...doc,
+      // Propiedades computadas para el componente
+      isPDF: doc.tipoContenido === 'application/pdf',
+      isImage: doc.tipoContenido?.startsWith('image/'),
+      isDocument: doc.tipoContenido?.includes('word') || doc.tipoContenido?.includes('document'),
+      tamañoFormatted: this.formatFileSize(doc.tamaño || 0),
+      fechaSubidaFormatted: this.formatDate(doc.fechaSubida)
+    }
+  }
+
+  // Utilidades para formato
+  formatFileSize(bytes) {
+    if (bytes === 0) return '0 B'
+    const k = 1024
+    const sizes = ['B', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+  }
+
+  formatDate(dateString) {
+    if (!dateString) return ''
+    const date = new Date(dateString)
+    return date.toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
   }
 }
 

@@ -185,6 +185,17 @@
           </div>
         </div>
         
+        <!-- Documentos Adjuntos -->
+        <div v-if="reclamacionCreada" class="documents-section">
+          <CargaDocumentos 
+            :reclamacion-id="reclamacionCreada.idReclamacion"
+            :disabled="enviando"
+            @documento-subido="onDocumentoSubido"
+            @documento-eliminado="onDocumentoEliminado"
+            @error="onDocumentoError"
+          />
+        </div>
+        
         <!-- Términos y Condiciones -->
         <div class="terms-section">
           <div class="terms-checkbox">
@@ -294,6 +305,7 @@ import {
   Info, X
 } from 'lucide-vue-next'
 import apiService from '../services/apiService.js'
+import CargaDocumentos from './CargaDocumentos.vue'
 
 const props = defineProps({
   cliente: {
@@ -312,6 +324,7 @@ const polizaSeleccionada = ref(null)
 const mensaje = ref('')
 const tipoMensaje = ref('info')
 const showConfirmModal = ref(false)
+const reclamacionCreada = ref(null)
 
 // Formulario
 const formulario = reactive({
@@ -413,11 +426,11 @@ const confirmarEnvio = async () => {
     
     const resultado = await apiService.crearReclamacion(reclamacionData)
     
-    mensaje.value = 'Reclamación enviada exitosamente. Se te asignará un número de seguimiento.'
-    tipoMensaje.value = 'success'
+    // Guardar la reclamación creada para habilitar la carga de documentos
+    reclamacionCreada.value = resultado
     
-    // Limpiar formulario
-    limpiarFormulario()
+    mensaje.value = 'Reclamación creada exitosamente. Ahora puedes adjuntar documentos de respaldo.'
+    tipoMensaje.value = 'success'
     
     // Emitir evento
     emit('reclamacionCreada', resultado)
@@ -447,6 +460,7 @@ const limpiarFormulario = () => {
   formulario.informacionAdicional = ''
   formulario.aceptaTerminos = false
   polizaSeleccionada.value = null
+  reclamacionCreada.value = null
   mensaje.value = ''
 }
 
@@ -466,6 +480,25 @@ const formatearFecha = (fecha) => {
     month: '2-digit',
     day: '2-digit'
   })
+}
+
+// Métodos para manejar documentos
+const onDocumentoSubido = (documento) => {
+  console.log('Documento subido:', documento)
+  mensaje.value = `Documento "${documento.nombreOriginal}" subido exitosamente`
+  tipoMensaje.value = 'success'
+}
+
+const onDocumentoEliminado = (documento) => {
+  console.log('Documento eliminado:', documento)
+  mensaje.value = `Documento "${documento.nombreOriginal}" eliminado exitosamente`
+  tipoMensaje.value = 'success'
+}
+
+const onDocumentoError = (error) => {
+  console.error('Error en documento:', error)
+  mensaje.value = 'Error al procesar documento: ' + error.message
+  tipoMensaje.value = 'error'
 }
 
 // Lifecycle
@@ -1145,5 +1178,16 @@ onMounted(() => {
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+/* Documents Section */
+.documents-section {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid var(--border-color);
+}
+
+.documents-section .carga-documentos {
+  margin-bottom: 0;
 }
 </style>
