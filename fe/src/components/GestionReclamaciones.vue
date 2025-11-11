@@ -237,6 +237,18 @@
               {{ reclamacionSeleccionada.descripcion || 'Sin descripción disponible' }}
             </div>
           </div>
+          
+          <!-- Sección de Documentos -->
+          <div class="detalle-section full-width">
+            <CargaDocumentos 
+              v-if="reclamacionSeleccionada"
+              :reclamacion-id="reclamacionSeleccionada.id"
+              :disabled="false"
+              @documento-subido="onDocumentoSubido"
+              @documento-eliminado="onDocumentoEliminado"
+              @error="onDocumentoError"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -250,6 +262,7 @@ import {
   Eye, X 
 } from 'lucide-vue-next'
 import apiService from '../services/apiService.js'
+import CargaDocumentos from './CargaDocumentos.vue'
 
 const themeClass = computed(() => {
   return 'theme-dark'
@@ -388,6 +401,27 @@ const formatearEstado = (estado) => {
 const truncarTexto = (texto, limite) => {
   if (!texto) return 'N/A'
   return texto.length > limite ? texto.substring(0, limite) + '...' : texto
+}
+
+// Métodos para manejar documentos
+const onDocumentoSubido = (documento) => {
+  console.log('Documento subido en gestión:', documento)
+  mensaje.value = `Documento "${documento.nombreOriginal}" subido exitosamente`
+  tipoMensaje.value = 'success'
+  
+  // Opcional: Actualizar información de la reclamación si es necesario
+}
+
+const onDocumentoEliminado = (documento) => {
+  console.log('Documento eliminado en gestión:', documento)
+  mensaje.value = `Documento "${documento.nombreOriginal}" eliminado exitosamente`
+  tipoMensaje.value = 'success'
+}
+
+const onDocumentoError = (error) => {
+  console.error('Error en documento desde gestión:', error)
+  mensaje.value = 'Error al procesar documento: ' + error.message
+  tipoMensaje.value = 'error'
 }
 
 // Lifecycle
