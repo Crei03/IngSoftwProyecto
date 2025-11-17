@@ -5,7 +5,8 @@ package com.seguratuauto.api.dto;
  */
 public class ClienteResponse {
     
-    private String idCliente;
+    private String id;  // Campo principal
+    private String idCliente;  // Alias para compatibilidad
     private String nombre;
     private String email;
     private String telefono;
@@ -14,19 +15,30 @@ public class ClienteResponse {
     public ClienteResponse() {}
     
     // Constructor completo
-    public ClienteResponse(String idCliente, String nombre, String email, String telefono) {
-        this.idCliente = idCliente;
+    public ClienteResponse(String id, String nombre, String email, String telefono) {
+        this.id = id;
+        this.idCliente = id;  // Mantener sincronizado
         this.nombre = nombre;
         this.email = email;
         this.telefono = telefono;
     }
     
     // Getters y Setters
+    public String getId() {
+        return id;
+    }
+    
+    public void setId(String id) {
+        this.id = id;
+        this.idCliente = id;  // Mantener sincronizado
+    }
+    
     public String getIdCliente() {
         return idCliente;
     }
     
     public void setIdCliente(String idCliente) {
+        this.id = idCliente;  // Mantener sincronizado
         this.idCliente = idCliente;
     }
     

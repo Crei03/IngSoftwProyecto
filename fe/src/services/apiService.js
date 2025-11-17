@@ -143,11 +143,11 @@ class ApiService {
   }
 
   async crearReclamacion(reclamacionData) {
-    const response = await this.request('/reclamaciones', {
+    const response = await this.request('/reclamaciones/registrar', {
       method: 'POST',
       body: JSON.stringify(reclamacionData)
     })
-    return response.data
+    return response.reclamacion
   }
 
   async getReclamacionesPorEstado(estado) {

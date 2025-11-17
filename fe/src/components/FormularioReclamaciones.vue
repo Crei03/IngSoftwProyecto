@@ -90,11 +90,56 @@
       </div>
     </div>
 
+    <!-- Reclamaciones Existentes de la Póliza -->
+    <div v-if="formulario.polizaId && reclamacionesPoliza.length > 0" class="reclamaciones-existentes">
+      <div class="section-header">
+        <FileText class="section-icon" />
+        <h3>Reclamaciones Existentes de esta Póliza</h3>
+      </div>
+      
+      <div v-if="loadingReclamaciones" class="loading-container">
+        <div class="spinner"></div>
+        <p>Cargando reclamaciones...</p>
+      </div>
+      
+      <div v-else class="reclamaciones-list">
+        <div 
+          v-for="reclamacion in reclamacionesPoliza" 
+          :key="reclamacion.idReclamacion"
+          class="reclamacion-card"
+        >
+          <div class="reclamacion-header">
+            <span class="reclamacion-numero">#{{ reclamacion.numeroReclamacion }}</span>
+            <span :class="['reclamacion-estado', `estado-${reclamacion.estado.toLowerCase()}`]">
+              {{ reclamacion.estado }}
+            </span>
+          </div>
+          <div class="reclamacion-body">
+            <p class="reclamacion-descripcion">{{ reclamacion.descripcion.substring(0, 150) }}{{ reclamacion.descripcion.length > 150 ? '...' : '' }}</p>
+            <div class="reclamacion-details">
+              <div class="detail-item">
+                <span class="detail-label">Monto reclamado:</span>
+                <span class="detail-value">{{ formatearMonto(reclamacion.montoReclamado) }}</span>
+              </div>
+              <div class="detail-item" v-if="reclamacion.montoAprobado">
+                <span class="detail-label">Monto aprobado:</span>
+                <span class="detail-value">{{ formatearMonto(reclamacion.montoAprobado) }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Fecha:</span>
+                <span class="detail-value">{{ formatearFecha(reclamacion.fechaReclamacion) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Formulario de Reclamación -->
     <div v-if="formulario.polizaId" class="formulario-section">
       <div class="section-header">
         <AlertTriangle class="section-icon" />
-        <h3>Detalles de la Reclamación</h3>
+        <h3>{{ reclamacionesPoliza.length > 0 ? 'Nueva Reclamación' : 'Detalles de la Reclamación' }}</h3>
       </div>
       
       <form @submit.prevent="enviarReclamacion" class="reclamacion-form">
@@ -187,6 +232,12 @@
         
         <!-- Documentos Adjuntos -->
         <div v-if="reclamacionCreada" class="documents-section">
+          <div class="documents-header">
+            <h3 class="documents-title">📎 Adjuntar Documentos de Respaldo</h3>
+            <p class="documents-subtitle">
+              Reclamación #{{ reclamacionCreada.idReclamacion }} - Sube fotos, facturas o documentos relacionados con tu siniestro
+            </p>
+          </div>
           <CargaDocumentos 
             :reclamacion-id="reclamacionCreada.idReclamacion"
             :disabled="enviando"
@@ -221,7 +272,7 @@
         </div>
         
         <!-- Botones -->
-        <div class="form-actions">
+        <div v-if="!reclamacionCreada" class="form-actions">
           <button
             type="button"
             @click="limpiarFormulario"
@@ -240,6 +291,18 @@
             {{ enviando ? 'Enviando...' : 'Enviar Reclamación' }}
           </button>
         </div>
+        
+        <!-- Botón para nueva reclamación después de subir documentos -->
+        <div v-else class="form-actions">
+          <button
+            type="button"
+            @click="iniciarNuevaReclamacion"
+            class="btn-primary"
+          >
+            <Send class="btn-icon" />
+            Nueva Reclamación
+          </button>
+        </div>
       </form>
     </div>
 
@@ -254,7 +317,7 @@
       <div class="modal-content theme-dark" @click.stop>
         <div class="modal-header">
           <h3>Confirmar Envío de Reclamación</h3>
-          <button @click="cancelarEnvio" class="close-button">
+          <button @click="cerrarModalForzado" class="close-button" title="Cerrar">
             <X class="close-icon" />
           </button>
         </div>
@@ -285,12 +348,13 @@
         </div>
         
         <div class="modal-actions">
-          <button @click="cancelarEnvio" class="btn-secondary">
+          <button @click="cancelarEnvio" class="btn-secondary" :disabled="enviando">
             Cancelar
           </button>
           <button @click="confirmarEnvio" class="btn-primary" :disabled="enviando">
-            <Send class="btn-icon" />
-            Confirmar Envío
+            <Send class="btn-icon" v-if="!enviando" />
+            <span v-if="enviando">Enviando...</span>
+            <span v-else>Confirmar Envío</span>
           </button>
         </div>
       </div>
@@ -318,9 +382,11 @@ const emit = defineEmits(['navegarARegistro', 'reclamacionCreada'])
 
 // Estado reactivo
 const loadingPolizas = ref(false)
+const loadingReclamaciones = ref(false)
 const enviando = ref(false)
 const polizasAprobadas = ref([])
 const polizaSeleccionada = ref(null)
+const reclamacionesPoliza = ref([])
 const mensaje = ref('')
 const tipoMensaje = ref('info')
 const showConfirmModal = ref(false)
@@ -346,7 +412,10 @@ const fechaMaxima = computed(() => {
 
 // Métodos
 const cargarPolizasAprobadas = async () => {
-  if (!props.cliente?.id) {
+  // Intentar obtener el ID de diferentes formas para compatibilidad
+  const clienteId = props.cliente?.id || props.cliente?.idCliente
+  
+  if (!clienteId) {
     mensaje.value = 'Error: No se pudo identificar el cliente'
     tipoMensaje.value = 'error'
     return
@@ -355,7 +424,7 @@ const cargarPolizasAprobadas = async () => {
   loadingPolizas.value = true
   
   try {
-    const polizas = await apiService.getPolizasPorCliente(props.cliente.id)
+    const polizas = await apiService.getPolizasPorCliente(clienteId)
     polizasAprobadas.value = polizas.filter(poliza => poliza.estado === 'APROBADA')
     
     if (polizasAprobadas.value.length === 0) {
@@ -363,7 +432,7 @@ const cargarPolizasAprobadas = async () => {
       tipoMensaje.value = 'info'
     }
   } catch (error) {
-    console.error('Error al cargar pólizas:', error)
+    console.error('❌ [DEBUG] Error al cargar pólizas:', error)
     mensaje.value = 'Error al cargar tus pólizas: ' + error.message
     tipoMensaje.value = 'error'
   } finally {
@@ -371,11 +440,36 @@ const cargarPolizasAprobadas = async () => {
   }
 }
 
-const seleccionarPoliza = (poliza) => {
-  formulario.polizaId = poliza.id
+const seleccionarPoliza = async (poliza) => {
+  // Intentar obtener el ID de diferentes formas
+  const polizaId = poliza.id || poliza.idPoliza
+  
+  formulario.polizaId = polizaId
   polizaSeleccionada.value = poliza
+  
   mensaje.value = `Póliza ${poliza.numeroPoliza} seleccionada`
   tipoMensaje.value = 'success'
+  
+  // Cargar reclamaciones de esta póliza
+  await cargarReclamacionesPoliza(polizaId)
+}
+
+const cargarReclamacionesPoliza = async (polizaId) => {
+  loadingReclamaciones.value = true
+  
+  try {
+    const reclamaciones = await apiService.getReclamacionesPorPoliza(polizaId)
+    reclamacionesPoliza.value = reclamaciones
+    
+    if (reclamaciones.length > 0) {
+      console.log(`📋 Encontradas ${reclamaciones.length} reclamación(es) para esta póliza`)
+    }
+  } catch (error) {
+    console.error('Error al cargar reclamaciones de la póliza:', error)
+    reclamacionesPoliza.value = []
+  } finally {
+    loadingReclamaciones.value = false
+  }
 }
 
 const enviarReclamacion = () => {
@@ -411,42 +505,91 @@ const enviarReclamacion = () => {
 const confirmarEnvio = async () => {
   enviando.value = true
   
+  // Timeout de seguridad (30 segundos)
+  const timeout = setTimeout(() => {
+    if (enviando.value) {
+      enviando.value = false
+      showConfirmModal.value = false
+      mensaje.value = 'La petición está tardando demasiado. Por favor, verifica tu conexión e intenta nuevamente.'
+      tipoMensaje.value = 'error'
+    }
+  }, 30000)
+  
   try {
+    // Construir descripción completa con todos los detalles
+    let descripcionCompleta = formulario.descripcion.trim()
+    
+    if (formulario.fechaSiniestro) {
+      descripcionCompleta += `\n\nFecha del siniestro: ${formulario.fechaSiniestro}`
+      if (formulario.horaSiniestro) {
+        descripcionCompleta += ` a las ${formulario.horaSiniestro}`
+      }
+    }
+    
+    if (formulario.lugar?.trim()) {
+      descripcionCompleta += `\nLugar: ${formulario.lugar.trim()}`
+    }
+    
+    if (formulario.tipoSiniestro) {
+      descripcionCompleta += `\nTipo de siniestro: ${formulario.tipoSiniestro}`
+    }
+    
+    if (formulario.informacionAdicional?.trim()) {
+      descripcionCompleta += `\n\nInformación adicional:\n${formulario.informacionAdicional.trim()}`
+    }
+    
     const reclamacionData = {
       polizaId: formulario.polizaId,
-      descripcion: formulario.descripcion.trim(),
-      fechaSiniestro: formulario.fechaSiniestro,
-      horaSiniestro: formulario.horaSiniestro || null,
-      lugar: formulario.lugar?.trim() || null,
-      montoReclamado: parseFloat(formulario.montoReclamado),
-      tipoSiniestro: formulario.tipoSiniestro || null,
-      informacionAdicional: formulario.informacionAdicional?.trim() || null,
-      clienteId: props.cliente.id
+      descripcion: descripcionCompleta,
+      montoReclamado: parseFloat(formulario.montoReclamado)
     }
     
     const resultado = await apiService.crearReclamacion(reclamacionData)
     
+    // Limpiar timeout
+    clearTimeout(timeout)
+    
     // Guardar la reclamación creada para habilitar la carga de documentos
     reclamacionCreada.value = resultado
     
-    mensaje.value = 'Reclamación creada exitosamente. Ahora puedes adjuntar documentos de respaldo.'
+    mensaje.value = `✅ Reclamación #${resultado.idReclamacion} creada exitosamente. Ahora puedes adjuntar documentos de respaldo (máximo 5 archivos).`
     tipoMensaje.value = 'success'
     
     // Emitir evento
     emit('reclamacionCreada', resultado)
     
     showConfirmModal.value = false
+    
+    // Hacer scroll a la sección de documentos después de un momento
+    setTimeout(() => {
+      const documentsSection = document.querySelector('.documents-section')
+      if (documentsSection) {
+        documentsSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }, 500)
   } catch (error) {
+    // Limpiar timeout
+    clearTimeout(timeout)
+    
     console.error('Error al crear reclamación:', error)
     mensaje.value = 'Error al enviar la reclamación: ' + error.message
     tipoMensaje.value = 'error'
+    showConfirmModal.value = false
   } finally {
     enviando.value = false
   }
 }
 
 const cancelarEnvio = () => {
+  if (!enviando.value) {
+    showConfirmModal.value = false
+  }
+}
+
+const cerrarModalForzado = () => {
+  // Permite cerrar el modal incluso si está enviando (para casos de error)
   showConfirmModal.value = false
+  enviando.value = false
 }
 
 const limpiarFormulario = () => {
@@ -460,8 +603,15 @@ const limpiarFormulario = () => {
   formulario.informacionAdicional = ''
   formulario.aceptaTerminos = false
   polizaSeleccionada.value = null
+  mensaje.value = ''
+}
+
+const iniciarNuevaReclamacion = () => {
+  limpiarFormulario()
   reclamacionCreada.value = null
   mensaje.value = ''
+  // Scroll al inicio del formulario
+  window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 // Utilidades
@@ -769,6 +919,107 @@ onMounted(() => {
   width: 1rem;
   height: 1rem;
   color: white;
+}
+
+/* Reclamaciones Existentes */
+.reclamaciones-existentes {
+  background: var(--section-bg);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border: 1px solid var(--border-color);
+}
+
+.reclamaciones-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.reclamacion-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  transition: all 0.3s ease;
+}
+
+.reclamacion-card:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 2px 8px rgba(49, 130, 206, 0.1);
+}
+
+.reclamacion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.reclamacion-numero {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.reclamacion-estado {
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.estado-registrada {
+  background: rgba(66, 153, 225, 0.1);
+  color: #4299e1;
+}
+
+.estado-en_evaluacion {
+  background: rgba(237, 137, 54, 0.1);
+  color: #ed8936;
+}
+
+.estado-aprobada {
+  background: rgba(72, 187, 120, 0.1);
+  color: #48bb78;
+}
+
+.estado-rechazada {
+  background: rgba(245, 101, 101, 0.1);
+  color: #f56565;
+}
+
+.estado-pagada {
+  background: rgba(159, 122, 234, 0.1);
+  color: #9f7aea;
+}
+
+.reclamacion-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.reclamacion-descripcion {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.reclamacion-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.5rem;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 /* Formulario */
@@ -1183,11 +1434,45 @@ onMounted(() => {
 /* Documents Section */
 .documents-section {
   margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 2px solid var(--border-color);
+  padding: 2rem;
+  border-top: 3px solid var(--primary-color);
+  background: var(--primary-light);
+  border-radius: 0.5rem;
+  animation: slideDown 0.5s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .documents-section .carga-documentos {
   margin-bottom: 0;
+  background: var(--card-bg);
+  border-radius: 0.75rem;
+}
+
+.documents-header {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.documents-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin: 0 0 0.5rem 0;
+}
+
+.documents-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin: 0;
 }
 </style>

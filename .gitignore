@@ -48,3 +48,6 @@ migration-source
 
 migration
 sql
+
+### Uploaded Files ###
+uploads/
