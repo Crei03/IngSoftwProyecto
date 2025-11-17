@@ -285,13 +285,6 @@ const uploadProgress = computed(() => {
     return Math.round(total / files.value.length)
 })
 
-// Watchers
-watch(() => props.reclamacionId, (newId) => {
-    if (newId) {
-    cargarDocumentosExistentes()
-    }
-}, { immediate: true })
-
 // Métodos principales
 const openFileDialog = () => {
     if (!isDisabled.value) {
@@ -504,6 +497,13 @@ const deleteDocument = async (documento) => {
     emit('error', error)
   }
 }
+
+// Watchers (después de definir las funciones que usan)
+watch(() => props.reclamacionId, (newId) => {
+    if (newId) {
+    cargarDocumentosExistentes()
+    }
+}, { immediate: true })
 
 // Métodos de utilidad
 const formatFileSize = (bytes) => {

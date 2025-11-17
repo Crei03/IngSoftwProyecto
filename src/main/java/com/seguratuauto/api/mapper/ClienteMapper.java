@@ -21,7 +21,7 @@ public class ClienteMapper {
         }
         
         ClienteResponse response = new ClienteResponse();
-        response.setIdCliente(cliente.getIdCliente() != null ? cliente.getIdCliente().toString() : null);
+        response.setId(cliente.getIdCliente() != null ? cliente.getIdCliente().toString() : null);
         response.setNombre(cliente.getNombre());
         response.setEmail(cliente.getEmail());
         response.setTelefono(cliente.getTelefono());
