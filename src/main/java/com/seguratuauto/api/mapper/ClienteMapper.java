@@ -25,6 +25,7 @@ public class ClienteMapper {
         response.setNombre(cliente.getNombre());
         response.setEmail(cliente.getEmail());
         response.setTelefono(cliente.getTelefono());
+        response.setVerificado(cliente.isVerificado());
         
         return response;
     }
@@ -43,6 +44,7 @@ public class ClienteMapper {
         cliente.setNombre(request.getNombre());
         cliente.setEmail(request.getEmail());
         cliente.setTelefono(request.getTelefono());
+        cliente.setPassword(request.getPassword());
         
         return cliente;
     }

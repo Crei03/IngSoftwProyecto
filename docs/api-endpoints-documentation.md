@@ -21,6 +21,47 @@ Todas las respuestas de la API siguen el siguiente formato:
 
 ---
 
+## ENDPOINTS DE AUTENTICACIÓN
+
+| Nombre             | Valor                   | Definición                                                                 |
+| ------------------ | ----------------------- | -------------------------------------------------------------------------- |
+| **Login usuarios** | `POST /api/auth/login`  | Autentica clientes o agentes enviando `email`, `password` y `tipoUsuario`. |
+| **Recuperar contraseña** | `POST /api/password/recuperar` | Envía correo con enlace para restablecer la contraseña de un cliente. |
+| **Restablecer contraseña** | `POST /api/password/restablecer` | Recibe `token` y nueva contraseña para actualizarla. |
+
+### JSON Request - Login
+
+```json
+{
+  "email": "usuario@dominio.com",
+  "password": "Contraseña#Segura1",
+  "tipoUsuario": "cliente" // o "agente"
+}
+```
+
+### JSON Response - Login exitoso
+
+```json
+{
+  "success": true,
+  "message": "Inicio de sesión exitoso",
+  "data": {
+    "tipoUsuario": "cliente",
+    "cliente": {
+      "idCliente": "101",
+      "nombre": "Ana Patricia Lopez",
+      "email": "ana.lopez@test.com",
+      "telefono": "555-777-9999",
+      "verificado": true
+    },
+    "agente": null
+  },
+  "error": null
+}
+```
+
+---
+
 ## ENDPOINTS DE PRICING
 
 | Nombre                   | Valor                                       | Definición                                   |

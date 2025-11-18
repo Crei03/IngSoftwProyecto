@@ -4,6 +4,7 @@ import com.seguratuauto.dao.AgenteRepository;
 import com.seguratuauto.model.Agente;
 import com.seguratuauto.service.AgenteService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,10 +20,12 @@ public class AgenteServiceImpl implements AgenteService {
     
     private static final Random random = new Random();
     private final AgenteRepository agenteRepository;
+    private final PasswordEncoder passwordEncoder;
     
     @Autowired
-    public AgenteServiceImpl(AgenteRepository agenteRepository) {
+    public AgenteServiceImpl(AgenteRepository agenteRepository, PasswordEncoder passwordEncoder) {
         this.agenteRepository = agenteRepository;
+        this.passwordEncoder = passwordEncoder;
     }
     
     @Override
@@ -57,6 +60,12 @@ public class AgenteServiceImpl implements AgenteService {
         if (agente.getCodigo() == null || agente.getCodigo().trim().isEmpty()) {
             agente.setCodigo(generarSiguienteCodigoAgente());
         }
+        
+        if (agente.getPassword() == null || agente.getPassword().trim().isEmpty()) {
+            throw new IllegalArgumentException("La contraseña es obligatoria");
+        }
+        
+        agente.setPassword(passwordEncoder.encode(agente.getPassword()));
         
         return agenteRepository.save(agente);
     }
@@ -154,6 +163,10 @@ public class AgenteServiceImpl implements AgenteService {
             if (agenteExistenteTelefono != null && !agenteExistenteTelefono.getIdAgente().equals(agente.getIdAgente())) {
                 throw new IllegalArgumentException("Ya existe otro agente con este teléfono: " + agente.getTelefono());
             }
+        }
+        
+        if (agente.getPassword() != null && !agente.getPassword().startsWith("$2")) {
+            agente.setPassword(passwordEncoder.encode(agente.getPassword()));
         }
         
         return agenteRepository.save(agente);
@@ -297,6 +310,27 @@ public class AgenteServiceImpl implements AgenteService {
             }
         }
         
+        if (agente.getPassword() == null || agente.getPassword().trim().isEmpty()) {
+            return false;
+        }
+        
         return true;
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public Agente autenticarAgente(String email, String password) {
+        if (email == null || password == null) {
+            throw new IllegalArgumentException("Email y contraseña son obligatorios");
+        }
+        
+        Agente agente = agenteRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Credenciales inválidas"));
+        
+        if (!passwordEncoder.matches(password, agente.getPassword())) {
+            throw new IllegalArgumentException("Credenciales inválidas");
+        }
+        
+        return agente;
     }
 }

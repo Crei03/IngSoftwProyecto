@@ -81,6 +81,68 @@
               />
               <span v-if="errors.telefono" class="error-message">{{ errors.telefono }}</span>
             </div>
+            <div class="form-group password-group">
+              <div class="password-label-row">
+                <label class="form-label">Contraseña *</label>
+                <span class="password-strength" :class="landingPasswordStrength.className">
+                  {{ landingPasswordStrength.label }}
+                </span>
+              </div>
+              <div class="password-field">
+                <input
+                  v-model="nuevoCliente.password"
+                  :type="showRegisterPassword ? 'text' : 'password'"
+                  class="form-input"
+                  placeholder="Crea una contraseña segura"
+                  required
+                />
+                <button
+                  type="button"
+                  class="toggle-password"
+                  @click="showRegisterPassword = !showRegisterPassword"
+                >
+                  <component :is="showRegisterPassword ? EyeOff : Eye" class="toggle-icon" />
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group password-group">
+              <label class="form-label">Confirmar contraseña *</label>
+              <div class="password-field">
+                <input
+                  v-model="nuevoCliente.confirmPassword"
+                  :type="showRegisterConfirmPassword ? 'text' : 'password'"
+                  class="form-input"
+                  placeholder="Repite tu contraseña"
+                  required
+                />
+                <button
+                  type="button"
+                  class="toggle-password"
+                  @click="showRegisterConfirmPassword = !showRegisterConfirmPassword"
+                >
+                  <component :is="showRegisterConfirmPassword ? EyeOff : Eye" class="toggle-icon" />
+                </button>
+              </div>
+              <span v-if="errors.password" class="error-message">{{ errors.password }}</span>
+            </div>
+            <div class="password-requirements">
+              <div class="requirements-title">
+                <ShieldCheck class="requirements-icon" />
+                <span>Tu contraseña debe incluir:</span>
+              </div>
+              <ul>
+                <li
+                  v-for="req in landingPasswordRequirements"
+                  :key="req.label"
+                  :class="{ met: req.met }"
+                >
+                  {{ req.label }}
+                </li>
+              </ul>
+            </div>
           </div>
           
           <button
@@ -116,15 +178,24 @@
             />
           </div>
           
-          <div class="form-group">
-            <label class="form-label">Teléfono</label>
-            <input
-              v-model="loginData.telefono"
-              type="tel"
-              class="form-input"
-              placeholder="+1234567890"
-              required
-            />
+          <div class="form-group password-group">
+            <label class="form-label">Contraseña</label>
+            <div class="password-field">
+              <input
+                v-model="loginData.password"
+                :type="showLandingLoginPassword ? 'text' : 'password'"
+                class="form-input"
+                placeholder="Tu contraseña"
+                required
+              />
+              <button
+                type="button"
+                class="toggle-password"
+                @click="showLandingLoginPassword = !showLandingLoginPassword"
+              >
+                <component :is="showLandingLoginPassword ? EyeOff : Eye" class="toggle-icon" />
+              </button>
+            </div>
           </div>
           
           <button type="submit" class="submit-button" :disabled="loading">
@@ -186,7 +257,7 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
-import { Shield, Clock, Users, Car, User, X } from 'lucide-vue-next'
+import { Shield, Clock, Users, Car, User, X, Eye, EyeOff, ShieldCheck } from 'lucide-vue-next'
 import apiService from '../services/apiService.js'
 
 const props = defineProps({
@@ -211,20 +282,55 @@ const showProfileModal = ref(false)
 const nuevoCliente = reactive({
   nombre: '',
   email: '',
-  telefono: ''
+  telefono: '',
+  password: '',
+  confirmPassword: ''
 })
 
 // Datos de login
 const loginData = reactive({
   email: '',
-  telefono: ''
+  password: ''
 })
 
 // Errores de validación
 const errors = reactive({
   nombre: '',
   email: '',
-  telefono: ''
+  telefono: '',
+  password: ''
+})
+
+const showRegisterPassword = ref(false)
+const showRegisterConfirmPassword = ref(false)
+const showLandingLoginPassword = ref(false)
+
+const landingPasswordRequirements = computed(() => {
+  const password = nuevoCliente.password || ''
+  return [
+    { label: '8-16 caracteres', met: password.length >= 8 && password.length <= 16 },
+    { label: 'Mayúsculas y minúsculas', met: /[a-z]/.test(password) && /[A-Z]/.test(password) },
+    { label: 'Al menos un número', met: /\d/.test(password) },
+    { label: 'Carácter especial', met: /[@$!%*?&.#^()_+\-=\/]/.test(password) }
+  ]
+})
+
+const landingPasswordStrength = computed(() => {
+  const pwd = nuevoCliente.password || ''
+  if (!pwd) {
+    return { label: 'Muy débil', className: 'strength-very-weak' }
+  }
+  let score = 0
+  if (pwd.length >= 8) score++
+  if (pwd.length >= 12) score++
+  if (/[a-z]/.test(pwd) && /[A-Z]/.test(pwd)) score++
+  if (/\d/.test(pwd)) score++
+  if (/[@$!%*?&.#^()_+\-=\/]/.test(pwd)) score++
+  
+  if (score <= 2) return { label: 'Muy débil', className: 'strength-very-weak' }
+  if (score === 3) return { label: 'Débil', className: 'strength-weak' }
+  if (score === 4) return { label: 'Buena', className: 'strength-good' }
+  return { label: 'Muy fuerte', className: 'strength-strong' }
 })
 
 // Validar si el cliente ya existe
@@ -232,6 +338,7 @@ const validarClienteExistente = async () => {
   errors.nombre = ''
   errors.email = ''
   errors.telefono = ''
+  errors.password = ''
   
   try {
     const clientes = await apiService.getClientes()
@@ -264,6 +371,25 @@ const registrarCliente = async () => {
   loading.value = true
   
   try {
+    if (!nuevoCliente.password || !nuevoCliente.confirmPassword) {
+      errors.password = 'La contraseña y su confirmación son obligatorias'
+      loading.value = false
+      return
+    }
+    
+    const requisitosOk = landingPasswordRequirements.value.every(req => req.met)
+    if (!requisitosOk) {
+      errors.password = 'La contraseña no cumple con los requisitos mínimos'
+      loading.value = false
+      return
+    }
+    
+    if (nuevoCliente.password !== nuevoCliente.confirmPassword) {
+      errors.password = 'Las contraseñas no coinciden'
+      loading.value = false
+      return
+    }
+    
     // Validar cliente existente
     const esValido = await validarClienteExistente()
     if (!esValido) {
@@ -275,7 +401,8 @@ const registrarCliente = async () => {
     const clienteData = {
       nombre: nuevoCliente.nombre,
       email: nuevoCliente.email,
-      telefono: nuevoCliente.telefono
+      telefono: nuevoCliente.telefono,
+      password: nuevoCliente.password
     }
     
     const clienteCreado = await apiService.crearCliente(clienteData)
@@ -284,11 +411,9 @@ const registrarCliente = async () => {
     Object.keys(nuevoCliente).forEach(key => {
       nuevoCliente[key] = ''
     })
+    errors.password = ''
     
-    // Guardar cliente en localStorage para la sesión automática
-    localStorage.setItem('currentUser', JSON.stringify(clienteCreado))
-    
-    // Emitir evento para cambiar a la vista de registro de póliza
+    alert(`¡Registro exitoso! Hemos enviado un correo a ${clienteCreado.email || nuevoCliente.email} para confirmar tu cuenta.`)
     emit('clienteRegistrado', clienteCreado)
     
   } catch (error) {
@@ -303,25 +428,24 @@ const login = async () => {
   loading.value = true
   
   try {
-    const clientes = await apiService.getClientes()
+    const result = await apiService.loginCliente({
+      email: loginData.email,
+      password: loginData.password
+    })
     
-    const cliente = clientes.find(c => 
-      c.email.toLowerCase() === loginData.email.toLowerCase() &&
-      c.telefono === loginData.telefono
-    )
+    const cliente = result?.cliente
     
     if (cliente) {
       isLoggedIn.value = true
       currentUser.value = cliente
       showLoginModal.value = false
       
-      // Limpiar datos de login
       loginData.email = ''
-      loginData.telefono = ''
+      loginData.password = ''
       
       alert('¡Bienvenido de vuelta, ' + cliente.nombre + '!')
     } else {
-      alert('Email o teléfono incorrectos')
+      alert('Credenciales incorrectas')
     }
     
   } catch (error) {
@@ -651,6 +775,126 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+}
+
+.password-group {
+  position: relative;
+}
+
+.password-field {
+  position: relative;
+}
+
+.password-field .form-input {
+  width: 100%;
+  padding-right: 2.5rem;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  padding: 0.25rem;
+}
+
+.toggle-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.password-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.password-strength {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.strength-very-weak {
+  color: #dc2626;
+}
+
+.strength-weak {
+  color: #f97316;
+}
+
+.strength-good {
+  color: #fbbf24;
+}
+
+.strength-strong {
+  color: #22c55e;
+}
+
+.password-requirements {
+  background: rgba(148, 163, 184, 0.15);
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  font-size: 0.9rem;
+  height: fit-content;
+}
+
+.requirements-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.requirements-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.password-requirements ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.password-requirements li {
+  position: relative;
+  padding-left: 1rem;
+  color: #475569;
+}
+
+.password-requirements li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: #f97316;
+}
+
+.password-requirements li.met {
+  color: #16a34a;
+}
+
+.password-requirements li.met::before {
+  color: #16a34a;
+}
+
+.theme-dark .password-requirements {
+  background: rgba(51, 65, 85, 0.6);
+}
+
+.theme-dark .password-requirements li {
+  color: #cbd5f5;
+}
+
+.theme-dark .toggle-password {
+  color: #e2e8f0;
 }
 
 .form-label {

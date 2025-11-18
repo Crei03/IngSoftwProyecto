@@ -9,16 +9,18 @@ public class ClienteResponse {
     private String nombre;
     private String email;
     private String telefono;
+    private boolean verificado;
     
     // Constructor por defecto
     public ClienteResponse() {}
     
     // Constructor completo
-    public ClienteResponse(String idCliente, String nombre, String email, String telefono) {
+    public ClienteResponse(String idCliente, String nombre, String email, String telefono, boolean verificado) {
         this.idCliente = idCliente;
         this.nombre = nombre;
         this.email = email;
         this.telefono = telefono;
+        this.verificado = verificado;
     }
     
     // Getters y Setters
@@ -52,5 +54,13 @@ public class ClienteResponse {
     
     public void setTelefono(String telefono) {
         this.telefono = telefono;
+    }
+    
+    public boolean isVerificado() {
+        return verificado;
+    }
+    
+    public void setVerificado(boolean verificado) {
+        this.verificado = verificado;
     }
 }

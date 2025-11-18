@@ -166,6 +166,13 @@ import apiService from '../services/apiService.js'
 import AgenteRegistroModal from './AgenteRegistroModal.vue'
 import EvaluadorRegistroModal from './EvaluadorRegistroModal.vue'
 
+const props = defineProps({
+  isDark: {
+    type: Boolean,
+    default: true
+  }
+})
+
 const clientes = ref([])
 const agentes = ref([])
 const evaluadores = ref([])
@@ -178,39 +185,39 @@ const showEvaluadorModal = ref(false)
 
 // Estilos computados
 const cardClass = computed(() => {
-  return 'dark-card'
+  return props.isDark ? 'dark-card' : 'light-card'
 })
 
 const buttonSecondaryClass = computed(() => {
-  return 'dark-button-secondary'
+  return props.isDark ? 'dark-button-secondary' : 'light-button-secondary'
 })
 
 const iconContainerClass = computed(() => {
-  return 'dark-icon-container'
+  return props.isDark ? 'dark-icon-container' : 'light-icon-container'
 })
 
 const iconSecondaryClass = computed(() => {
-  return 'dark-icon-secondary'
+  return props.isDark ? 'dark-icon-secondary' : 'light-icon-secondary'
 })
 
 const iconTertiaryClass = computed(() => {
-  return 'dark-icon-tertiary'
+  return props.isDark ? 'dark-icon-tertiary' : 'light-icon-tertiary'
 })
 
 const successIconClass = computed(() => {
-  return 'dark-success-icon'
+  return props.isDark ? 'dark-success-icon' : 'light-success-icon'
 })
 
 const itemCardClass = computed(() => {
-  return 'dark-item-card'
+  return props.isDark ? 'dark-item-card' : 'light-item-card'
 })
 
 const badgeClass = computed(() => {
-  return 'dark-badge'
+  return props.isDark ? 'dark-badge' : 'light-badge'
 })
 
 const successBadgeClass = computed(() => {
-  return 'dark-success-badge'
+  return props.isDark ? 'dark-success-badge' : 'light-success-badge'
 })
 
 const buttonPrimaryClass = computed(() => {

@@ -53,6 +53,63 @@
             placeholder="+34 612 345 678"
           />
         </div>
+        
+        <!-- Campo Contraseña -->
+        <div class="form-group password-group">
+          <div class="password-label">
+            <label for="password" class="form-label">Contraseña *</label>
+            <span class="password-strength" :class="passwordStrength.className">
+              {{ passwordStrength.label }}
+            </span>
+          </div>
+          <div class="password-field">
+            <input
+              id="password"
+              v-model="formulario.password"
+              :type="mostrarPassword ? 'text' : 'password'"
+              maxlength="16"
+              minlength="8"
+              :class="['form-input', inputClass]"
+              placeholder="Contraseña segura"
+              required
+            />
+            <button type="button" class="toggle-password" @click="mostrarPassword = !mostrarPassword">
+              <component :is="mostrarPassword ? EyeOff : Eye" class="toggle-icon" />
+            </button>
+          </div>
+        </div>
+        
+        <!-- Confirmación Contraseña -->
+        <div class="form-group password-group">
+          <label for="confirmPassword" class="form-label">Confirmar contraseña *</label>
+          <div class="password-field">
+            <input
+              id="confirmPassword"
+              v-model="formulario.confirmPassword"
+              :type="mostrarConfirmPassword ? 'text' : 'password'"
+              maxlength="16"
+              minlength="8"
+              :class="['form-input', inputClass]"
+              placeholder="Repite la contraseña"
+              required
+            />
+            <button type="button" class="toggle-password" @click="mostrarConfirmPassword = !mostrarConfirmPassword">
+              <component :is="mostrarConfirmPassword ? EyeOff : Eye" class="toggle-icon" />
+            </button>
+          </div>
+        </div>
+        
+        <div class="password-requirements" :class="inputClass">
+          <div class="requirements-title">
+            <ShieldCheck class="requirements-icon" />
+            <span>La contraseña debe incluir:</span>
+          </div>
+          <ul>
+            <li v-for="req in passwordRequirements" :key="req.label" :class="{ met: req.met }">
+              {{ req.label }}
+            </li>
+          </ul>
+        </div>
 
         <!-- Mensaje de error -->
         <div v-if="error" class="error-message">
@@ -70,7 +127,7 @@
           </button>
           <button
             type="submit"
-            :disabled="loading || !formulario.nombre.trim()"
+            :disabled="loading || !formulario.nombre.trim() || !formulario.password || !formulario.confirmPassword"
             :class="['btn-primary', buttonPrimaryClass]"
           >
             <div v-if="loading" class="loading-spinner-small"></div>
@@ -84,7 +141,7 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { Users, X } from 'lucide-vue-next'
+import { Users, X, Eye, EyeOff, ShieldCheck } from 'lucide-vue-next'
 import apiService from '../services/apiService.js'
 
 const props = defineProps({
@@ -98,11 +155,43 @@ const emit = defineEmits(['close', 'agente-creado'])
 const formulario = ref({
   nombre: '',
   email: '',
-  telefono: ''
+  telefono: '',
+  password: '',
+  confirmPassword: ''
 })
 
 const loading = ref(false)
 const error = ref(null)
+const mostrarPassword = ref(false)
+const mostrarConfirmPassword = ref(false)
+
+const passwordRequirements = computed(() => {
+  const password = formulario.value.password || ''
+  return [
+    { label: '8-16 caracteres', met: password.length >= 8 && password.length <= 16 },
+    { label: 'Mayúsculas y minúsculas', met: /[a-z]/.test(password) && /[A-Z]/.test(password) },
+    { label: 'Al menos un número', met: /\d/.test(password) },
+    { label: 'Carácter especial', met: /[@$!%*?&.#^()_+\-=\/]/.test(password) }
+  ]
+})
+
+const passwordStrength = computed(() => {
+  const pwd = formulario.value.password || ''
+  if (!pwd) {
+    return { label: 'Muy débil', className: 'strength-very-weak' }
+  }
+  let score = 0
+  if (pwd.length >= 8) score++
+  if (pwd.length >= 12) score++
+  if (/[a-z]/.test(pwd) && /[A-Z]/.test(pwd)) score++
+  if (/\d/.test(pwd)) score++
+  if (/[@$!%*?&.#^()_+\-=\/]/.test(pwd)) score++
+  
+  if (score <= 2) return { label: 'Muy débil', className: 'strength-very-weak' }
+  if (score === 3) return { label: 'Débil', className: 'strength-weak' }
+  if (score === 4) return { label: 'Buena', className: 'strength-good' }
+  return { label: 'Muy fuerte', className: 'strength-strong' }
+})
 
 // Estilos computados para tema dual
 const modalClass = computed(() => {
@@ -139,9 +228,13 @@ const limpiarFormulario = () => {
   formulario.value = {
     nombre: '',
     email: '',
-    telefono: ''
+    telefono: '',
+    password: '',
+    confirmPassword: ''
   }
   error.value = null
+  mostrarPassword.value = false
+  mostrarConfirmPassword.value = false
 }
 
 const crearAgente = async () => {
@@ -153,12 +246,25 @@ const crearAgente = async () => {
     if (!formulario.value.nombre.trim()) {
       throw new Error('El nombre es obligatorio')
     }
+    
+    if (!formulario.value.password || !formulario.value.confirmPassword) {
+      throw new Error('Debes ingresar y confirmar la contraseña')
+    }
+    
+    if (!passwordRequirements.value.every(req => req.met)) {
+      throw new Error('La contraseña no cumple con los requisitos mínimos')
+    }
+    
+    if (formulario.value.password !== formulario.value.confirmPassword) {
+      throw new Error('Las contraseñas no coinciden')
+    }
 
     // Preparar datos para envío
     const agenteData = {
       nombre: formulario.value.nombre.trim(),
       email: formulario.value.email.trim() || undefined,
-      telefono: formulario.value.telefono.trim() || undefined
+      telefono: formulario.value.telefono.trim() || undefined,
+      password: formulario.value.password.trim()
     }
 
     console.log('Creando agente:', agenteData)
@@ -283,6 +389,114 @@ watch(() => props.showModal, (newValue) => {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+}
+
+.password-group {
+  position: relative;
+}
+
+.password-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.password-strength {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.password-field {
+  position: relative;
+}
+
+.password-field .form-input {
+  width: 100%;
+  padding-right: 2.5rem;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toggle-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.password-requirements {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.requirements-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.requirements-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.password-requirements ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.password-requirements li {
+  position: relative;
+  padding-left: 1rem;
+}
+
+.password-requirements li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: #f97316;
+}
+
+.password-requirements li.met {
+  color: #22c55e;
+}
+
+.password-requirements li.met::before {
+  color: #22c55e;
+}
+
+.strength-very-weak {
+  color: #dc2626;
+}
+
+.strength-weak {
+  color: #f97316;
+}
+
+.strength-good {
+  color: #fbbf24;
+}
+
+.strength-strong {
+  color: #22c55e;
 }
 
 .form-label {

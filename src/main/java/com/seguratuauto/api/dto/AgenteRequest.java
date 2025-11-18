@@ -25,15 +25,23 @@ public class AgenteRequest {
     @Size(max = 20, message = "El teléfono no puede exceder 20 caracteres")
     private String telefono;
     
+    @NotBlank(message = "La contraseña es obligatoria")
+    @Pattern(
+        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&.#^()_+\\-=/])[A-Za-z\\d@$!%*?&.#^()_+\\-=/]{8,16}$",
+        message = "La contraseña debe tener entre 8 y 16 caracteres e incluir mayúsculas, minúsculas, números y un carácter especial"
+    )
+    private String password;
+    
     // Constructor por defecto
     public AgenteRequest() {}
     
     // Constructor con parámetros
-    public AgenteRequest(String nombre, String codigo, String email, String telefono) {
+    public AgenteRequest(String nombre, String codigo, String email, String telefono, String password) {
         this.nombre = nombre;
         this.codigo = codigo;
         this.email = email;
         this.telefono = telefono;
+        this.password = password;
     }
     
     // Getters y Setters
@@ -67,6 +75,14 @@ public class AgenteRequest {
     
     public void setTelefono(String telefono) {
         this.telefono = telefono;
+    }
+    
+    public String getPassword() {
+        return password;
+    }
+    
+    public void setPassword(String password) {
+        this.password = password;
     }
     
     @Override

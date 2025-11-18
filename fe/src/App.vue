@@ -148,11 +148,14 @@
           <div :key="currentView">
               <!-- Vistas para Agentes (Administradores) -->
               <template v-if="currentUser.role === 'agente'">
-                <div v-if="currentView === 'dashboard'" class="dashboard">
-                  <h2>Dashboard Administrativo</h2>
-                  <p>Panel de control para agentes - Próximamente...</p>
-                </div>
-                <RF001ClienteAgente v-if="currentView === 'RF001'" />
+                <AgenteDashboard 
+                  v-if="currentView === 'dashboard'"
+                  :is-dark="true"
+                />
+                <RF001ClienteAgente 
+                  v-if="currentView === 'RF001'" 
+                  :is-dark="true"
+                />
                 <RF002RegistroPolizas v-if="currentView === 'RF002'" />
                 <GestionReclamaciones v-if="currentView === 'reclamaciones'" />
               </template>
@@ -198,6 +201,7 @@ import ClienteRegistroPoliza from './components/ClienteRegistroPoliza.vue'
 import MisPolizas from './components/MisPolizas.vue'
 import GestionReclamaciones from './components/GestionReclamaciones.vue'
 import FormularioReclamaciones from './components/FormularioReclamaciones.vue'
+import AgenteDashboard from './components/AgenteDashboard.vue'
 
 // Estado de la aplicación
 const sidebarCollapsed = ref(false)

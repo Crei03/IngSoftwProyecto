@@ -43,12 +43,13 @@ public class PolizaMapper {
         if (cliente == null) {
             return null;
         }
-        return new ClienteResponse(
-            cliente.getIdCliente() != null ? cliente.getIdCliente().toString() : null,
-            cliente.getNombre(),
-            cliente.getEmail(),
-            cliente.getTelefono()
-        );
+        ClienteResponse response = new ClienteResponse();
+        response.setIdCliente(cliente.getIdCliente() != null ? cliente.getIdCliente().toString() : null);
+        response.setNombre(cliente.getNombre());
+        response.setEmail(cliente.getEmail());
+        response.setTelefono(cliente.getTelefono());
+        response.setVerificado(cliente.isVerificado());
+        return response;
     }
     
     /**

@@ -105,4 +105,32 @@ public interface ClienteService {
      * @return true si es válido, false en caso contrario
      */
     boolean validarCliente(Cliente cliente);
+    
+    /**
+     * Verifica la cuenta de un cliente a partir del token recibido por correo
+     * @param token token de verificación
+     * @return cliente verificado
+     */
+    Cliente verificarCliente(String token);
+    
+    /**
+     * Autentica a un cliente usando email y contraseña
+     * @param email correo registrado
+     * @param password contraseña sin encriptar
+     * @return cliente autenticado
+     */
+    Cliente autenticarCliente(String email, String password);
+    
+    /**
+     * Solicita el restablecimiento de contraseña para un cliente
+     * @param email correo registrado
+     */
+    void solicitarRecuperacionPassword(String email);
+    
+    /**
+     * Restablece la contraseña usando el token enviado por correo
+     * @param token token de restablecimiento
+     * @param nuevaPassword nueva contraseña en texto plano
+     */
+    void restablecerPassword(String token, String nuevaPassword);
 }

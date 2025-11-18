@@ -76,7 +76,32 @@ seguratuauto/
 - ✅ Indicadores de carga y manejo de errores
 - ✅ Especializado en seguros de automóviles
 
+### 5. Verificación de cuentas por correo (MailDev)
+- ✅ Se envía un correo moderno en español al registrar un cliente
+- ✅ El enlace redirige al login una vez confirmada la cuenta
+- ✅ Tokens con expiración configurable para evitar fraudes
+- ✅ MailDev (`localhost:1025`) simula el servidor SMTP en desarrollo
+
+### 6. Autenticación con contraseñas seguras
+- ✅ Registro de clientes y agentes con contraseña y confirmación obligatoria
+- ✅ Validación de complejidad (8-16 caracteres, mayúsculas/minúsculas, número y símbolo)
+- ✅ Indicador visual de fuerza y opción para mostrar/ocultar contraseñas
+- ✅ Nuevo endpoint `/api/auth/login` que valida credenciales en el backend con BCrypt
+
+### 7. Recuperación de contraseña
+- ✅ Link de “¿Olvidaste tu contraseña?” exclusivo para clientes
+- ✅ Flujo guiado: solicitar enlace, correo con botón y restablecimiento seguro desde el frontend
+- ✅ Contraseña nueva con las mismas reglas y feedback visual del registro
+- ✅ Endpoints `/api/password/recuperar` y `/api/password/restablecer`
+
 ## Instrucciones de Ejecución
+
+### 0. Iniciar MailDev (para pruebas de correo)
+```bash
+npx maildev --smtp 1025 --web 1080
+# también puedes usar: docker run -p 1080:1080 -p 1025:1025 maildev/maildev
+```
+Panel web disponible en: `http://localhost:1080`
 
 ### 1. Configurar Base de Datos
 ```sql
@@ -84,14 +109,23 @@ seguratuauto/
 CREATE DATABASE segura_tu_auto;
 ```
 
-### 2. Iniciar Backend
+### 2. Ejecutar migración (recomendado)
+```bash
+# Desde la raíz del proyecto
+./migrate.sh        # Linux / macOS
+# o
+migrate.bat         # Windows
+```
+Esto limpia las tablas, actualiza columnas (contraseñas/verificación) y genera datos con la contraseña `Segura123!`.
+
+### 3. Iniciar Backend
 ```bash
 # Desde la raíz del proyecto
 ./gradlew bootRun
 ```
 El backend estará disponible en: `http://localhost:8080`
 
-### 3. Iniciar Frontend
+### 4. Iniciar Frontend
 ```bash
 # Desde el directorio fe/
 cd fe
@@ -106,6 +140,8 @@ El frontend estará disponible en: `http://localhost:5173`
 - `GET /api/clientes` - Obtener todos los clientes
 - `POST /api/clientes` - Crear nuevo cliente
 - `GET /api/clientes/{id}` - Obtener cliente por ID
+- `GET /api/verificacion/confirmar?token=xxx` - Confirmar cuenta y redirigir al login
+- `POST /api/auth/login` - Autenticar cliente o agente enviando `{ email, password, tipoUsuario }`
 
 ### Agentes
 - `GET /api/agentes` - Obtener todos los agentes
@@ -137,7 +173,10 @@ El frontend estará disponible en: `http://localhost:5173`
 2. **Puertos**: El backend usa el puerto 8080 por defecto
 3. **CORS**: Configurado para permitir conexiones desde el frontend
 4. **Datos**: Los componentes ahora muestran datos reales de la base de datos
-5. **Especialización**: Sistema especializado únicamente en seguros de automóviles
+5. **Verificación**: El login de clientes requiere confirmar el correo recibido en MailDev
+6. **Contraseñas**: Las contraseñas se almacenan cifradas con BCrypt y deben cumplir con la política descrita
+7. **Contraseña por defecto (datos de prueba)**: Los clientes/agentes generados por los scripts usan `Segura123!`
+8. **Especialización**: Sistema especializado únicamente en seguros de automóviles
 
 ## Próximos Pasos
 

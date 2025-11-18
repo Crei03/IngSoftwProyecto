@@ -63,6 +63,7 @@ public class AgenteMapper {
         agente.setCodigo(request.getCodigo());
         agente.setEmail(request.getEmail());
         agente.setTelefono(request.getTelefono());
+        agente.setPassword(request.getPassword());
         
         return agente;
     }

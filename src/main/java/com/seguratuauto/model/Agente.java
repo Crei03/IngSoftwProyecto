@@ -27,6 +27,9 @@ public class Agente {
     @Column(name = "telefono", length = 20)
     private String telefono;
     
+    @Column(name = "password", nullable = false, length = 255)
+    private String password;
+    
     // Constructor por defecto
     public Agente() {}
     
@@ -84,6 +87,14 @@ public class Agente {
     
     public void setTelefono(String telefono) {
         this.telefono = telefono;
+    }
+    
+    public String getPassword() {
+        return password;
+    }
+    
+    public void setPassword(String password) {
+        this.password = password;
     }
     
     // Métodos equals, hashCode y toString

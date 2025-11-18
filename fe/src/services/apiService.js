@@ -49,6 +49,18 @@ class ApiService {
     })
     return response.data
   }
+  
+  async loginCliente({ email, password }) {
+    const response = await this.request('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({
+        email,
+        password,
+        tipoUsuario: 'cliente'
+      })
+    })
+    return response.data
+  }
 
   // Métodos para Agentes
   async getAgentes() {
@@ -67,6 +79,32 @@ class ApiService {
       body: JSON.stringify(agenteData)
     })
     return response.data
+  }
+  
+  async loginAgente({ email, password }) {
+    const response = await this.request('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({
+        email,
+        password,
+        tipoUsuario: 'agente'
+      })
+    })
+    return response.data
+  }
+  
+  async solicitarRecuperacionPassword(email) {
+    return this.request('/password/recuperar', {
+      method: 'POST',
+      body: JSON.stringify({ email })
+    })
+  }
+  
+  async restablecerPassword({ token, password }) {
+    return this.request('/password/restablecer', {
+      method: 'POST',
+      body: JSON.stringify({ token, password })
+    })
   }
 
   // Métodos para Evaluadores

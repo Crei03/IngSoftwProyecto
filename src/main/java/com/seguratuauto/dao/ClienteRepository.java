@@ -75,4 +75,18 @@ public interface ClienteRepository extends JpaRepository<Cliente, Long> {
            "(:nombre IS NULL OR LOWER(c.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))) AND " +
            "(:email IS NULL OR LOWER(c.email) = LOWER(:email))")
     List<Cliente> findByMultipleCriteria(@Param("nombre") String nombre, @Param("email") String email);
+    
+    /**
+     * Busca un cliente por su token de verificación
+     * @param token token recibido en el correo
+     * @return Optional con el cliente si existe
+     */
+    Optional<Cliente> findByTokenVerificacion(String token);
+    
+    /**
+     * Busca un cliente por token de restablecimiento de contraseña
+     * @param token token enviado por correo
+     * @return cliente si existe
+     */
+    Optional<Cliente> findByResetPasswordToken(String token);
 }

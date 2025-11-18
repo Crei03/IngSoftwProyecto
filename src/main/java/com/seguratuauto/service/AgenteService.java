@@ -139,4 +139,12 @@ public interface AgenteService {
      * @return true si es válido, false en caso contrario
      */
     boolean validarAgente(Agente agente);
+    
+    /**
+     * Autentica a un agente usando email y contraseña
+     * @param email correo del agente
+     * @param password contraseña sin encriptar
+     * @return agente autenticado
+     */
+    Agente autenticarAgente(String email, String password);
 }
