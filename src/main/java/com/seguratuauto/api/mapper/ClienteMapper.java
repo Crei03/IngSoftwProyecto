@@ -1,70 +1,56 @@
 package com.seguratuauto.api.mapper;
 
+import org.springframework.stereotype.Component;
 import com.seguratuauto.api.dto.ClienteRequest;
 import com.seguratuauto.api.dto.ClienteResponse;
 import com.seguratuauto.model.Cliente;
-import org.springframework.stereotype.Component;
 
-
-/**
- * Mapper para convertir entre entidades Cliente y DTOs
- */
 @Component
 public class ClienteMapper {
     
-    /**
-     * Convierte una entidad Cliente a ClienteResponse
-     */
-    public ClienteResponse toResponse(Cliente cliente) {
-        if (cliente == null) {
-            return null;
-        }
-        
-        ClienteResponse response = new ClienteResponse();
-        response.setId(cliente.getIdCliente() != null ? cliente.getIdCliente().toString() : null);
-        response.setNombre(cliente.getNombre());
-        response.setEmail(cliente.getEmail());
-        response.setTelefono(cliente.getTelefono());
-        
-        return response;
-    }
-    
-    /**
-     * Convierte un ClienteRequest a entidad Cliente
-     */
     public Cliente toEntity(ClienteRequest request) {
         if (request == null) {
             return null;
         }
-        
         Cliente cliente = new Cliente();
-        
-        // No asignar ID aquí, se genera en el service
         cliente.setNombre(request.getNombre());
-        cliente.setEmail(request.getEmail());
+        cliente.setCorreo(request.getCorreo());
         cliente.setTelefono(request.getTelefono());
-        
+        cliente.setDireccion(request.getDireccion());
+        cliente.setCiudad(request.getCiudad());
+        cliente.setProvincia(request.getProvincia());
+        cliente.setCodigoPostal(request.getCodigoPostal());
         return cliente;
     }
-    
-    /**
-     * Actualiza una entidad Cliente existente con datos de ClienteRequest
-     */
-    public void updateEntity(Cliente cliente, ClienteRequest request) {
-        if (cliente == null || request == null) {
-            return;
+
+    public ClienteResponse toResponse(Cliente cliente) {
+        if (cliente == null) {
+            return null;
         }
-        
-        if (request.getNombre() != null) {
-            cliente.setNombre(request.getNombre());
+        ClienteResponse response = new ClienteResponse();
+        response.setId(cliente.getIdCliente());
+        response.setNombre(cliente.getNombre());
+        response.setCorreo(cliente.getCorreo());
+        response.setTelefono(cliente.getTelefono());
+        response.setDireccion(cliente.getDireccion());
+        response.setCiudad(cliente.getCiudad());
+        response.setProvincia(cliente.getProvincia());
+        response.setCodigoPostal(cliente.getCodigoPostal());
+        response.setActivo(cliente.isActivo());
+        return response;
+    }
+
+    public Cliente updateEntity(ClienteRequest request, Cliente cliente) {
+        if (request == null) {
+            return cliente;
         }
-        
-        if (request.getEmail() != null) {
-            cliente.setEmail(request.getEmail());
-        }
-        
-        if (request.getTelefono() != null) {
-            cliente.setTelefono(request.getTelefono());
-        }
+        cliente.setNombre(request.getNombre());
+        cliente.setCorreo(request.getCorreo());
+        cliente.setTelefono(request.getTelefono());
+        cliente.setDireccion(request.getDireccion());
+        cliente.setCiudad(request.getCiudad());
+        cliente.setProvincia(request.getProvincia());
+        cliente.setCodigoPostal(request.getCodigoPostal());
+        return cliente;
     }
 }
