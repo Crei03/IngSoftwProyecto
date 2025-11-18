@@ -1,290 +1,153 @@
-const API_BASE_URL = 'http://localhost:8080/api'
+// Servicio centralizado para llamadas API
 
-class ApiService {
-  async request(endpoint, options = {}) {
-    const url = `${API_BASE_URL}${endpoint}`
-    const config = {
+const API_BASE_URL = 'http://localhost:8080/api';
+
+const apiService = {
+  // Autenticación
+  async login(email, password) {
+    return fetch(`${API_BASE_URL}/auth/login`, {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...options.headers
       },
-      ...options
-    }
+      body: JSON.stringify({ email, password })
+    }).then(res => res.json());
+  },
 
-    console.log('🔄 API Request:', {
-      url: url,
-      method: config.method || 'GET',
-      headers: config.headers
-    })
+  async logout() {
+    return fetch(`${API_BASE_URL}/auth/logout`, {
+      method: 'POST'
+    }).then(res => res.json());
+  },
 
-    try {
-      const response = await fetch(url, config)
-      console.log('📡 Response status:', response.status, response.statusText)
-      
-      const data = await response.json()
-      console.log('📥 Response data:', data)
-      
-      if (!response.ok) {
-        throw new Error(data.message || `Error ${response.status}: ${response.statusText}`)
-      }
-      
-      return data
-    } catch (error) {
-      console.error('❌ Error en API request:', error)
-      console.error('🔍 URL que falló:', url)
-      console.error('⚙️ Config:', config)
-      throw error
-    }
-  }
-
-  // Métodos para Clientes
-  async getClientes() {
-    const response = await this.request('/clientes')
-    return response.data || []
-  }
-
-  async crearCliente(clienteData) {
-    const response = await this.request('/clientes', {
+  // Recuperación de contraseña
+  async solicitarRecuperacion(email) {
+    return fetch(`${API_BASE_URL}/password/recovery`, {
       method: 'POST',
-      body: JSON.stringify(clienteData)
-    })
-    return response.data
-  }
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email })
+    }).then(res => res.json());
+  },
 
-  // Métodos para Agentes
+  // Clientes
+  async getClientes() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/clientes`);
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching clientes:', error);
+      return { data: [] };
+    }
+  },
+
+  async crearCliente(cliente) {
+    return fetch(`${API_BASE_URL}/clientes`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(cliente)
+    }).then(res => res.json());
+  },
+
+  async obtenerClientePorId(id) {
+    return fetch(`${API_BASE_URL}/clientes/${id}`).then(res => res.json());
+  },
+
+  // Agentes
   async getAgentes() {
-    const response = await this.request('/agentes')
-    return response.data || []
-  }
+    try {
+      const response = await fetch(`${API_BASE_URL}/agentes`);
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching agentes:', error);
+      return { data: [] };
+    }
+  },
 
   async getAgentesActivos() {
-    const response = await this.request('/agentes/activos')
-    return response.data || []
-  }
+    try {
+      const response = await fetch(`${API_BASE_URL}/agentes/activos`);
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching agentes activos:', error);
+      return { data: [] };
+    }
+  },
 
-  // Métodos para Pólizas
-  async getPolizas() {
-    const response = await this.request('/polizas')
-    return response.data || []
-  }
-
-  async crearPoliza(polizaData) {
-    const response = await this.request('/polizas', {
+  async crearAgente(agente) {
+    return fetch(`${API_BASE_URL}/agentes`, {
       method: 'POST',
-      body: JSON.stringify(polizaData)
-    })
-    return response.data
-  }
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(agente)
+    }).then(res => res.json());
+  },
 
-  async getPolizasPorCliente(clienteId) {
-    const response = await this.request(`/polizas/cliente/${clienteId}`)
-    return response.data || []
-  }
+  // Pólizas
+  async getPolizas() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/polizas`);
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching polizas:', error);
+      return { data: [] };
+    }
+  },
 
-  async actualizarPoliza(polizaId, polizaData) {
-    const response = await this.request(`/polizas/${polizaId}`, {
-      method: 'PUT',
-      body: JSON.stringify(polizaData)
-    })
-    return response.data
-  }
+  async crearPoliza(poliza) {
+    return fetch(`${API_BASE_URL}/polizas`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(poliza)
+    }).then(res => res.json());
+  },
 
   async actualizarEstadoPoliza(id, estado) {
-    console.log('apiService.actualizarEstadoPoliza - ID recibido:', id, 'Tipo:', typeof id)
-    console.log('apiService.actualizarEstadoPoliza - Estado recibido:', estado)
-    
-    let endpoint
-    let method = 'PUT'
-    
-    if (estado === 'APROBADA') {
-      endpoint = `/polizas/${id}/aprobar`
-    } else if (estado === 'RECHAZADA') {
-      endpoint = `/polizas/${id}/rechazar`
-    } else {
-      throw new Error('Estado no válido para actualización')
+    return fetch(`${API_BASE_URL}/polizas/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ estado })
+    }).then(res => res.json());
+  },
+
+  async obtenerPolizasPorEstado(estado) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/polizas/estado/${estado}`);
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching polizas por estado:', error);
+      return { data: [] };
     }
-    
-    console.log('apiService.actualizarEstadoPoliza - Endpoint:', endpoint)
-    
-    const response = await this.request(endpoint, {
-      method: method
-    })
-    return response.data
-  }
+  },
 
-  async rechazarPoliza(id, motivo) {
-    let endpoint = `/polizas/${id}/rechazar`
-    let method = 'PUT'
-    
-    const params = new URLSearchParams()
-    if (motivo && motivo.trim()) {
-      params.append('motivo', motivo.trim())
-    }
-    
-    if (params.toString()) {
-      endpoint += '?' + params.toString()
-    }
-    
-    const response = await this.request(endpoint, {
-      method: method
-    })
-    return response.data
-  }
-
-  async getPolizasPorEstado(estado) {
-    const response = await this.request(`/polizas/estado/${estado}`)
-    return response.data || []
-  }
-
-  // Métodos para Reclamaciones
-  async getReclamaciones() {
-    const response = await this.request('/reclamaciones/todas')
-    return response.reclamaciones || []
-  }
-
-  async crearReclamacion(reclamacionData) {
-    const response = await this.request('/reclamaciones/registrar', {
+  // Reclamaciones
+  async crearReclamacion(reclamacion) {
+    return fetch(`${API_BASE_URL}/reclamaciones/registrar`, {
       method: 'POST',
-      body: JSON.stringify(reclamacionData)
-    })
-    return response.reclamacion
-  }
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(reclamacion)
+    }).then(res => res.json());
+  },
 
-  async getReclamacionesPorEstado(estado) {
-    const response = await this.request(`/reclamaciones/estado/${estado}`)
-    return response.reclamaciones || []
-  }
-
-  async getReclamacionesPorPoliza(polizaId) {
-    const response = await this.request(`/reclamaciones/poliza/${polizaId}`)
-    return response.reclamaciones || []
-  }
-
-  async getReclamacionPorId(id) {
-    const response = await this.request(`/reclamaciones/${id}`)
-    return response.data
-  }
-
-  // Métodos para Documentos
-  async subirDocumento(formData) {
-    const url = `${API_BASE_URL}/documentos/subir`
-    
-    console.log('🔄 Subiendo documento:', {
-      url: url,
-      files: formData.get('archivo')?.name || 'No file'
-    })
-
+  async obtenerReclamacionesPorPoliza(polizaId) {
     try {
-      const response = await fetch(url, {
-        method: 'POST',
-        body: formData
-        // No incluir Content-Type header para FormData
-      })
-
-      console.log('📡 Upload response status:', response.status, response.statusText)
-      
-      const data = await response.json()
-      console.log('📥 Upload response data:', data)
-      
-      if (!response.ok) {
-        throw new Error(data.message || `Error ${response.status}: ${response.statusText}`)
-      }
-      
-      return data
+      const response = await fetch(`${API_BASE_URL}/reclamaciones/poliza/${polizaId}`);
+      return await response.json();
     } catch (error) {
-      console.error('❌ Error subiendo documento:', error)
-      throw error
+      console.error('Error fetching reclamaciones:', error);
+      return { data: [] };
     }
   }
+};
 
-  async getDocumentosPorReclamacion(reclamacionId) {
-    try {
-      const response = await this.request(`/documentos/reclamacion/${reclamacionId}`)
-      
-      // Procesar datos para agregar propiedades computadas
-      const documentos = response.data || []
-      return {
-        ...response,
-        data: documentos.map(doc => this.procesarDocumento(doc))
-      }
-    } catch (error) {
-      console.error('Error obteniendo documentos:', error)
-      // Si no hay documentos o error 404, devolver array vacío
-      if (error.message.includes('404')) {
-        return { data: [] }
-      }
-      throw error
-    }
-  }
-
-  async descargarDocumento(idDocumento) {
-    const url = `${API_BASE_URL}/documentos/${idDocumento}/descargar`
-    
-    try {
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          // No incluir Content-Type para descarga
-        }
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`)
-      }
-
-      return response // Devolver la respuesta para manejar el blob
-    } catch (error) {
-      console.error('❌ Error descargando documento:', error)
-      throw error
-    }
-  }
-
-  async eliminarDocumento(idDocumento) {
-    const response = await this.request(`/documentos/${idDocumento}`, {
-      method: 'DELETE'
-    })
-    return response
-  }
-
-  async getDocumentoPorId(idDocumento) {
-    const response = await this.request(`/documentos/${idDocumento}`)
-    return response.data ? this.procesarDocumento(response.data) : null
-  }
-
-  // Método auxiliar para procesar datos de documento
-  procesarDocumento(doc) {
-    return {
-      ...doc,
-      // Propiedades computadas para el componente
-      isPDF: doc.tipoContenido === 'application/pdf',
-      isImage: doc.tipoContenido?.startsWith('image/'),
-      isDocument: doc.tipoContenido?.includes('word') || doc.tipoContenido?.includes('document'),
-      tamañoFormatted: this.formatFileSize(doc.tamaño || 0),
-      fechaSubidaFormatted: this.formatDate(doc.fechaSubida)
-    }
-  }
-
-  // Utilidades para formato
-  formatFileSize(bytes) {
-    if (bytes === 0) return '0 B'
-    const k = 1024
-    const sizes = ['B', 'KB', 'MB', 'GB']
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-  }
-
-  formatDate(dateString) {
-    if (!dateString) return ''
-    const date = new Date(dateString)
-    return date.toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
-}
-
-export default new ApiService() 
+export default apiService;
