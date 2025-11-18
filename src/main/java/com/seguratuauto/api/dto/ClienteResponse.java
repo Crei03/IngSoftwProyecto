@@ -1,68 +1,95 @@
 package com.seguratuauto.api.dto;
 
-/**
- * DTO para respuestas de cliente
- */
 public class ClienteResponse {
-    
-    private String id;  // Campo principal
-    private String idCliente;  // Alias para compatibilidad
+    private Long id;
     private String nombre;
-    private String email;
+    private String correo;
     private String telefono;
-    
-    // Constructor por defecto
-    public ClienteResponse() {}
-    
-    // Constructor completo
-    public ClienteResponse(String id, String nombre, String email, String telefono) {
+    private String direccion;
+    private String ciudad;
+    private String provincia;
+    private String codigoPostal;
+    private boolean activo;
+
+    public ClienteResponse() {
+    }
+
+    public ClienteResponse(Long id, String nombre, String correo, String telefono) {
         this.id = id;
-        this.idCliente = id;  // Mantener sincronizado
         this.nombre = nombre;
-        this.email = email;
+        this.correo = correo;
         this.telefono = telefono;
     }
-    
-    // Getters y Setters
-    public String getId() {
+
+    public Long getId() {
         return id;
     }
-    
-    public void setId(String id) {
+
+    public void setId(Long id) {
         this.id = id;
-        this.idCliente = id;  // Mantener sincronizado
     }
-    
-    public String getIdCliente() {
-        return idCliente;
-    }
-    
-    public void setIdCliente(String idCliente) {
-        this.id = idCliente;  // Mantener sincronizado
-        this.idCliente = idCliente;
-    }
-    
+
     public String getNombre() {
         return nombre;
     }
-    
+
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
-    
-    public String getEmail() {
-        return email;
+
+    public String getCorreo() {
+        return correo;
     }
-    
-    public void setEmail(String email) {
-        this.email = email;
+
+    public void setCorreo(String correo) {
+        this.correo = correo;
     }
-    
+
     public String getTelefono() {
         return telefono;
     }
-    
+
     public void setTelefono(String telefono) {
         this.telefono = telefono;
+    }
+
+    public String getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
+    }
+
+    public String getCiudad() {
+        return ciudad;
+    }
+
+    public void setCiudad(String ciudad) {
+        this.ciudad = ciudad;
+    }
+
+    public String getProvincia() {
+        return provincia;
+    }
+
+    public void setProvincia(String provincia) {
+        this.provincia = provincia;
+    }
+
+    public String getCodigoPostal() {
+        return codigoPostal;
+    }
+
+    public void setCodigoPostal(String codigoPostal) {
+        this.codigoPostal = codigoPostal;
+    }
+
+    public boolean isActivo() {
+        return activo;
+    }
+
+    public void setActivo(boolean activo) {
+        this.activo = activo;
     }
 }
