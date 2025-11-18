@@ -1,113 +1,96 @@
 package com.seguratuauto.model;
 
 import jakarta.persistence.*;
-import java.util.Objects;
 
-/**
- * Entidad Agente que representa un agente de seguros en el sistema
- */
 @Entity
 @Table(name = "agentes")
 public class Agente {
-    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_agente")
     private Long idAgente;
-    
+
     @Column(name = "nombre", nullable = false, length = 100)
     private String nombre;
-    
-    @Column(name = "codigo", unique = true, length = 20)
-    private String codigo;
-    
-    @Column(name = "email", length = 150)
-    private String email;
-    
+
+    @Column(name = "correo", unique = true, nullable = false, length = 150)
+    private String correo;
+
     @Column(name = "telefono", length = 20)
     private String telefono;
-    
-    // Constructor por defecto
-    public Agente() {}
-    
-    // Constructor con parámetros principales
-    public Agente(Long idAgente, String nombre) {
-        this.idAgente = idAgente;
-        this.nombre = nombre;
+
+    @Column(name = "codigo", unique = true, length = 20)
+    private String codigo;
+
+    @Column(name = "activo", nullable = false)
+    private boolean activo = true;
+
+    @Column(name = "fecha_ingreso", nullable = false, updatable = false)
+    private java.time.LocalDateTime fechaIngreso = java.time.LocalDateTime.now();
+
+    public Agente() {
     }
-    
-    // Constructor completo
-    public Agente(Long idAgente, String nombre, String codigo, String email, String telefono) {
-        this.idAgente = idAgente;
+
+    public Agente(String nombre, String correo, String telefono, String codigo) {
         this.nombre = nombre;
-        this.codigo = codigo;
-        this.email = email;
+        this.correo = correo;
         this.telefono = telefono;
+        this.codigo = codigo;
     }
-    
-    // Getters y Setters
+
     public Long getIdAgente() {
         return idAgente;
     }
-    
+
     public void setIdAgente(Long idAgente) {
         this.idAgente = idAgente;
     }
-    
+
     public String getNombre() {
         return nombre;
     }
-    
+
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
-    
-    public String getCodigo() {
-        return codigo;
+
+    public String getCorreo() {
+        return correo;
     }
-    
-    public void setCodigo(String codigo) {
-        this.codigo = codigo;
+
+    public void setCorreo(String correo) {
+        this.correo = correo;
     }
-    
-    public String getEmail() {
-        return email;
-    }
-    
-    public void setEmail(String email) {
-        this.email = email;
-    }
-    
+
     public String getTelefono() {
         return telefono;
     }
-    
+
     public void setTelefono(String telefono) {
         this.telefono = telefono;
     }
-    
-    // Métodos equals, hashCode y toString
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Agente agente = (Agente) o;
-        return Objects.equals(idAgente, agente.idAgente);
+
+    public String getCodigo() {
+        return codigo;
     }
-    
-    @Override
-    public int hashCode() {
-        return Objects.hash(idAgente);
+
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
     }
-    
-    @Override
-    public String toString() {
-        return "Agente{" +
-                "idAgente=" + idAgente +
-                ", nombre='" + nombre + '\'' +
-                ", codigo='" + codigo + '\'' +
-                ", email='" + email + '\'' +
-                ", telefono='" + telefono + '\'' +
-                '}';
+
+    public boolean isActivo() {
+        return activo;
+    }
+
+    public void setActivo(boolean activo) {
+        this.activo = activo;
+    }
+
+    public java.time.LocalDateTime getFechaIngreso() {
+        return fechaIngreso;
+    }
+
+    public void setFechaIngreso(java.time.LocalDateTime fechaIngreso) {
+        this.fechaIngreso = fechaIngreso;
     }
 }
