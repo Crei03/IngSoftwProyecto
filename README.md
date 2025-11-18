@@ -2,7 +2,7 @@
 
 ## Descripción
 
-Sistema web para la gestión automatizada de clientes, agentes y pólizas de seguros de automóviles. El proyecto incluye un backend en Spring Boot y un frontend en Vue.js.
+Sistema web para la gestión automatizada de clientes, agentes y pólizas de seguros de automóviles con autenticación y verificación de correo. El proyecto incluye un backend en Spring Boot y un frontend en Vue.js.
 
 ## Estructura del Proyecto
 
@@ -11,6 +11,7 @@ seguratuauto/
 ├── src/                    # Backend Spring Boot
 │   └── main/java/com/seguratuauto/
 │       ├── api/           # Controladores REST
+│       ├── config/        # Configuración de seguridad
 │       ├── model/         # Entidades JPA
 │       ├── service/       # Lógica de negocio
 │       └── dao/           # Repositorios
@@ -23,6 +24,13 @@ seguratuauto/
 
 ## Funcionalidades Implementadas
 
+### 🔐 Autenticación y Seguridad
+- ✅ Sistema de login con validación de credenciales
+- ✅ Recuperación de contraseña
+- ✅ Verificación de correo electrónico
+- ✅ Configuración de seguridad con Spring Security
+- ✅ Encriptación de contraseñas con BCrypt
+
 ### Landing Page - Página Principal
 - ✅ Diseño moderno y atractivo para la aseguradora
 - ✅ Formulario de registro de clientes con validación
@@ -33,6 +41,7 @@ seguratuauto/
 
 ### RF-001: Gestión de Clientes y Agentes
 - ✅ Registro automático de clientes
+- ✅ Dashboard de agentes con estadísticas
 - ✅ Visualización de agentes disponibles
 - ✅ Lista de clientes registrados
 - ✅ Integración con API del backend
@@ -45,36 +54,29 @@ seguratuauto/
 - ✅ Filtrado por estado de pólizas
 - ✅ Integración con API del backend
 
-## Cambios Realizados
+## Cambios Realizados en esta Versión
 
-### 1. Nueva Landing Page
-- ✅ Creada página principal atractiva para la aseguradora
-- ✅ Formulario de registro con validación de clientes existentes
-- ✅ Sistema de login que valida contra la base de datos
-- ✅ Perfil de usuario con información completa del cliente
-- ✅ Diseño moderno y responsivo
+### 1. Sistema de Autenticación
+- Nuevos DTOs: `LoginRequest`, `LoginResponse`, `PasswordRecoveryRequest`, `PasswordResetConfirmRequest`
+- Controladores: `AuthController`, `PasswordController`, `VerificacionController`
+- Servicios: `EmailVerificationService`, `PasswordResetService`
+- Configuración: `SecurityConfig` con Spring Security
 
-### 2. Integración con Base de Datos Real
-- **Antes**: Los componentes mostraban datos estáticos hardcodeados
-- **Ahora**: Los componentes consumen datos reales desde la API del backend
-
-### 2. Servicio de API (`fe/src/services/apiService.js`)
-- Creado servicio centralizado para manejar todas las llamadas a la API
-- Métodos para clientes, agentes y pólizas
-- Manejo de errores y respuestas HTTP
-
-### 3. Componente RF001 Actualizado
-- ✅ Carga datos reales de clientes y agentes desde la API
-- ✅ Registro de clientes en la base de datos
-- ✅ Indicadores de carga y manejo de errores
+### 2. Dashboard de Agentes
+- ✅ Componente `AgenteDashboard.vue` con estadísticas
+- ✅ Tabla de agentes activos
+- ✅ Métricas de pólizas y agentes
 - ✅ Interfaz responsiva y moderna
 
-### 4. Componente RF002 Actualizado
-- ✅ Carga datos reales de pólizas de auto y agentes desde la API
-- ✅ Creación de pólizas de auto en la base de datos
-- ✅ Actualización de estados de pólizas
-- ✅ Indicadores de carga y manejo de errores
-- ✅ Especializado en seguros de automóviles
+### 3. Actualización de Dependencias
+- Spring Security para autenticación
+- BCrypt para encriptación de contraseñas
+- Validación mejorada de DTOs
+
+### 4. Configuración de Email (opcional)
+- Soporte para SMTP/MailDev
+- Verificación de correos de usuarios
+- Recuperación de contraseñas por email
 
 ## Instrucciones de Ejecución
 
@@ -100,7 +102,29 @@ npm run dev
 ```
 El frontend estará disponible en: `http://localhost:5173`
 
+### 4. Configurar Email (Opcional)
+Si deseas usar MailDev en local:
+```bash
+npx maildev
+```
+El servidor de email estará en: `http://localhost:1080`
+
 ## Endpoints de la API
+
+### Autenticación
+- `POST /api/auth/login` - Autenticación de usuarios
+- `POST /api/auth/logout` - Cerrar sesión
+- `GET /api/auth/verificar-sesion` - Verificar sesión activa
+
+### Recuperación de Contraseña
+- `POST /api/password/recovery` - Solicitar recuperación
+- `POST /api/password/reset-confirm` - Confirmar restablecimiento
+- `GET /api/password/validar-token/{token}` - Validar token
+
+### Verificación de Correo
+- `GET /api/verificacion/verificar-email/{token}` - Verificar email
+- `POST /api/verificacion/reenviar-email/{email}` - Reenviar verificación
+- `GET /api/verificacion/estado/{email}` - Estado de verificación
 
 ### Clientes
 - `GET /api/clientes` - Obtener todos los clientes
@@ -126,10 +150,11 @@ El frontend estará disponible en: `http://localhost:5173`
 - **Responsive**: Diseño adaptativo para móviles y desktop
 
 ### Backend
-- **Framework**: Spring Boot 3
+- **Framework**: Spring Boot 3 con Spring Security
 - **Base de Datos**: MySQL 8
 - **ORM**: Hibernate/JPA
 - **API**: REST con CORS habilitado
+- **Autenticación**: JWT y sesiones
 
 ## Notas Importantes
 
@@ -138,11 +163,18 @@ El frontend estará disponible en: `http://localhost:5173`
 3. **CORS**: Configurado para permitir conexiones desde el frontend
 4. **Datos**: Los componentes ahora muestran datos reales de la base de datos
 5. **Especialización**: Sistema especializado únicamente en seguros de automóviles
+6. **Seguridad**: Las contraseñas se almacenan encriptadas con BCrypt
 
 ## Próximos Pasos
 
-- [ ] Implementar endpoint para actualizar estado de pólizas
-- [ ] Agregar autenticación y autorización
+- [ ] Implementar autenticación JWT completa
+- [ ] Agregar sistema de roles y permisos
+- [ ] Implementar confirmación de email real
+- [ ] Agregar notificaciones en tiempo real
 - [ ] Implementar búsqueda y filtros avanzados
 - [ ] Agregar validaciones adicionales en el frontend
-- [ ] Implementar notificaciones en tiempo real 
+- [ ] Implementar paginación en listados
+
+## Soporte
+
+Para reportar bugs o sugerencias, contacta al equipo de desarrollo.
