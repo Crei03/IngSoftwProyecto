@@ -47,7 +47,3 @@ out/
 ### DOCumentation ###
 docs/backend
 
-migration-source
-
-migration
-sql
