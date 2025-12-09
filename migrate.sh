@@ -26,7 +26,7 @@ echo
 
 # Ejecutar la migración
 echo "Ejecutando migración de datos..."
-java -cp "build/classes/java/main:build/resources/main:$(./gradlew -q printClasspath)" com.seguratuauto.migration.main $@
+java -cp "build/classes/java/main:build/resources/main:$(./gradlew -q printClasspath)" com.seguratuauto.migration.Main $@
 
 echo
 echo "Script de migración completado."
